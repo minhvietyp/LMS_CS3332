@@ -1,0 +1,307 @@
+.grading-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  &__student-info {
+    flex: 1;
+  }
+
+  &__student-name {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #192336;
+  }
+
+  &__student-email {
+    margin: 0;
+    font-size: 14px;
+    color: #6b7385;
+  }
+
+  &__grade-status {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    background: #f0f4ff;
+    color: #6b7385;
+
+    &--pass {
+      background: #e6f4ea;
+      color: #137333;
+    }
+
+    &--fail {
+      background: #ffebee;
+      color: #c62828;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  &__meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    &--alert {
+      padding: 8px 12px;
+      background: #ffebee;
+      border-radius: 6px;
+
+      .grading-panel__meta-label {
+        color: #c62828;
+      }
+
+      .grading-panel__meta-value {
+        color: #c62828;
+        font-weight: 600;
+      }
+    }
+  }
+
+  &__meta-label {
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  &__meta-value {
+    font-size: 14px;
+    color: #192336;
+    font-weight: 500;
+  }
+
+  &__content {
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 6px;
+  }
+
+  &__section-title {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #192336;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &__text-content {
+    margin-bottom: 12px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__content-label {
+    margin: 0 0 8px 0;
+    font-size: 12px;
+    color: #6b7385;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  &__text-box {
+    padding: 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #192336;
+    line-height: 1.6;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  &__file-content {
+    margin-bottom: 12px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__file-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 6px;
+    color: #1565c0;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #bbdefb;
+      color: #0d47a1;
+    }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #192336;
+  }
+
+  &__grade-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__grade-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 16px;
+    color: #192336;
+    font-weight: 600;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #2f67ef;
+      box-shadow: 0 0 0 3px rgba(47, 103, 239, 0.1);
+    }
+
+    &:disabled {
+      background: #f3f4f6;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+
+  &__grade-unit {
+    position: absolute;
+    right: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7385;
+    pointer-events: none;
+  }
+
+  &__grade-indicator {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  &__grade-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3ebb5e, #2f67ef);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  &__textarea {
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #192336;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #2f67ef;
+      box-shadow: 0 0 0 3px rgba(47, 103, 239, 0.1);
+    }
+
+    &:disabled {
+      background: #f3f4f6;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+
+  &__error {
+    font-size: 12px;
+    color: #dc2626;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    gap: 16px;
+
+    &__header {
+      flex-direction: column;
+    }
+
+    &__grade-status {
+      width: 100%;
+      text-align: center;
+    }
+
+    &__meta {
+      flex-direction: column;
+    }
+
+    &__textarea {
+      min-height: 150px;
+    }
+
+    .btn {
+      width: 100%;
+    }
+  }
+}

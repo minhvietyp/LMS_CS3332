@@ -1,0 +1,539 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  INSTRUCTOR
+  STUDENT
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+}
+
+enum SubmissionStatus {
+  ON_TIME
+  LATE
+  GRADED
+  RETURNED
+}
+
+enum NotificationType {
+  COURSE
+  QUIZ
+  ASSIGNMENT
+  CHAT
+  SYSTEM
+}
+
+enum ChatRoomType {
+  DIRECT
+  COURSE
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+}
+
+// ─── User ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String
+  password  String
+  role      UserRole  @default(STUDENT)
+  avatarUrl String?
+  coverImageUrl String?
+  firstName String?
+  lastName  String?
+  displayName String?
+  phone     String?
+  age       Int?
+  occupation String?
+  bio       String?
+  facebookUrl String?
+  twitterUrl String?
+  linkedinUrl String?
+  websiteUrl String?
+  githubUrl String?
+  isActive  Boolean   @default(true)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  deletedBy String?
+
+  // Relations
+  refreshTokens     RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  taughtCourses     Course[]         @relation("InstructorCourses")
+  assignmentsCreated Assignment[]    @relation("AssignmentsCreated")
+  enrollments       Enrollment[]
+  progress          Progress[]
+  progressHistory   ProgressHistory[]
+  quizAttempts      QuizAttempt[]
+  submissions       Submission[]     @relation("StudentSubmissions")
+  gradedSubmissions Submission[]     @relation("GradedSubmissions")
+  sentMessages      ChatMessage[]
+  notifications     Notification[]
+  chatRoomMembers   ChatRoomMember[]
+  emailLogs         EmailLog[]
+
+  @@map("users")
+}
+
+// ─── RefreshToken ─────────────────────────────────────────────────────────────
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  userId      String
+  tokenHash   String   @unique
+  isRevoked   Boolean  @default(false)
+  expiresAt   DateTime
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id         String   @id @default(uuid())
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+// ─── Course ───────────────────────────────────────────────────────────────────
+
+model Course {
+  id           String       @id @default(uuid())
+  title        String
+  description  String?
+  thumbnailUrl String?
+  status       CourseStatus @default(DRAFT)
+  instructorId String
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  deletedAt    DateTime?
+  deletedBy    String?
+
+  instructor   User         @relation("InstructorCourses", fields: [instructorId], references: [id])
+  modules      CourseModule[]
+  enrollments  Enrollment[]
+  assignments  Assignment[]
+  progressHistory ProgressHistory[]
+  chatRoom     ChatRoom?
+  notifications Notification[]
+
+  @@index([instructorId])
+  @@index([status])
+  @@map("courses")
+}
+
+// ─── CourseModule ─────────────────────────────────────────────────────────────
+
+model CourseModule {
+  id          String   @id @default(uuid())
+  courseId    String
+  title       String
+  orderIndex  Int
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+
+  @@index([courseId])
+  @@map("course_modules")
+}
+
+// ─── Lesson ───────────────────────────────────────────────────────────────────
+
+model Lesson {
+  id          String   @id @default(uuid())
+  moduleId    String
+  title       String
+  weight      Int      @default(1)
+  videoUrl    String?
+  orderIndex  Int
+  isPublished Boolean  @default(false)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  deletedBy   String?
+
+  module      CourseModule   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  materials   LessonMaterial[]
+  progress    Progress[]
+  progressHistory ProgressHistory[]
+
+  @@index([moduleId])
+  @@map("lessons")
+}
+
+// ─── LessonMaterial ───────────────────────────────────────────────────────────
+
+model LessonMaterial {
+  id        String   @id @default(uuid())
+  lessonId  String
+  title     String
+  type      String   // pdf | slide | link | reading
+  url       String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@map("lesson_materials")
+}
+
+// ─── Enrollment ───────────────────────────────────────────────────────────────
+
+model Enrollment {
+  id        String           @id @default(uuid())
+  studentId String
+  courseId  String
+  status    EnrollmentStatus @default(ACTIVE)
+
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  student   User             @relation(fields: [studentId], references: [id])
+  course    Course           @relation(fields: [courseId], references: [id])
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
+  @@map("enrollments")
+}
+
+// ─── Progress ─────────────────────────────────────────────────────────────────
+
+model Progress {
+  id          String   @id @default(uuid())
+  studentId   String
+  lessonId    String
+  isCompleted Boolean  @default(false)
+  completedAt DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  student     User     @relation(fields: [studentId], references: [id])
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+
+  @@unique([studentId, lessonId])
+  @@index([studentId])
+  @@index([lessonId])
+  @@map("progress")
+}
+
+model ProgressHistory {
+  id          String   @id @default(uuid())
+  studentId   String
+  lessonId    String?
+  courseId    String
+  fromState   String?
+  toState     String
+  isCompleted Boolean
+  actionType  String
+  changedById String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  student     User     @relation(fields: [studentId], references: [id])
+  lesson      Lesson?  @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, createdAt])
+  @@index([courseId, createdAt])
+  @@index([lessonId, createdAt])
+  @@map("progress_history")
+}
+
+// ─── Quiz ─────────────────────────────────────────────────────────────────────
+
+model Quiz {
+  id           String   @id @default(uuid())
+  courseId     String?
+  title        String
+  description  String?
+  passingScore Int      @default(60)
+  maxAttempts  Int      @default(3)
+  isPublished  Boolean  @default(false)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  questions    Question[]
+  attempts     QuizAttempt[]
+
+  @@map("quizzes")
+}
+
+// ─── Question ─────────────────────────────────────────────────────────────────
+
+model Question {
+  id           String       @id @default(uuid())
+  quizId       String
+  text         String
+  type         QuestionType
+  orderIndex   Int
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  quiz         Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answerOptions AnswerOption[]
+  attemptAnswers QuizAttemptAnswer[]
+
+  @@index([quizId])
+  @@map("questions")
+}
+
+// ─── AnswerOption ─────────────────────────────────────────────────────────────
+
+model AnswerOption {
+  id         String   @id @default(uuid())
+  questionId String
+  text       String
+  isCorrect  Boolean  @default(false)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@map("answer_options")
+}
+
+// ─── QuizAttempt ──────────────────────────────────────────────────────────────
+
+model QuizAttempt {
+  id            String   @id @default(uuid())
+  quizId        String
+  studentId     String
+  attemptNumber Int
+  score         Float?
+  isPassed      Boolean?
+  submittedAt   DateTime?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  quiz          Quiz     @relation(fields: [quizId], references: [id])
+  student       User     @relation(fields: [studentId], references: [id])
+  answers       QuizAttemptAnswer[]
+
+  @@index([quizId, studentId])
+  @@map("quiz_attempts")
+}
+
+// ─── QuizAttemptAnswer ────────────────────────────────────────────────────────
+
+model QuizAttemptAnswer {
+  id           String      @id @default(uuid())
+  attemptId    String
+  questionId   String
+  selectedOptionId String?
+  isCorrect    Boolean?
+
+  attempt      QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question     Question    @relation(fields: [questionId], references: [id])
+
+  @@index([attemptId])
+  @@map("quiz_attempt_answers")
+}
+
+// ─── Assignment ───────────────────────────────────────────────────────────────
+
+model Assignment {
+  id                  String   @id @default(uuid())
+  courseId            String
+  title               String
+  description         String?
+  dueDate             DateTime
+  allowLateSubmission Boolean  @default(true)
+  createdBy           String   // instructor ID
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  deletedAt           DateTime?
+  deletedBy           String?
+
+  course              Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  instructor          User     @relation("AssignmentsCreated", fields: [createdBy], references: [id])
+  submissions         Submission[]
+
+  @@index([courseId])
+  @@index([createdBy])
+  @@index([deletedAt])
+  @@map("assignments")
+}
+
+// ─── Submission ───────────────────────────────────────────────────────────────
+
+model Submission {
+  id           String           @id @default(uuid())
+  assignmentId String
+  studentId    String
+  textContent  String?
+  fileUrl      String?
+  fileName     String?
+  status       SubmissionStatus @default(ON_TIME)
+  isLate       Boolean          @default(false)
+  submittedAt  DateTime         @default(now())
+  grade        Int?             // 0-100
+  feedback     String?
+  gradedAt     DateTime?
+  gradedBy     String?
+
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  deletedAt    DateTime?
+
+  assignment   Assignment       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student      User             @relation("StudentSubmissions", fields: [studentId], references: [id], onDelete: Cascade)
+  gradedByUser User?            @relation("GradedSubmissions", fields: [gradedBy], references: [id], onDelete: SetNull)
+
+  @@unique([assignmentId, studentId])
+  @@index([assignmentId])
+  @@index([studentId])
+  @@index([status])
+  @@index([isLate])
+  @@index([deletedAt])
+  @@map("submissions")
+}
+
+// ─── ChatRoom ─────────────────────────────────────────────────────────────────
+
+model ChatRoom {
+  id        String       @id @default(uuid())
+  type      ChatRoomType
+  courseId  String?      @unique
+  name      String?
+
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  course    Course?      @relation(fields: [courseId], references: [id])
+  members   ChatRoomMember[]
+  messages  ChatMessage[]
+
+  @@map("chat_rooms")
+}
+
+// ─── ChatRoomMember ───────────────────────────────────────────────────────────
+
+model ChatRoomMember {
+  id         String   @id @default(uuid())
+  roomId     String
+  userId     String
+  joinedAt   DateTime @default(now())
+
+  room       ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@unique([roomId, userId])
+  @@map("chat_room_members")
+}
+
+// ─── ChatMessage ──────────────────────────────────────────────────────────────
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  roomId    String
+  senderId  String
+  content   String
+  isRead    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  room      ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender    User     @relation(fields: [senderId], references: [id])
+
+  @@index([roomId])
+  @@index([senderId])
+  @@map("chat_messages")
+}
+
+// ─── Notification ─────────────────────────────────────────────────────────────
+
+model Notification {
+  id          String           @id @default(uuid())
+  userId      String
+  type        NotificationType
+  message     String
+  referenceId String?
+  courseId    String?
+  isRead      Boolean          @default(false)
+  readAt      DateTime?
+
+  createdAt   DateTime         @default(now())
+
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course?          @relation(fields: [courseId], references: [id])
+
+  @@index([userId])
+  @@map("notifications")
+}
+
+// ─── EmailLog ─────────────────────────────────────────────────────────────────
+
+model EmailLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  recipient String
+  subject   String
+  template  String
+  status    String   // sent | failed
+  sentAt    DateTime?
+  error     String?
+
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("email_logs")
+}

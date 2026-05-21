@@ -1,0 +1,212 @@
+.account-surface {
+  border-radius: 24px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e8eef6 !important;
+}
+
+.account-stack,
+.account-surface .ant-card-body {
+  width: 100%;
+}
+
+.account-state {
+  display: flex;
+  min-height: 320px;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-surface .ant-card-body {
+  padding: 24px;
+}
+
+.account-profile__cover,
+.account-settings__cover {
+  position: relative;
+  overflow: hidden;
+  min-height: 220px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #2448ff 0%, #7c3aed 45%, #c084fc 100%);
+  background-position: center;
+  background-size: cover;
+}
+
+.account-profile__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.18), rgba(76, 29, 149, 0.48));
+}
+
+.account-profile__identity,
+.account-settings__cover-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px;
+  color: #fff;
+}
+
+.account-profile__identity {
+  align-items: flex-end;
+}
+
+.account-profile__name,
+.account-settings__cover-content .ant-typography,
+.account-settings__cover-content .ant-typography p {
+  color: #fff !important;
+}
+
+.account-profile__meta {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.account-profile__details .ant-descriptions-item-label {
+  width: 220px;
+  color: #64748b;
+}
+
+.account-profile__summary {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.account-settings__cover-kicker {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.85) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.account-settings__tabs .ant-tabs-nav {
+  margin-bottom: 20px;
+}
+
+.account-settings__tabs .ant-tabs-tab {
+  border-radius: 999px !important;
+  padding: 10px 16px !important;
+}
+
+.account-settings__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 22px 24px;
+  border: 1px solid #e8eef6;
+  border-radius: 22px;
+  background: #fbfdff;
+}
+
+.account-settings__identity,
+.account-settings__avatar-row {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.account-settings__avatar {
+  background: linear-gradient(135deg, #dbeafe, #dcfce7) !important;
+  color: #0f766e !important;
+  font-weight: 700;
+}
+
+.account-settings__identity-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.account-settings__eyebrow {
+  color: #64748b !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+}
+
+.account-settings__title {
+  margin: 0 !important;
+}
+
+.account-settings__description {
+  margin: 0 !important;
+  color: #64748b !important;
+  max-width: 620px;
+}
+
+.account-settings__header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.account-settings__section {
+  border-radius: 22px !important;
+  border: 1px solid #e8eef6 !important;
+  background: #ffffff !important;
+}
+
+.account-settings__section .ant-card-body {
+  padding: 22px 22px 10px;
+}
+
+.account-settings__section-head {
+  margin-bottom: 18px;
+}
+
+.account-settings__section-head .ant-typography {
+  margin-bottom: 0 !important;
+}
+
+.account-settings__section-head .ant-typography + .ant-typography {
+  margin-top: 6px;
+  color: #64748b !important;
+}
+
+.account-form--grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 18px;
+}
+
+.account-form__span-full {
+  grid-column: 1 / -1;
+}
+
+.account-form__actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.account-form__actions .ant-btn-primary {
+  min-width: 160px;
+  border: none;
+  background: linear-gradient(90deg, #2952ff 0%, #9f5cf6 100%);
+}
+
+.account-form__number {
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .account-profile__identity,
+  .account-settings__cover-content,
+  .account-settings__avatar-row,
+  .account-settings__header,
+  .account-settings__identity {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .account-form--grid {
+    grid-template-columns: 1fr;
+  }
+}

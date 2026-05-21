@@ -1,0 +1,79 @@
+.lesson-management-page {
+  min-height: 100vh;
+  padding: 32px;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(15, 98, 254, 0.1), transparent 45%),
+    radial-gradient(circle at 90% 10%, rgba(0, 153, 102, 0.1), transparent 40%),
+    #f5f7fb;
+}
+
+.lesson-management-page__panel {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.lesson-management-page__hero {
+  margin-bottom: 20px;
+}
+
+.lesson-management-page__eyebrow {
+  margin-bottom: 8px;
+  color: #0f62fe;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.lesson-management-page__title.ant-typography {
+  margin: 0;
+}
+
+.lesson-management-page__subtitle.ant-typography {
+  margin-top: 8px;
+  margin-bottom: 0;
+  color: #4a5568;
+}
+
+.lesson-management-card {
+  border-radius: 16px;
+}
+
+.lesson-management-card__content {
+  width: 100%;
+}
+
+.lesson-management-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lesson-management-toolbar__course-select {
+  min-width: 320px;
+}
+
+.lesson-management-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.lesson-management-grid__card .ant-card-body {
+  padding: 0;
+}
+
+@media (max-width: 992px) {
+  .lesson-management-page {
+    padding: 20px;
+  }
+
+  .lesson-management-toolbar__course-select {
+    min-width: 240px;
+    width: 100%;
+  }
+
+  .lesson-management-grid {
+    grid-template-columns: 1fr;
+  }
+}

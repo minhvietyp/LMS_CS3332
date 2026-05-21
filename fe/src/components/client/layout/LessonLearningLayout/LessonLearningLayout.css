@@ -1,0 +1,38 @@
+.lesson-learning-layout {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.lesson-learning-layout__body {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) minmax(240px, 320px);
+  min-height: calc(100vh - 72px);
+}
+
+.lesson-learning-layout__topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.lesson-learning-layout__sidebar,
+.lesson-learning-layout__actions {
+  padding: 24px;
+  background: #ffffff;
+  border-inline: 1px solid #e5edf6;
+}
+
+.lesson-learning-layout__content {
+  padding: 32px;
+}
+
+@media (max-width: 1080px) {
+  .lesson-learning-layout__body {
+    grid-template-columns: 1fr;
+  }
+
+  .lesson-learning-layout__sidebar,
+  .lesson-learning-layout__actions {
+    display: none;
+  }
+}

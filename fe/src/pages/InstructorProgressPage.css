@@ -1,0 +1,135 @@
+.instructor-progress-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+}
+
+.instructor-progress-page__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.instructor-progress-page__heading {
+  max-width: 720px;
+}
+
+.instructor-progress-page__eyebrow {
+  color: #7aa2ff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.instructor-progress-page__title.ant-typography {
+  margin-bottom: 8px;
+}
+
+.instructor-progress-page__subtitle.ant-typography {
+  margin-bottom: 0;
+  max-width: 640px;
+}
+
+.instructor-progress-page__actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.instructor-progress-page__course-select {
+  min-width: 280px;
+}
+
+.instructor-progress-page__course-card,
+.instructor-progress-page__summary-card,
+.instructor-progress-page__table-card,
+.instructor-progress-page__lesson-card {
+  background: rgba(10, 17, 31, 0.74);
+  border: 1px solid rgba(122, 162, 255, 0.16);
+}
+
+.instructor-progress-page__course-title.ant-typography {
+  margin-bottom: 4px;
+}
+
+.instructor-progress-page__summary-grid {
+  width: 100%;
+}
+
+.instructor-progress-page__toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.instructor-progress-page__search {
+  flex: 1 1 280px;
+}
+
+.instructor-progress-page__filter {
+  min-width: 180px;
+}
+
+.instructor-progress-page__loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 220px;
+}
+
+.instructor-progress-page__student-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.instructor-progress-page__progress-cell {
+  min-width: 180px;
+}
+
+.instructor-progress-page__detail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.instructor-progress-page__detail-summary {
+  display: flex;
+}
+
+.instructor-progress-page__detail-lessons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.instructor-progress-page__lesson-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 767px) {
+  .instructor-progress-page {
+    padding: 16px;
+  }
+
+  .instructor-progress-page__course-select,
+  .instructor-progress-page__filter,
+  .instructor-progress-page__search {
+    width: 100%;
+  }
+
+  .instructor-progress-page__lesson-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

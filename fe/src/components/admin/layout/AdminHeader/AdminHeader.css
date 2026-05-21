@@ -1,0 +1,70 @@
+.admin-header.ant-layout-header {
+  height: auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.88);
+  border-bottom: 1px solid #e7edf5;
+  line-height: 1.2;
+  backdrop-filter: blur(18px);
+}
+
+.admin-header__left,
+.admin-header__right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-header__left {
+  min-width: 0;
+}
+
+.admin-header__section {
+  color: #334155;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.admin-header__avatar {
+  cursor: pointer;
+  color: #0f172a;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.admin-header__avatar:hover {
+  background: #f8fafc;
+}
+
+.admin-header__avatar-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.admin-header__avatar-copy strong {
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.admin-header__avatar-copy small {
+  color: #94a3b8;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 960px) {
+  .admin-header.ant-layout-header {
+    padding: 14px 16px;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-header__right {
+    flex-wrap: wrap;
+  }
+}

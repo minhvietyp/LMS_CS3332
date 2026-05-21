@@ -1,0 +1,124 @@
+.admin-sidebar-shell.ant-layout-sider {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-right: 1px solid #e7edf5;
+  box-shadow: 18px 0 40px rgba(15, 23, 42, 0.03);
+  backdrop-filter: blur(18px);
+}
+
+.admin-sidebar {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+}
+
+.admin-sidebar__logo {
+  padding: 22px 18px 18px;
+  border-bottom: 1px solid #eef3f8;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-sidebar__mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.22);
+}
+
+.admin-sidebar__logo-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-sidebar__brand {
+  display: block;
+  color: #111827 !important;
+  font-size: 1.02rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.admin-sidebar__caption {
+  display: block;
+  color: #94a3b8 !important;
+  font-size: 0.8rem;
+}
+
+.admin-sidebar__nav.ant-menu {
+  flex: 1;
+  border-inline-end: 0 !important;
+  padding: 18px 10px;
+  background: transparent !important;
+}
+
+.admin-sidebar__nav.ant-menu .ant-menu-item {
+  height: 42px;
+  margin-block: 4px;
+  border-radius: 10px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.admin-sidebar__nav.ant-menu .ant-menu-item-selected {
+  background: linear-gradient(180deg, #edf4ff 0%, #e8f0fe 100%) !important;
+  color: #1d4ed8 !important;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.08);
+}
+
+.admin-sidebar__nav.ant-menu .ant-menu-item-disabled {
+  color: #c0cad8 !important;
+}
+
+.admin-sidebar__footer {
+  padding: 18px;
+  border-top: 1px solid #eef3f8;
+}
+
+.admin-sidebar__user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #edf2f7;
+}
+
+.admin-sidebar__user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #dbeafe;
+  color: #2563eb;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.admin-sidebar__user-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.admin-sidebar__user-copy .ant-typography {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

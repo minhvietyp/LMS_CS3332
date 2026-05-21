@@ -1,0 +1,116 @@
+.client-courses-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 20px;
+}
+
+.client-courses-layout__sidebar {
+  position: sticky;
+  top: 104px;
+  align-self: start;
+}
+
+.client-courses-layout__content {
+  display: grid;
+  gap: 16px;
+}
+
+.client-courses-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.client-courses-filter-card.ant-card,
+.client-course-card.ant-card {
+  border: 1px solid #e4edf7;
+  border-radius: 28px;
+  box-shadow: 0 22px 48px rgba(125, 151, 181, 0.12);
+}
+
+.client-courses-filter-card__hint {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #f7fbff;
+  color: #617893;
+}
+
+.client-course-card {
+  height: 100%;
+}
+
+.client-course-card .ant-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  height: 100%;
+}
+
+.client-course-card__thumbnail {
+  display: flex;
+  align-items: flex-end;
+  min-height: 150px;
+  padding: 18px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(91, 152, 255, 0.94) 0%, rgba(255, 142, 114, 0.88) 100%);
+  color: #ffffff;
+}
+
+.client-course-card__thumbnail span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.client-course-card__title.ant-typography {
+  margin: 0 0 8px;
+}
+
+.client-course-card__description.ant-typography {
+  min-height: 66px;
+  margin-bottom: 0;
+}
+
+.client-course-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: #617893;
+  font-size: 0.88rem;
+}
+
+.client-course-card__progress-copy {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  color: #49617e;
+}
+
+.client-course-card__progress-copy strong {
+  color: #10233b;
+}
+
+@media (max-width: 1024px) {
+  .client-courses-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .client-courses-layout__sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .client-courses-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

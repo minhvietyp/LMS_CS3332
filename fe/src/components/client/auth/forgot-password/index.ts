@@ -1,0 +1,1 @@
+export { ClientForgotPasswordForm } from './ClientForgotPasswordForm';
