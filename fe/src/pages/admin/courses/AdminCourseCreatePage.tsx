@@ -1,5 +1,5 @@
-import { AdminPageContainer } from '../../../components/admin/layout';
-import { CourseManagementForm } from '../../../components/admin/courses';
+import { AdminPageContainer } from '../../../components/admin-layout';
+import { CourseManagementForm } from './components';
 
 export function AdminCourseCreatePage() {
   return (
@@ -11,3 +11,4 @@ export function AdminCourseCreatePage() {
     </AdminPageContainer>
   );
 }
+

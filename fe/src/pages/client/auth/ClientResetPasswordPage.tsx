@@ -1,4 +1,4 @@
-import { PasswordResetForm } from '../../../components/auth/password-recovery';
+import { PasswordResetForm } from '../../../components/common/auth';
 
 export function ClientResetPasswordPage() {
   return (
@@ -12,3 +12,4 @@ export function ClientResetPasswordPage() {
     />
   );
 }
+

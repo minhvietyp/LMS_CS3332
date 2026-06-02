@@ -1,0 +1,38 @@
+.client-theme .client-empty-state,
+.client-theme .client-loading-state,
+.client-theme .client-error-state {
+  display: grid;
+  place-items: center;
+  gap: var(--client-space-md);
+  min-height: 240px;
+  padding: var(--client-card-padding);
+  border: 1px dashed var(--client-border);
+  border-radius: var(--client-radius-xl);
+  background: rgba(255, 255, 255, 0.72);
+  text-align: center;
+}
+
+.client-theme .client-error-state {
+  border-color: rgba(186, 26, 26, 0.2);
+  background: rgba(255, 218, 214, 0.42);
+}
+
+.client-theme .client-success-state {
+  display: grid;
+  place-items: center;
+  gap: var(--client-space-md);
+  min-height: 240px;
+  padding: var(--client-card-padding);
+  border: 1px dashed rgba(22, 163, 90, 0.22);
+  border-radius: var(--client-radius-xl);
+  background: rgba(223, 247, 232, 0.78);
+  text-align: center;
+}
+
+.client-theme .client-skeleton-block {
+  width: 100%;
+  border-radius: var(--client-radius-lg);
+  background: linear-gradient(90deg, rgba(211, 228, 254, 0.8), rgba(239, 244, 255, 1), rgba(211, 228, 254, 0.8));
+  background-size: 200% 100%;
+  animation: client-skeleton 1.4s ease-in-out infinite;
+}

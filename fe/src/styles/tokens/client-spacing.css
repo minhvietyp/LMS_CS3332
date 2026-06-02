@@ -1,0 +1,16 @@
+.client-theme {
+  --client-space-xs: 4px;
+  --client-space-sm: 8px;
+  --client-space-md: 16px;
+  --client-space-lg: 24px;
+  --client-space-xl: 32px;
+  --client-space-2xl: 48px;
+  --client-space-3xl: 64px;
+
+  --client-page-padding: 32px;
+  --client-page-padding-mobile: 16px;
+  --client-section-gap: 64px;
+  --client-card-padding: 24px;
+  --client-content-gap: 24px;
+  --client-grid-gutter: 24px;
+}

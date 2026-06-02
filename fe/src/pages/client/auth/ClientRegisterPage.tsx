@@ -1,5 +1,6 @@
-import { ClientRegisterForm } from '../../../components/client/auth/register';
+import { ClientRegisterForm } from './components/register';
 
 export function ClientRegisterPage() {
   return <ClientRegisterForm />;
 }
+

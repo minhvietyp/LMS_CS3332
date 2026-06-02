@@ -1,0 +1,89 @@
+.lesson-learning-layout {
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-2xl);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--client-bg-surface) 94%, transparent) 0%, var(--client-bg-surface-low) 100%),
+    radial-gradient(circle at top, color-mix(in srgb, var(--client-color-primary) 8%, transparent) 0%, transparent 36%),
+    var(--client-shell-bg, #f8fafc);
+  box-shadow: var(--client-shadow-card);
+}
+
+.lesson-learning-layout__body {
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr) minmax(280px, 360px);
+  min-height: min(960px, calc(100vh - 240px));
+}
+
+.lesson-learning-layout__topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: var(--client-space-lg);
+  border-bottom: 1px solid var(--client-border-soft);
+  background: color-mix(in srgb, var(--client-bg-surface) 92%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.lesson-learning-layout__sidebar,
+.lesson-learning-layout__actions,
+.lesson-learning-layout__content {
+  min-width: 0;
+}
+
+.lesson-learning-layout__sidebar,
+.lesson-learning-layout__actions {
+  padding: var(--client-space-lg);
+  background: color-mix(in srgb, var(--client-bg-surface) 92%, transparent);
+}
+
+.lesson-learning-layout__sidebar {
+  border-right: 1px solid var(--client-border-soft);
+}
+
+.lesson-learning-layout__actions {
+  border-left: 1px solid var(--client-border-soft);
+}
+
+.lesson-learning-layout__content {
+  padding: var(--client-space-xl);
+}
+
+@media (max-width: 1280px) {
+  .lesson-learning-layout__body {
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) minmax(240px, 320px);
+  }
+}
+
+@media (max-width: 1080px) {
+  .lesson-learning-layout__body {
+    grid-template-columns: 1fr;
+  }
+
+  .lesson-learning-layout__content {
+    order: 1;
+    padding: var(--client-space-lg);
+  }
+
+  .lesson-learning-layout__actions {
+    order: 2;
+    border-left: 0;
+    border-top: 1px solid var(--client-border-soft);
+  }
+
+  .lesson-learning-layout__sidebar {
+    order: 3;
+    border-right: 0;
+    border-top: 1px solid var(--client-border-soft);
+  }
+}
+
+@media (max-width: 767px) {
+  .lesson-learning-layout__topbar,
+  .lesson-learning-layout__sidebar,
+  .lesson-learning-layout__actions,
+  .lesson-learning-layout__content {
+    padding: var(--client-space-md);
+  }
+}

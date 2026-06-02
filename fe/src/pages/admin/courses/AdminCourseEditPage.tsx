@@ -1,6 +1,6 @@
 import { Navigate, useParams } from 'react-router-dom';
-import { AdminPageContainer } from '../../../components/admin/layout';
-import { CourseManagementForm } from '../../../components/admin/courses';
+import { AdminPageContainer } from '../../../components/admin-layout';
+import { CourseManagementForm } from './components';
 
 export function AdminCourseEditPage() {
   const { id } = useParams();
@@ -18,3 +18,4 @@ export function AdminCourseEditPage() {
     </AdminPageContainer>
   );
 }
+

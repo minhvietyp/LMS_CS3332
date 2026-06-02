@@ -1,0 +1,37 @@
+.client-theme {
+  --client-layout-max-width: 1280px;
+  --client-layout-max-width-wide: 1440px;
+  --client-layout-max-width-fluid: 100%;
+  --client-layout-sidebar-width: 256px;
+  --client-layout-header-height: 84px;
+  --client-layout-content-gap: 24px;
+  --client-layout-mobile-padding: 16px;
+
+  --client-shell-surface: linear-gradient(180deg, rgba(251, 253, 255, 0.96) 0%, rgba(244, 249, 255, 0.92) 100%);
+  --client-shell-surface-strong: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  --client-shell-panel: linear-gradient(180deg, #fbfdff 0%, #f2f8ff 100%);
+  --client-shell-border: rgba(0, 40, 142, 0.08);
+  --client-shell-border-strong: #dde9f5;
+  --client-shell-shadow-soft: 0 8px 18px rgba(125, 151, 181, 0.08);
+  --client-shell-shadow-card: 0 10px 24px rgba(125, 151, 181, 0.06);
+  --client-shell-active-bg: linear-gradient(90deg, rgba(91, 152, 255, 0.14) 0%, rgba(255, 142, 114, 0.1) 100%);
+  --client-shell-active-text: #1f4d93;
+  --client-shell-active-accent: #2457a6;
+  --client-shell-text: #35506e;
+  --client-shell-text-strong: #14253a;
+  --client-shell-text-muted: #617893;
+  --client-shell-brand-gradient: linear-gradient(135deg, #5b98ff 0%, #ff8e72 100%);
+  --client-shell-notification-gradient: linear-gradient(90deg, #5a8dff 0%, #fd8f6f 100%);
+  --client-dashboard-surface-soft: linear-gradient(180deg, var(--client-bg-surface) 0%, var(--client-bg-surface-low) 100%);
+  --client-dashboard-surface-strong: linear-gradient(180deg, var(--client-bg-surface-low) 0%, var(--client-bg-surface) 100%);
+  --client-dashboard-overlay-soft: rgba(255, 255, 255, 0.08);
+  --client-dashboard-overlay-mid: rgba(255, 255, 255, 0.12);
+  --client-dashboard-overlay-strong: rgba(255, 255, 255, 0.92);
+  --client-hero-overlay-soft: rgba(255, 255, 255, 0.08);
+  --client-hero-overlay-mid: rgba(255, 255, 255, 0.12);
+  --client-hero-overlay-strong: rgba(255, 255, 255, 0.92);
+}
+
+.client-theme .ant-typography {
+  color: inherit;
+}

@@ -1,0 +1,51 @@
+.client-theme .client-input,
+.client-theme .ant-input.client-input,
+.client-theme .ant-input-affix-wrapper.client-input,
+.client-theme .ant-select-selector.client-input,
+.client-theme .client-select,
+.client-theme .client-textarea {
+  min-height: 44px;
+  border-radius: var(--client-radius-md);
+  border: 1px solid var(--client-border);
+  background: var(--client-bg-surface);
+  color: var(--client-text-primary);
+  box-shadow: none;
+}
+
+.client-theme .client-field {
+  display: grid;
+  gap: var(--client-space-xs);
+}
+
+.client-theme .client-input-label,
+.client-theme .client-label {
+  font-size: var(--client-type-label-size);
+  line-height: var(--client-type-label-line);
+  font-weight: var(--client-type-label-weight);
+  color: var(--client-text-secondary);
+}
+
+.client-theme .client-input-hint {
+  font-size: var(--client-type-small-size);
+  line-height: var(--client-type-small-line);
+  color: var(--client-text-muted);
+}
+
+.client-theme .client-field-error {
+  color: var(--client-state-danger);
+}
+
+.client-theme .client-error {
+  color: var(--client-state-danger);
+}
+
+.client-theme .client-textarea {
+  min-height: 120px;
+  padding-block: 10px;
+  resize: vertical;
+}
+
+.client-theme .client-select {
+  display: inline-flex;
+  align-items: center;
+}

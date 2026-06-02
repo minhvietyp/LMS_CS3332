@@ -20,4 +20,10 @@ export class ChatController {
     const result = await chatService.createDirectRoom(req.user!.sub, userId);
     return ApiResponse.created(res, result, 'Room created successfully');
   }
+
+  async sendMessage(req: Request, res: Response) {
+    const { content } = req.body;
+    const result = await chatService.sendMessage(req.params.roomId, req.user!.sub, content);
+    return ApiResponse.created(res, result, 'Message sent successfully');
+  }
 }

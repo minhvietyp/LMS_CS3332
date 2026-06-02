@@ -19,6 +19,10 @@ import { avatarUpload } from '@shared/middlewares/upload';
 const router = Router();
 const userController = new UserController();
 
+// ─── Public Instructor Directory ───────────────────────────────────────────
+router.get('/public/instructors', asyncHandler(userController.listPublicInstructors));
+router.get('/public/instructors/:id', validate(userIdParamsSchema, 'params'), asyncHandler(userController.getPublicInstructorById));
+
 // ─── Self Management (Authenticated Users) ──────────────────────────────────
 router.get('/me', authenticate, asyncHandler(userController.getMe));
 router.get('/me/profile', authenticate, asyncHandler(userController.getMyProfile));

@@ -1,5 +1,6 @@
-import { ClientLoginForm } from '../../../components/client/auth/login';
+import { ClientLoginForm } from './components/login';
 
 export function ClientLoginPage() {
   return <ClientLoginForm />;
 }
+

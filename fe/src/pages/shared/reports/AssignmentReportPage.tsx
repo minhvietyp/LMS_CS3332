@@ -1,0 +1,170 @@
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Card, Col, Empty, Row, Select, Space, Spin, Statistic, Table, Typography } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
+import {
+  listAssignmentSubmissionsRequest,
+  listCourseAssignmentsRequest,
+  type AssignmentSubmissionListItem,
+} from '../../../services/api/assignmentApi';
+import { listCoursesRequest } from '../../../services/api/courseApi';
+
+function formatScore(value: number | null | undefined) {
+  if (value == null) {
+    return 'Ungraded';
+  }
+
+  return `${value}%`;
+}
+
+export function AssignmentReportPage() {
+  const [selectedCourseId, setSelectedCourseId] = useState<string>();
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>();
+
+  const coursesQuery = useQuery({
+    queryKey: ['reports', 'assignment', 'courses'],
+    queryFn: async () => {
+      const response = await listCoursesRequest({ page: 1, limit: 50 });
+      return response.data;
+    },
+    staleTime: 60_000,
+  });
+  const activeCourseId = selectedCourseId ?? coursesQuery.data?.[0]?.id;
+
+  const assignmentsQuery = useQuery({
+    queryKey: ['reports', 'assignment', 'list', activeCourseId],
+    queryFn: () => listCourseAssignmentsRequest(activeCourseId!),
+    enabled: Boolean(activeCourseId),
+    staleTime: 60_000,
+  });
+  const activeAssignmentId = selectedAssignmentId ?? assignmentsQuery.data?.[0]?.id;
+
+  const submissionsQuery = useQuery({
+    queryKey: ['reports', 'assignment', 'submissions', activeAssignmentId],
+    queryFn: () => listAssignmentSubmissionsRequest(activeAssignmentId!),
+    enabled: Boolean(activeAssignmentId),
+    staleTime: 30_000,
+  });
+
+  const selectedCourse = useMemo(
+    () => coursesQuery.data?.find((course) => course.id === activeCourseId),
+    [coursesQuery.data, activeCourseId],
+  );
+  const selectedAssignment = useMemo(
+    () => assignmentsQuery.data?.find((assignment) => assignment.id === activeAssignmentId),
+    [assignmentsQuery.data, activeAssignmentId],
+  );
+
+  const summary = useMemo(() => {
+    const submissions = submissionsQuery.data ?? [];
+    const graded = submissions.filter((submission) => typeof submission.grade === 'number');
+    const returned = submissions.filter((submission) => submission.status === 'RETURNED').length;
+    const averageGrade = graded.length
+      ? Math.round(graded.reduce((total, submission) => total + (submission.grade ?? 0), 0) / graded.length)
+      : 0;
+
+    return {
+      totalSubmissions: submissions.length,
+      gradedCount: graded.length,
+      returnedCount: returned,
+      averageGrade,
+    };
+  }, [submissionsQuery.data]);
+
+  const columns = useMemo<ColumnsType<AssignmentSubmissionListItem>>(
+    () => [
+      {
+        title: 'Student',
+        key: 'student',
+        render: (_, record) => (
+          <div>
+            <Typography.Text strong>{record.student?.name ?? 'Unknown student'}</Typography.Text>
+            <div>
+              <Typography.Text type="secondary">{record.student?.email ?? 'No email'}</Typography.Text>
+            </div>
+          </div>
+        ),
+      },
+      {
+        title: 'Status',
+        dataIndex: 'status',
+        key: 'status',
+      },
+      {
+        title: 'Grade',
+        key: 'grade',
+        render: (_, record) => formatScore(record.grade),
+      },
+      {
+        title: 'Submission',
+        key: 'submission',
+        render: (_, record) => record.textContent || record.fileName || 'No content',
+      },
+    ],
+    [],
+  );
+
+  return (
+    <ClientLayout>
+      <ClientPageContainer
+        title="Assignment Reports"
+        subtitle="Review assignment completion, grading progress, and submission quality across your courses."
+        actions={
+          <Space>
+            <Select
+              placeholder="Select course"
+              value={activeCourseId}
+              className="report-page__select"
+              options={(coursesQuery.data ?? []).map((course) => ({ label: course.title, value: course.id }))}
+              onChange={(value) => {
+                setSelectedCourseId(value);
+                setSelectedAssignmentId(undefined);
+              }}
+            />
+            <Select
+              placeholder="Select assignment"
+              value={activeAssignmentId}
+              className="report-page__select"
+              options={(assignmentsQuery.data ?? []).map((assignment) => ({ label: assignment.title, value: assignment.id }))}
+              onChange={(value) => setSelectedAssignmentId(value)}
+              disabled={!activeCourseId}
+            />
+          </Space>
+        }
+      >
+        {coursesQuery.isLoading ? <Spin tip="Loading assignment reports..." /> : null}
+
+        {selectedCourse ? (
+          <Typography.Paragraph type="secondary">
+            Reporting on <Typography.Text strong>{selectedCourse.title}</Typography.Text>
+            {selectedAssignment ? ` / ${selectedAssignment.title}` : ''}
+          </Typography.Paragraph>
+        ) : null}
+
+        {activeAssignmentId ? (
+          <>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} md={12} xl={6}><Card><Statistic title="Submissions" value={summary.totalSubmissions} /></Card></Col>
+              <Col xs={24} md={12} xl={6}><Card><Statistic title="Graded" value={summary.gradedCount} /></Card></Col>
+              <Col xs={24} md={12} xl={6}><Card><Statistic title="Returned" value={summary.returnedCount} /></Card></Col>
+              <Col xs={24} md={12} xl={6}><Card><Statistic title="Average Grade" value={summary.averageGrade} suffix="%" /></Card></Col>
+            </Row>
+
+            <Card style={{ marginTop: 16 }}>
+              <Table
+                rowKey="id"
+                columns={columns}
+                dataSource={submissionsQuery.data ?? []}
+                loading={submissionsQuery.isLoading}
+                pagination={false}
+              />
+            </Card>
+          </>
+        ) : (
+          <Empty description="Choose a course and assignment to inspect submission outcomes." />
+        )}
+      </ClientPageContainer>
+    </ClientLayout>
+  );
+}

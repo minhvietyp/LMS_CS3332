@@ -11,6 +11,38 @@ type Viewer = {
   role: string;
 };
 
+type CourseResourceMaterial = {
+  id: string;
+  title: string;
+  type: string;
+  url: string;
+  lessonId: string;
+  lessonTitle: string;
+  moduleId: string;
+  moduleTitle: string;
+  createdAt: Date;
+};
+
+type PublishedCourseLesson = {
+  id: string;
+  moduleId: string;
+  title: string;
+  videoUrl: string | null;
+  orderIndex: number;
+  isPublished: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
+};
+
+type PublishedCourseModule = {
+  id: string;
+  courseId: string;
+  title: string;
+  orderIndex: number;
+  lessons: PublishedCourseLesson[];
+};
+
 type CreateCourseData = {
   title: string;
   description?: string;
@@ -24,6 +56,119 @@ type UpdateCourseData = {
 type CourseFile = Express.Multer.File;
 
 export class CourseService {
+  async listPublic(query: any): Promise<PaginatedResult<any>> {
+    const { page, limit, skip } = parsePagination(query);
+    const { search } = query;
+
+    const where: Prisma.CourseWhereInput = {
+      deletedAt: null,
+      status: COURSE_STATUS.PUBLISHED,
+      ...(search
+        ? {
+            OR: [
+              { title: { contains: search, mode: 'insensitive' } },
+              { description: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+
+    const [total, courses] = await Promise.all([
+      prisma.course.count({ where }),
+      prisma.course.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          instructor: {
+            select: {
+              id: true,
+              name: true,
+              avatarUrl: true,
+              occupation: true,
+              bio: true,
+            },
+          },
+          modules: {
+            include: {
+              lessons: {
+                where: { deletedAt: null, isPublished: true },
+              },
+            },
+          },
+          enrollments: {
+            where: { status: ENROLLMENT_STATUS.ACTIVE },
+            select: { id: true },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      data: courses.map((course) => ({
+        ...course,
+        moduleCount: course.modules.length,
+        lessonCount: course.modules.reduce((count, module) => count + module.lessons.length, 0),
+        enrollmentCount: course.enrollments.length,
+      })),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getPublicById(id: string): Promise<any> {
+    const course = await prisma.course.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+        status: COURSE_STATUS.PUBLISHED,
+      },
+      include: {
+        instructor: {
+          select: {
+            id: true,
+            name: true,
+            avatarUrl: true,
+            occupation: true,
+            bio: true,
+            websiteUrl: true,
+            linkedinUrl: true,
+            githubUrl: true,
+          },
+        },
+        modules: {
+          orderBy: { orderIndex: 'asc' },
+          include: {
+            lessons: {
+              where: { deletedAt: null, isPublished: true },
+              orderBy: { orderIndex: 'asc' },
+            },
+          },
+        },
+        enrollments: {
+          where: { status: ENROLLMENT_STATUS.ACTIVE },
+          select: { id: true },
+        },
+      },
+    });
+
+    if (!course) {
+      throw NotFoundError('Course not found');
+    }
+
+    return {
+      ...course,
+      moduleCount: course.modules.length,
+      lessonCount: course.modules.reduce((count, module) => count + module.lessons.length, 0),
+      enrollmentCount: course.enrollments.length,
+    };
+  }
+
   /**
    * List courses with pagination and filters
    */
@@ -152,6 +297,118 @@ export class CourseService {
     }
 
     return course;
+  }
+
+  async listPublishedModules(id: string, viewer: Viewer): Promise<PublishedCourseModule[]> {
+    const course = await prisma.course.findFirst({
+      where: {
+        id,
+        ...(viewer.role === USER_ROLES.ADMIN ? {} : { deletedAt: null }),
+        ...(viewer.role === USER_ROLES.INSTRUCTOR ? { instructorId: viewer.sub } : {}),
+        ...(viewer.role === USER_ROLES.STUDENT
+          ? {
+              enrollments: {
+                some: {
+                  studentId: viewer.sub,
+                  status: ENROLLMENT_STATUS.ACTIVE,
+                },
+              },
+            }
+          : {}),
+      },
+      select: { id: true },
+    });
+
+    if (!course) {
+      throw NotFoundError('Course not found');
+    }
+
+    const modules = await prisma.courseModule.findMany({
+      where: { courseId: id },
+      orderBy: { orderIndex: 'asc' },
+      include: {
+        lessons: {
+          where: {
+            deletedAt: null,
+            isPublished: true,
+          },
+          orderBy: { orderIndex: 'asc' },
+        },
+      },
+    });
+
+    return modules.filter((module) => module.lessons.length > 0);
+  }
+
+  async listResources(id: string, viewer: Viewer): Promise<{ materials: CourseResourceMaterial[] }> {
+    const course = await prisma.course.findFirst({
+      where: {
+        id,
+        ...(viewer.role === USER_ROLES.ADMIN ? {} : { deletedAt: null }),
+        ...(viewer.role === USER_ROLES.INSTRUCTOR ? { instructorId: viewer.sub } : {}),
+        ...(viewer.role === USER_ROLES.STUDENT
+          ? {
+              OR: [
+                { status: COURSE_STATUS.PUBLISHED },
+                {
+                  enrollments: {
+                    some: {
+                      studentId: viewer.sub,
+                      status: ENROLLMENT_STATUS.ACTIVE,
+                    },
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
+      select: { id: true },
+    });
+
+    if (!course) {
+      throw NotFoundError('Course not found');
+    }
+
+    const materials = await prisma.lessonMaterial.findMany({
+      where: {
+        lesson: {
+          deletedAt: null,
+          ...(viewer.role === USER_ROLES.STUDENT ? { isPublished: true } : {}),
+          module: {
+            courseId: id,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        lesson: {
+          select: {
+            id: true,
+            title: true,
+            module: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      materials: materials.map((material) => ({
+        id: material.id,
+        title: material.title,
+        type: material.type,
+        url: material.url,
+        lessonId: material.lessonId,
+        lessonTitle: material.lesson.title,
+        moduleId: material.lesson.module.id,
+        moduleTitle: material.lesson.module.title,
+        createdAt: material.createdAt,
+      })),
+    };
   }
 
   /**

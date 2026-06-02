@@ -1,0 +1,303 @@
+.client-theme .client-page-header-block {
+  display: grid;
+  gap: var(--client-space-sm);
+}
+
+.client-theme .client-page-header-block .ant-typography,
+.client-theme .client-ui-section-header .ant-typography {
+  margin-bottom: 0;
+}
+
+.client-theme .client-page-header-block__title.ant-typography {
+  color: var(--client-text-primary);
+  font-size: var(--client-type-page-title-size);
+  font-weight: var(--client-type-page-title-weight);
+  line-height: var(--client-type-page-title-line);
+}
+
+.client-theme .client-page-header-block__subtitle.ant-typography {
+  max-width: 72ch;
+  color: var(--client-text-muted);
+}
+
+.client-theme .client-ui-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--client-space-md);
+}
+
+.client-theme .client-ui-section-header__copy {
+  display: grid;
+  gap: var(--client-space-xs);
+  min-width: 0;
+}
+
+.client-theme .client-ui-section-header__title.ant-typography {
+  color: var(--client-text-primary);
+  font-size: var(--client-type-section-title-size);
+  font-weight: var(--client-type-section-title-weight);
+  line-height: var(--client-type-section-title-line);
+}
+
+.client-theme .client-ui-section-header__subtitle.ant-typography {
+  color: var(--client-text-secondary);
+  font-size: var(--client-type-body-size);
+}
+
+.client-theme .client-ui-section-header__action {
+  min-width: max-content;
+}
+
+.client-theme .client-metric-card,
+.client-theme .client-analytics-card {
+  display: grid;
+  gap: var(--client-space-sm);
+  min-height: 124px;
+  padding: var(--client-card-padding);
+  border-radius: var(--client-radius-xl);
+  border: 1px solid var(--client-border-soft);
+  background: linear-gradient(180deg, var(--client-bg-surface) 0%, var(--client-bg-surface-low) 100%);
+  box-shadow: var(--client-shadow-card);
+}
+
+.client-theme .client-metric-card__label,
+.client-theme .client-analytics-card__label {
+  color: var(--client-text-muted);
+  font-size: var(--client-type-caption-size);
+  font-weight: var(--client-type-caption-weight);
+  letter-spacing: var(--client-type-caption-spacing);
+  line-height: var(--client-type-caption-line);
+  text-transform: uppercase;
+}
+
+.client-theme .client-metric-card__value,
+.client-theme .client-analytics-card__value {
+  color: var(--client-text-primary);
+  font-size: clamp(1.45rem, 2vw, 2rem);
+  font-weight: 700;
+  line-height: 1.08;
+}
+
+.client-theme .client-metric-card__caption,
+.client-theme .client-analytics-card__caption {
+  color: var(--client-text-secondary);
+  font-size: var(--client-type-small-size);
+  line-height: var(--client-type-small-line);
+}
+
+.client-theme .client-empty-state-block {
+  display: grid;
+  justify-items: center;
+  gap: var(--client-space-sm);
+  padding: var(--client-space-xl);
+  border-radius: var(--client-radius-xl);
+  border: 1px dashed var(--client-border-soft);
+  background: linear-gradient(180deg, var(--client-bg-surface) 0%, var(--client-bg-surface-low) 100%);
+  text-align: center;
+}
+
+.client-theme .client-empty-state-block--compact {
+  padding: var(--client-space-lg);
+}
+
+.client-theme .client-empty-state-block__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--client-radius-pill);
+  background: var(--client-bg-surface-low);
+  color: var(--client-color-primary);
+}
+
+.client-theme .client-empty-state-block__title.ant-typography {
+  color: var(--client-text-primary);
+}
+
+.client-theme .client-empty-state-block__description.ant-typography {
+  max-width: 48ch;
+  color: var(--client-text-secondary);
+}
+
+.client-theme .client-empty-state-block__action {
+  display: inline-flex;
+}
+
+.client-theme .client-activity-timeline {
+  display: grid;
+}
+
+.client-theme .client-activity-timeline__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  gap: var(--client-space-md);
+  padding: 0 0 var(--client-space-lg);
+  align-items: start;
+}
+
+.client-theme .client-activity-timeline__item:last-child {
+  padding-bottom: 0;
+}
+
+.client-theme .client-activity-timeline__item::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 20px;
+  bottom: 0;
+  width: 2px;
+  background: color-mix(in srgb, var(--client-color-primary) 12%, transparent);
+}
+
+.client-theme .client-activity-timeline__item:last-child::before {
+  display: none;
+}
+
+.client-theme .client-activity-timeline__dot {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border-radius: var(--client-radius-pill);
+  background: var(--client-bg-surface-low);
+  border: 4px solid var(--client-bg-surface);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--client-color-primary) 12%, transparent);
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--client-color-primary);
+}
+
+.client-theme .client-activity-timeline__dot svg {
+  width: 9px;
+  height: 9px;
+}
+
+.client-theme .client-activity-timeline__content {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.client-theme .client-activity-timeline__label {
+  color: var(--client-text-muted);
+  font-size: var(--client-type-caption-size);
+  font-weight: var(--client-type-caption-weight);
+  letter-spacing: var(--client-type-caption-spacing);
+  line-height: var(--client-type-caption-line);
+  text-transform: uppercase;
+}
+
+.client-theme .client-activity-timeline__title {
+  color: var(--client-text-primary);
+  font-size: var(--client-type-body-size);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.client-theme .client-activity-timeline__description {
+  color: var(--client-text-secondary);
+  font-size: var(--client-type-small-size);
+  line-height: var(--client-type-small-line);
+}
+
+.client-theme .client-activity-timeline__action,
+.client-theme .client-notification-card__action {
+  margin-top: var(--client-space-xs);
+}
+
+.client-theme .client-activity-timeline__time {
+  align-self: start;
+  justify-self: end;
+  color: var(--client-text-muted);
+  font-size: var(--client-type-small-size);
+  line-height: var(--client-type-small-line);
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+  text-align: right;
+}
+
+.client-theme .client-notification-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--client-space-sm);
+  align-items: start;
+  padding: var(--client-space-md);
+  border-radius: var(--client-radius-lg);
+  background: var(--client-bg-surface-low);
+  border: 1px solid transparent;
+}
+
+.client-theme .client-notification-card--unread {
+  border-color: color-mix(in srgb, var(--client-color-primary) 12%, transparent);
+}
+
+.client-theme .client-notification-card__dot {
+  width: 10px;
+  height: 10px;
+  margin-top: 6px;
+  border-radius: var(--client-radius-pill);
+  background: var(--client-color-secondary);
+}
+
+.client-theme .client-notification-card__dot--read {
+  background: color-mix(in srgb, var(--client-text-secondary) 24%, transparent);
+}
+
+.client-theme .client-notification-card__body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.client-theme .client-notification-card__title {
+  color: var(--client-text-primary);
+  font-size: var(--client-type-body-size);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.client-theme .client-notification-card__message {
+  color: var(--client-text-secondary);
+  font-size: var(--client-type-small-size);
+  line-height: var(--client-type-small-line);
+}
+
+.client-theme .client-notification-card__time {
+  color: var(--client-text-muted);
+  font-size: var(--client-type-small-size);
+  line-height: var(--client-type-small-line);
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .client-theme .client-ui-section-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .client-theme .client-ui-section-header__action {
+    width: 100%;
+  }
+
+  .client-theme .client-activity-timeline__item,
+  .client-theme .client-notification-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .client-theme .client-activity-timeline__time,
+  .client-theme .client-notification-card__time {
+    grid-column: 2;
+    justify-self: start;
+    text-align: left;
+  }
+
+  .client-theme .client-empty-state-block {
+    padding: var(--client-space-lg);
+  }
+}

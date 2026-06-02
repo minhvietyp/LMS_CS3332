@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { progressService } from '../services/progressService';
+import { progressService } from '../services/api/progressService';
 import type {
   ProgressOverviewData,
   EnrollmentStatus,

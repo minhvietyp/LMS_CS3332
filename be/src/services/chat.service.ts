@@ -27,7 +27,7 @@ export class ChatService {
   async getMessages(roomId: string, query: any): Promise<ChatMessage[]> {
     return prisma.chatMessage.findMany({
       where: { roomId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'asc' },
       take: 50,
       include: { sender: { select: { id: true, name: true, avatarUrl: true } } },
     });
@@ -37,8 +37,27 @@ export class ChatService {
     return prisma.chatRoom.findMany({
       where: { members: { some: { userId } } },
       include: {
+        course: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                avatarUrl: true,
+                role: true,
+              },
+            },
+          },
+        },
         messages: { orderBy: { createdAt: 'desc' }, take: 1 },
       },
+      orderBy: { updatedAt: 'desc' },
     });
   }
 

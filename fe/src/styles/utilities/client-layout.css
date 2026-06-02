@@ -1,0 +1,154 @@
+.client-theme .client-page {
+  display: grid;
+  gap: var(--client-space-xl);
+  padding: var(--client-page-padding) var(--client-page-padding-mobile);
+}
+
+.client-theme .client-page-container {
+  width: min(100%, var(--client-layout-max-width));
+  margin-inline: auto;
+  display: grid;
+  gap: var(--client-space-lg);
+  padding-inline: var(--client-page-padding);
+}
+
+.client-theme .client-page-breadcrumbs {
+  margin-top: var(--client-space-xs);
+}
+
+.client-theme .client-page-breadcrumbs .ant-breadcrumb-link,
+.client-theme .client-page-breadcrumbs .ant-breadcrumb-link > a,
+.client-theme .client-page-breadcrumbs .ant-breadcrumb-separator,
+.client-theme .client-page-breadcrumbs .ant-breadcrumb-link > span {
+  color: var(--client-text-secondary);
+  font-size: 0.8rem;
+}
+
+.client-theme .client-page-breadcrumbs .ant-breadcrumb-link > a:hover {
+  color: var(--client-color-primary);
+}
+
+.client-theme .client-page-content {
+  display: grid;
+  gap: var(--client-space-xl);
+}
+
+.client-theme .client-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--client-space-lg);
+  margin-bottom: var(--client-space-sm);
+}
+
+.client-theme .client-page-header-copy,
+.client-theme .client-page-header .client-section-header {
+  max-width: 760px;
+}
+
+.client-theme .client-page-header .ant-typography {
+  margin-bottom: 0;
+}
+
+.client-theme .client-page-header .ant-typography-title {
+  color: var(--client-text-primary);
+}
+
+.client-theme .client-page-header .ant-typography-paragraph {
+  color: var(--client-text-secondary);
+}
+
+.client-theme .client-page-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--client-space-sm);
+}
+
+.client-theme .client-section-header {
+  display: grid;
+  gap: var(--client-space-xs);
+}
+
+.client-theme .client-section {
+  display: grid;
+  gap: var(--client-space-lg);
+}
+
+.client-theme .client-grid {
+  display: grid;
+  gap: var(--client-grid-gutter);
+}
+
+.client-theme .client-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.client-theme .client-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.client-theme .client-grid-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.client-theme .client-stack {
+  display: grid;
+  gap: var(--client-space-md);
+}
+
+.client-theme .client-container {
+  width: min(100%, var(--client-layout-max-width));
+  margin-inline: auto;
+  padding-inline: var(--client-page-padding);
+}
+
+.client-theme .client-container-wide {
+  width: min(100%, var(--client-layout-max-width-wide));
+}
+
+.client-theme .client-container-fluid {
+  width: min(100%, var(--client-layout-max-width-fluid));
+}
+
+.client-theme .client-rail {
+  display: grid;
+  gap: var(--client-grid-gutter);
+}
+
+.client-theme .client-rail-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.client-theme .client-rail-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.client-theme .client-card-stack {
+  display: grid;
+  gap: var(--client-space-lg);
+  align-items: stretch;
+}
+
+.client-theme .client-dashboard-grid {
+  display: grid;
+  gap: var(--client-grid-gutter);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.client-theme .client-dashboard-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.client-theme .client-dashboard-grid--feature {
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+}
+
+.client-theme .client-content-rail,
+.client-theme .client-content-rail--sidebar {
+  display: grid;
+  gap: var(--client-grid-gutter);
+}
+
+.client-theme .client-content-rail--sidebar {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.42fr);
+}

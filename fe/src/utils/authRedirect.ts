@@ -1,4 +1,4 @@
-import type { UserRole } from '../components/context/AuthContext';
+import type { UserRole } from '../context/AuthContext';
 
 export function getDefaultRouteForRole(role: UserRole | undefined) {
   if (role === 'ADMIN') {
@@ -9,7 +9,7 @@ export function getDefaultRouteForRole(role: UserRole | undefined) {
     return '/instructor/dashboard';
   }
 
-  return '/student/dashboard';
+  return '/dashboard';
 }
 
 export function isAdminRole(role: UserRole | undefined) {

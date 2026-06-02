@@ -1,0 +1,242 @@
+.marketing-layout {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(91, 152, 255, 0.18), transparent 32%),
+    linear-gradient(180deg, #f7f9ff 0%, #eef3ff 100%);
+}
+
+.marketing-shell {
+  width: min(1180px, calc(100% - 48px));
+  margin: 0 auto;
+}
+
+.marketing-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(18px);
+  background: rgba(247, 249, 255, 0.86);
+  border-bottom: 1px solid rgba(77, 96, 140, 0.12);
+}
+
+.marketing-header__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 78px;
+}
+
+.marketing-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #14213d;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.marketing-brand__mark {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+  color: #fff;
+  box-shadow: 0 18px 30px rgba(79, 70, 229, 0.22);
+}
+
+.marketing-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.marketing-nav a {
+  color: #49566d;
+  font-weight: 500;
+}
+
+.marketing-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.marketing-main {
+  padding: 56px 0 72px;
+}
+
+.marketing-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+  gap: 28px;
+  align-items: stretch;
+}
+
+.marketing-hero__panel,
+.marketing-surface,
+.marketing-course-card,
+.marketing-instructor-card {
+  border: 1px solid rgba(92, 111, 149, 0.14);
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 28px;
+  box-shadow: 0 24px 48px rgba(22, 34, 61, 0.08);
+}
+
+.marketing-hero__panel {
+  padding: 36px;
+}
+
+.marketing-hero__eyebrow {
+  display: inline-flex;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(79, 70, 229, 0.12);
+  color: #4338ca;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.marketing-hero__title {
+  margin: 18px 0 12px !important;
+  color: #10223b !important;
+}
+
+.marketing-hero__copy {
+  color: #556277;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.marketing-hero__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.marketing-stat-grid,
+.marketing-card-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.marketing-stat-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.marketing-stat-card,
+.marketing-support-grid article {
+  padding: 20px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(242, 246, 255, 0.96) 0%, #ffffff 100%);
+  border: 1px solid rgba(95, 117, 163, 0.12);
+}
+
+.marketing-section {
+  margin-top: 48px;
+}
+
+.marketing-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.marketing-course-card,
+.marketing-instructor-card {
+  padding: 22px;
+  height: 100%;
+}
+
+.marketing-course-card__thumb {
+  height: 180px;
+  border-radius: 20px;
+  display: flex;
+  align-items: flex-end;
+  padding: 18px;
+  background: linear-gradient(135deg, #dbe7ff 0%, #eef4ff 100%);
+  color: #1e3a8a;
+  font-weight: 700;
+  font-size: 32px;
+}
+
+.marketing-course-card__meta,
+.marketing-instructor-card__meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.marketing-course-card__actions,
+.marketing-instructor-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.marketing-page-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.85fr);
+  gap: 28px;
+}
+
+.marketing-surface {
+  padding: 28px;
+}
+
+.marketing-list {
+  display: grid;
+  gap: 14px;
+}
+
+.marketing-list__item {
+  border-radius: 20px;
+  border: 1px solid rgba(91, 111, 148, 0.12);
+  padding: 18px;
+  background: #fff;
+}
+
+.marketing-support-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.marketing-footer {
+  padding: 24px 0 40px;
+  color: #6b7280;
+}
+
+.marketing-footer__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 960px) {
+  .marketing-hero,
+  .marketing-page-grid,
+  .marketing-support-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .marketing-shell {
+    width: min(100% - 32px, 1180px);
+  }
+
+  .marketing-main {
+    padding-top: 36px;
+  }
+}

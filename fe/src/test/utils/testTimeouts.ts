@@ -1,0 +1,1 @@
+export const HEAVY_UI_TEST_TIMEOUT = 12000;

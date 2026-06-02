@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { assignmentAPIClient } from '../services/assignment.service';
+import { assignmentAPIClient } from '../services/api/assignment.service';
 
 interface UseAssignmentsOptions {
   courseId?: string;

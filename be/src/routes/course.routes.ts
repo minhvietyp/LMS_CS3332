@@ -11,9 +11,15 @@ import { courseThumbnailUpload } from '@shared/middlewares/upload';
 const router = Router();
 const courseController = new CourseController();
 
-// ─── Public/Enrolled Access ───────────────────────────────────────────────
+// ─── Public Catalog Access ────────────────────────────────────────────────
+router.get('/public', validate(listCoursesQuerySchema, 'query'), asyncHandler(courseController.listPublic));
+router.get('/public/:id', validate(courseIdParamsSchema, 'params'), asyncHandler(courseController.getPublicById));
+
+// ─── Authenticated Access ─────────────────────────────────────────────────
 router.get('/', authenticate, validate(listCoursesQuerySchema, 'query'), asyncHandler(courseController.list));
 router.get('/:id', authenticate, validate(courseIdParamsSchema, 'params'), asyncHandler(courseController.getById));
+router.get('/:id/modules', authenticate, validate(courseIdParamsSchema, 'params'), asyncHandler(courseController.listPublishedModules));
+router.get('/:id/resources', authenticate, validate(courseIdParamsSchema, 'params'), asyncHandler(courseController.listResources));
 
 // ─── Instructor/Admin Management ──────────────────────────────────────────
 router.post('/', authenticate, authorize(PERMISSIONS.COURSE_CREATE), courseThumbnailUpload.single('thumbnail'), validate(createCourseSchema), asyncHandler(courseController.create));

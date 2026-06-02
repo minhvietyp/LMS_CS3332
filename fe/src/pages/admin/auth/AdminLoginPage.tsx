@@ -1,5 +1,6 @@
-import { AdminLoginForm } from '../../../components/admin/auth/login';
+import { AdminLoginForm } from './components/login';
 
 export function AdminLoginPage() {
   return <AdminLoginForm />;
 }
+

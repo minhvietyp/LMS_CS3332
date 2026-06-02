@@ -1,0 +1,36 @@
+.client-theme .client-card {
+  background: var(--client-bg-surface);
+  border: 1px solid var(--client-border);
+  border-radius: var(--client-radius-xl);
+  box-shadow: var(--client-shadow-card);
+  padding: var(--client-card-padding);
+}
+
+.client-theme .client-card-elevated {
+  background: var(--client-bg-glass);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--client-shadow-dropdown);
+}
+
+.client-theme .client-card-hover {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.client-theme .client-card-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--client-shadow-elevated);
+  border-color: rgba(0, 40, 142, 0.16);
+}
+
+.client-theme .client-card-title {
+  font-family: var(--client-font-heading);
+  font-size: var(--client-type-card-title-size);
+  line-height: var(--client-type-card-title-line);
+  font-weight: var(--client-type-card-title-weight);
+  color: var(--client-text-primary);
+}
+
+.client-theme .client-metric-card {
+  display: grid;
+  gap: var(--client-space-md);
+}

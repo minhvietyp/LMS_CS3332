@@ -1,0 +1,46 @@
+.client-theme {
+  --client-color-primary: #00288e;
+  --client-color-primary-strong: #00175c;
+  --client-color-primary-soft: #dde1ff;
+  --client-color-primary-tint: #3d57ba;
+  --client-color-on-primary: #ffffff;
+  --client-color-secondary: #4648d4;
+  --client-color-secondary-strong: #06006c;
+  --client-color-secondary-soft: #e1e0ff;
+  --client-color-accent: #611e00;
+  --client-color-accent-soft: #ffdbce;
+
+  --client-bg-page: #f8f9ff;
+  --client-bg-canvas: #f8f9ff;
+  --client-bg-surface: #ffffff;
+  --client-bg-surface-low: #eff4ff;
+  --client-bg-surface-mid: #e5eeff;
+  --client-bg-surface-high: #dce9ff;
+  --client-bg-elevated: #d3e4fe;
+  --client-bg-inverse: #213145;
+  --client-bg-glass: rgba(255, 255, 255, 0.72);
+
+  --client-border: #c4c5d5;
+  --client-border-strong: #757684;
+  --client-border-soft: #d3e4fe;
+
+  --client-text-primary: #0b1c30;
+  --client-text-secondary: #444652;
+  --client-text-muted: #757684;
+  --client-text-inverse: #eaf1ff;
+
+  --client-state-success: #16a35a;
+  --client-state-success-soft: #dff7e8;
+  --client-state-warning: #f59e0b;
+  --client-state-warning-soft: #fff3d6;
+  --client-state-danger: #ba1a1a;
+  --client-state-danger-soft: #ffdad6;
+  --client-state-info: #4d9cff;
+  --client-state-info-soft: #deeeff;
+
+  --client-selection-bg: rgba(0, 40, 142, 0.16);
+  --client-selection-text: #001453;
+  --client-scrollbar-track: rgba(11, 28, 48, 0.06);
+  --client-scrollbar-thumb: rgba(0, 40, 142, 0.28);
+  --client-scrollbar-thumb-hover: rgba(0, 40, 142, 0.44);
+}

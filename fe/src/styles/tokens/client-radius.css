@@ -1,0 +1,8 @@
+.client-theme {
+  --client-radius-sm: 4px;
+  --client-radius-md: 8px;
+  --client-radius-lg: 12px;
+  --client-radius-xl: 16px;
+  --client-radius-2xl: 24px;
+  --client-radius-pill: 999px;
+}

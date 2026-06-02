@@ -1,0 +1,26 @@
+.client-theme,
+.client-theme *,
+.client-theme *::before,
+.client-theme *::after {
+  box-sizing: border-box;
+}
+
+.client-theme img,
+.client-theme svg,
+.client-theme video,
+.client-theme canvas {
+  display: block;
+  max-width: 100%;
+}
+
+.client-theme button,
+.client-theme input,
+.client-theme select,
+.client-theme textarea {
+  font: inherit;
+}
+
+.client-theme a {
+  color: inherit;
+  text-decoration: none;
+}

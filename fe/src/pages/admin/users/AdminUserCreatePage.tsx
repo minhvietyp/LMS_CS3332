@@ -1,5 +1,5 @@
-import { AdminPageContainer } from '../../../components/admin/layout';
-import { UserManagementForm } from '../../../components/admin/users';
+import { AdminPageContainer } from '../../../components/admin-layout';
+import { UserManagementForm } from './components';
 
 export function AdminUserCreatePage() {
   return (
@@ -11,3 +11,4 @@ export function AdminUserCreatePage() {
     </AdminPageContainer>
   );
 }
+

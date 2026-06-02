@@ -1,0 +1,47 @@
+.client-theme {
+  --client-font-heading: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  --client-font-body: 'Inter', 'Segoe UI', sans-serif;
+
+  --client-type-display-xl-size: 40px;
+  --client-type-display-xl-line: 48px;
+  --client-type-display-xl-weight: 700;
+  --client-type-display-xl-spacing: -0.02em;
+
+  --client-type-display-lg-size: 32px;
+  --client-type-display-lg-line: 40px;
+  --client-type-display-lg-weight: 700;
+  --client-type-display-lg-spacing: -0.02em;
+
+  --client-type-page-title-size: 24px;
+  --client-type-page-title-line: 32px;
+  --client-type-page-title-weight: 600;
+
+  --client-type-section-title-size: 20px;
+  --client-type-section-title-line: 28px;
+  --client-type-section-title-weight: 600;
+
+  --client-type-card-title-size: 18px;
+  --client-type-card-title-line: 28px;
+  --client-type-card-title-weight: 600;
+
+  --client-type-body-lg-size: 18px;
+  --client-type-body-lg-line: 28px;
+  --client-type-body-lg-weight: 400;
+
+  --client-type-body-size: 16px;
+  --client-type-body-line: 24px;
+  --client-type-body-weight: 400;
+
+  --client-type-small-size: 14px;
+  --client-type-small-line: 20px;
+  --client-type-small-weight: 400;
+
+  --client-type-label-size: 14px;
+  --client-type-label-line: 16px;
+  --client-type-label-weight: 600;
+
+  --client-type-caption-size: 12px;
+  --client-type-caption-line: 16px;
+  --client-type-caption-weight: 500;
+  --client-type-caption-spacing: 0.05em;
+}

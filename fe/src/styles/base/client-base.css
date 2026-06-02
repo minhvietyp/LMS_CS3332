@@ -1,0 +1,103 @@
+.client-theme {
+  color: var(--client-text-primary);
+  background:
+    radial-gradient(circle at top left, rgba(61, 87, 186, 0.12), transparent 20%),
+    radial-gradient(circle at top right, rgba(96, 99, 238, 0.08), transparent 18%),
+    linear-gradient(180deg, var(--client-bg-page) 0%, var(--client-bg-surface-low) 100%);
+  font-family: var(--client-font-body);
+  font-size: var(--client-type-body-size);
+  line-height: var(--client-type-body-line);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.client-theme ::selection {
+  background: var(--client-selection-bg);
+  color: var(--client-selection-text);
+}
+
+.client-theme {
+  scrollbar-color: var(--client-scrollbar-thumb) var(--client-scrollbar-track);
+}
+
+.client-theme ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.client-theme ::-webkit-scrollbar-track {
+  background: var(--client-scrollbar-track);
+}
+
+.client-theme ::-webkit-scrollbar-thumb {
+  background: var(--client-scrollbar-thumb);
+  border-radius: var(--client-radius-pill);
+}
+
+.client-theme ::-webkit-scrollbar-thumb:hover {
+  background: var(--client-scrollbar-thumb-hover);
+}
+
+.client-theme h1,
+.client-theme h2,
+.client-theme h3,
+.client-theme h4,
+.client-theme h5,
+.client-theme h6 {
+  margin: 0;
+  color: var(--client-text-primary);
+  font-family: var(--client-font-heading);
+}
+
+.client-theme p {
+  margin: 0;
+  color: var(--client-text-secondary);
+}
+
+.client-theme .client-page-title {
+  color: var(--client-text-primary);
+  font-family: var(--client-font-heading);
+  font-size: var(--client-type-page-title-size);
+  font-weight: var(--client-type-page-title-weight);
+  line-height: var(--client-type-page-title-line);
+}
+
+.client-theme .client-section-title {
+  color: var(--client-text-primary);
+  font-family: var(--client-font-heading);
+  font-size: var(--client-type-section-title-size);
+  font-weight: var(--client-type-section-title-weight);
+  line-height: var(--client-type-section-title-line);
+}
+
+.client-theme .client-card-title {
+  color: var(--client-text-primary);
+  font-family: var(--client-font-heading);
+  font-size: var(--client-type-card-title-size);
+  font-weight: var(--client-type-card-title-weight);
+  line-height: var(--client-type-card-title-line);
+}
+
+.client-theme .client-body {
+  color: var(--client-text-secondary);
+  font-size: var(--client-type-body-size);
+  font-weight: var(--client-type-body-weight);
+  line-height: var(--client-type-body-line);
+}
+
+.client-theme .client-meta {
+  color: var(--client-text-muted);
+  font-size: var(--client-type-small-size);
+  font-weight: var(--client-type-small-weight);
+  line-height: var(--client-type-small-line);
+}
+
+.client-theme .client-caption {
+  color: var(--client-text-muted);
+  font-size: var(--client-type-caption-size);
+  font-weight: var(--client-type-caption-weight);
+  letter-spacing: var(--client-type-caption-spacing);
+  line-height: var(--client-type-caption-line);
+  text-transform: uppercase;
+}

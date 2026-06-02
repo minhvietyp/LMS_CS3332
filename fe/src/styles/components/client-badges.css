@@ -1,0 +1,77 @@
+.client-theme .client-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding-inline: 10px;
+  border-radius: var(--client-radius-pill);
+  background: var(--client-bg-surface-mid);
+  color: var(--client-text-primary);
+  font-size: var(--client-type-caption-size);
+  line-height: var(--client-type-caption-line);
+  font-weight: 600;
+}
+
+.client-theme .client-badge-success {
+  background: var(--client-state-success-soft);
+  color: var(--client-state-success);
+}
+
+.client-theme .client-badge-warning {
+  background: var(--client-state-warning-soft);
+  color: color-mix(in srgb, var(--client-state-warning) 72%, var(--client-color-accent));
+}
+
+.client-theme .client-badge-danger {
+  background: var(--client-state-danger-soft);
+  color: var(--client-state-danger);
+}
+
+.client-theme .client-badge-info {
+  background: var(--client-state-info-soft);
+  color: color-mix(in srgb, var(--client-state-info) 78%, var(--client-color-primary));
+}
+
+.client-theme .client-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding-inline: 10px;
+  border-radius: var(--client-radius-pill);
+  border: 1px solid transparent;
+  font-size: var(--client-type-caption-size);
+  font-weight: var(--client-type-label-weight);
+  letter-spacing: var(--client-type-caption-spacing);
+  line-height: var(--client-type-caption-line);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.client-theme .client-status-badge--overdue,
+.client-theme .client-status-badge--failed {
+  background: var(--client-state-danger-soft);
+  border-color: color-mix(in srgb, var(--client-state-danger) 18%, transparent);
+  color: var(--client-state-danger);
+}
+
+.client-theme .client-status-badge--due-soon {
+  background: var(--client-state-warning-soft);
+  border-color: color-mix(in srgb, var(--client-state-warning) 20%, transparent);
+  color: color-mix(in srgb, var(--client-state-warning) 72%, var(--client-color-accent));
+}
+
+.client-theme .client-status-badge--submitted,
+.client-theme .client-status-badge--in-progress {
+  background: var(--client-state-info-soft);
+  border-color: color-mix(in srgb, var(--client-state-info) 18%, transparent);
+  color: color-mix(in srgb, var(--client-state-info) 72%, var(--client-color-primary));
+}
+
+.client-theme .client-status-badge--graded,
+.client-theme .client-status-badge--passed,
+.client-theme .client-status-badge--completed {
+  background: var(--client-state-success-soft);
+  border-color: color-mix(in srgb, var(--client-state-success) 18%, transparent);
+  color: var(--client-state-success);
+}

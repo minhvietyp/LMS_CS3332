@@ -7,6 +7,7 @@ import { ChangePasswordDto, CreateUserDto, UpdateContactDto, UpdateProfileDto, U
 import { Prisma } from '@prisma/client';
 import { parsePagination, pickDefined } from '@shared/utils/helpers';
 import { PaginatedResult } from '@types';
+import { COURSE_STATUS, ENROLLMENT_STATUS, USER_ROLES } from '@shared/constants';
 
 export interface AccountProfile {
   id: string;
@@ -61,6 +62,92 @@ const accountProfileSelect = {
 } as const;
 
 export class UserService {
+  async listPublicInstructors(): Promise<any[]> {
+    const instructors = await prisma.user.findMany({
+      where: {
+        role: USER_ROLES.INSTRUCTOR,
+        isActive: true,
+        deletedAt: null,
+        taughtCourses: {
+          some: {
+            deletedAt: null,
+            status: COURSE_STATUS.PUBLISHED,
+          },
+        },
+      },
+      select: {
+        ...accountProfileSelect,
+        taughtCourses: {
+          where: {
+            deletedAt: null,
+            status: COURSE_STATUS.PUBLISHED,
+          },
+          select: {
+            id: true,
+            enrollments: {
+              where: {
+                status: ENROLLMENT_STATUS.ACTIVE,
+              },
+              select: { id: true },
+            },
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+
+    return instructors.map((instructor) => ({
+      ...instructor,
+      courseCount: instructor.taughtCourses.length,
+      studentCount: instructor.taughtCourses.reduce((count, course) => count + course.enrollments.length, 0),
+    }));
+  }
+
+  async getPublicInstructorById(id: string): Promise<any> {
+    const instructor = await prisma.user.findFirst({
+      where: {
+        id,
+        role: USER_ROLES.INSTRUCTOR,
+        isActive: true,
+        deletedAt: null,
+      },
+      select: {
+        ...accountProfileSelect,
+        taughtCourses: {
+          where: {
+            deletedAt: null,
+            status: COURSE_STATUS.PUBLISHED,
+          },
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            thumbnailUrl: true,
+            status: true,
+            enrollments: {
+              where: {
+                status: ENROLLMENT_STATUS.ACTIVE,
+              },
+              select: { id: true },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+
+    if (!instructor) {
+      throw NotFoundError('Instructor not found');
+    }
+
+    return {
+      ...instructor,
+      courseCount: instructor.taughtCourses.length,
+      studentCount: instructor.taughtCourses.reduce((count, course) => count + course.enrollments.length, 0),
+      publishedCourses: instructor.taughtCourses.map(({ enrollments, ...course }) => course),
+    };
+  }
+
   /**
    * List users with pagination, search, and filters
    */

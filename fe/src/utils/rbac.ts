@@ -1,4 +1,4 @@
-import type { UserRole } from '../components/context/AuthContext';
+import type { UserRole } from '../context/AuthContext';
 
 export const PERMISSIONS = {
   USER_READ: 'user:read',

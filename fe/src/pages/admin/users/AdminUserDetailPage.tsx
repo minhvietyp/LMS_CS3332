@@ -1,6 +1,6 @@
 import { Navigate, useParams } from 'react-router-dom';
-import { AdminPageContainer } from '../../../components/admin/layout';
-import { UserManagementDetail } from '../../../components/admin/users';
+import { AdminPageContainer } from '../../../components/admin-layout';
+import { UserManagementDetail } from './components';
 
 export function AdminUserDetailPage() {
   const { id } = useParams();
@@ -18,3 +18,4 @@ export function AdminUserDetailPage() {
     </AdminPageContainer>
   );
 }
+

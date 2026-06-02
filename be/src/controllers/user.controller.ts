@@ -6,6 +6,16 @@ import { BadRequestError } from '@shared/errors/AppError';
 const userService = new UserService();
 
 export class UserController {
+  async listPublicInstructors(_req: Request, res: Response) {
+    const instructors = await userService.listPublicInstructors();
+    return ApiResponse.success(res, instructors, 'Public instructors retrieved successfully');
+  }
+
+  async getPublicInstructorById(req: Request, res: Response) {
+    const instructor = await userService.getPublicInstructorById(req.params.id);
+    return ApiResponse.success(res, instructor, 'Public instructor retrieved successfully');
+  }
+
   async list(req: Request, res: Response) {
     const result = await userService.list(req.query);
     return ApiResponse.success(res, result.data, 'Users retrieved successfully', 200, result.meta);

@@ -6,6 +6,16 @@ import { BadRequestError } from '@shared/errors/AppError';
 const courseService = new CourseService();
 
 export class CourseController {
+  async listPublic(req: Request, res: Response) {
+    const result = await courseService.listPublic(req.query);
+    return ApiResponse.success(res, result.data, 'Public courses retrieved successfully', 200, result.meta);
+  }
+
+  async getPublicById(req: Request, res: Response) {
+    const course = await courseService.getPublicById(req.params.id);
+    return ApiResponse.success(res, course, 'Public course retrieved successfully');
+  }
+
   async list(req: Request, res: Response) {
     const result = await courseService.list(req.query, req.user!);
     return ApiResponse.success(res, result.data, 'Courses retrieved successfully', 200, result.meta);
@@ -14,6 +24,16 @@ export class CourseController {
   async getById(req: Request, res: Response) {
     const course = await courseService.getById(req.params.id, req.user!);
     return ApiResponse.success(res, course, 'Course retrieved successfully');
+  }
+
+  async listPublishedModules(req: Request, res: Response) {
+    const modules = await courseService.listPublishedModules(req.params.id, req.user!);
+    return ApiResponse.success(res, modules, 'Published course modules retrieved successfully');
+  }
+
+  async listResources(req: Request, res: Response) {
+    const resources = await courseService.listResources(req.params.id, req.user!);
+    return ApiResponse.success(res, resources, 'Course resources retrieved successfully');
   }
 
   async create(req: Request, res: Response) {

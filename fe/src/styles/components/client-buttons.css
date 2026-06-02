@@ -1,0 +1,57 @@
+.client-theme .client-button,
+.client-theme .ant-btn.client-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--client-space-sm);
+  min-height: 44px;
+  padding-inline: var(--client-space-lg);
+  border-radius: var(--client-radius-md);
+  border: 1px solid transparent;
+  font-family: var(--client-font-body);
+  font-size: var(--client-type-label-size);
+  font-weight: var(--client-type-label-weight);
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.client-theme .client-button-primary {
+  background: var(--client-color-primary);
+  color: var(--client-color-on-primary, #fff);
+  box-shadow: var(--client-shadow-elevated);
+}
+
+.client-theme .client-button-secondary {
+  background: transparent;
+  color: var(--client-color-primary);
+  border-color: var(--client-color-primary);
+}
+
+.client-theme .client-button-ghost {
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--client-color-primary);
+  border-color: rgba(0, 40, 142, 0.18);
+}
+
+.client-theme .client-button-tertiary {
+  background: transparent;
+  color: var(--client-text-secondary);
+  border-color: var(--client-border-soft);
+  box-shadow: none;
+}
+
+.client-theme .client-button-danger {
+  background: var(--client-state-danger);
+  color: #fff;
+}
+
+.client-theme .client-button-pill {
+  border-radius: var(--client-radius-pill);
+}
+
+.client-theme .client-button-block {
+  width: 100%;
+}
+
+.client-theme .client-button:active {
+  transform: scale(0.98);
+}

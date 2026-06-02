@@ -1,0 +1,448 @@
+.assignment-workspace,
+.assignment-workspace__queue,
+.assignment-workspace__sidebar,
+.assignment-workspace__main,
+.assignment-workspace__stack,
+.assignment-workspace__history-list,
+.assignment-workspace__resource-list,
+.assignment-workspace__metric-grid,
+.assignment-workspace__status-grid,
+.assignment-workspace__action-group {
+  display: grid;
+  gap: var(--client-space-lg);
+  min-width: 0;
+}
+
+.assignment-workspace__hero,
+.assignment-workspace__panel,
+.assignment-workspace__queue-card,
+.assignment-workspace__summary-card,
+.assignment-workspace__submission-shell,
+.assignment-workspace__sidebar-card {
+  display: grid;
+  gap: var(--client-space-md);
+  min-width: 0;
+  border-radius: var(--client-radius-xl);
+  border: 1px solid var(--client-border-soft);
+  background: linear-gradient(180deg, var(--client-bg-surface) 0%, var(--client-bg-surface-low) 100%);
+  box-shadow: var(--client-shadow-card);
+}
+
+.assignment-workspace__hero {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  align-items: stretch;
+}
+
+.assignment-workspace__hero-copy,
+.assignment-workspace__hero-actions,
+.assignment-workspace__hero-meta,
+.assignment-workspace__metric-grid,
+.assignment-workspace__queue-card,
+.assignment-workspace__submission-shell,
+.assignment-workspace__sidebar-card,
+.assignment-workspace__status-grid,
+.assignment-workspace__resource-list,
+.assignment-workspace__history-list {
+  min-width: 0;
+}
+
+.assignment-workspace__hero-copy {
+  display: grid;
+  gap: var(--client-space-sm);
+}
+
+.assignment-workspace__hero-copy .ant-typography,
+.assignment-workspace__panel .ant-typography,
+.assignment-workspace__queue-card .ant-typography,
+.assignment-workspace__sidebar-card .ant-typography {
+  margin-bottom: 0;
+}
+
+.assignment-workspace__hero-meta,
+.assignment-workspace__brief-meta,
+.assignment-workspace__row-meta,
+.assignment-workspace__history-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--client-space-sm);
+  align-items: center;
+}
+
+.assignment-workspace__hero-actions {
+  display: grid;
+  gap: var(--client-space-md);
+  min-width: 0;
+}
+
+.assignment-workspace__metric-grid,
+.assignment-workspace__status-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.assignment-workspace__metric-card,
+.assignment-workspace__status-tile,
+.assignment-workspace__brief-note,
+.assignment-workspace__resource-item,
+.assignment-workspace__history-item,
+.assignment-workspace__queue-row,
+.assignment-workspace__success-state,
+.assignment-workspace__error-state {
+  border-radius: var(--client-radius-lg);
+  border: 1px solid var(--client-border-soft);
+  background: var(--client-bg-surface);
+}
+
+.assignment-workspace__metric-card,
+.assignment-workspace__status-tile {
+  display: grid;
+  gap: 4px;
+  padding: var(--client-space-md);
+}
+
+.assignment-workspace__metric-card strong,
+.assignment-workspace__status-tile strong {
+  color: var(--client-text-primary);
+  font-size: clamp(1.35rem, 2vw, 1.85rem);
+  line-height: 1.1;
+}
+
+.assignment-workspace__metric-card--critical {
+  border-color: color-mix(in srgb, var(--client-color-danger) 18%, var(--client-border-soft));
+  background: color-mix(in srgb, var(--client-color-danger) 6%, var(--client-bg-surface));
+}
+
+.assignment-workspace__metric-card--focus {
+  border-color: color-mix(in srgb, var(--client-color-primary) 20%, var(--client-border-soft));
+}
+
+.assignment-workspace__hero-summary {
+  display: grid;
+  gap: var(--client-space-md);
+  padding: var(--client-card-padding);
+  border-radius: var(--client-radius-xl);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--client-color-primary) 10%, var(--client-bg-surface)) 0%, var(--client-bg-surface) 100%);
+  border: 1px solid color-mix(in srgb, var(--client-color-primary) 16%, var(--client-border-soft));
+}
+
+.assignment-workspace__hero-summary .client-button {
+  justify-content: center;
+}
+
+.assignment-workspace__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 360px);
+  gap: var(--client-space-xl);
+  min-width: 0;
+}
+
+.assignment-workspace__section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: var(--client-space-md);
+}
+
+.assignment-workspace__section-header-copy {
+  display: grid;
+  gap: var(--client-space-xs);
+  min-width: 0;
+}
+
+.assignment-workspace__section-header-actions {
+  display: flex;
+  gap: var(--client-space-sm);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.assignment-workspace__queue-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--client-space-sm);
+  align-items: center;
+}
+
+.assignment-workspace__search {
+  width: 100%;
+  min-width: 0;
+}
+
+.assignment-workspace__search.ant-input-affix-wrapper,
+.assignment-workspace__queue-filter.ant-select {
+  border-radius: var(--client-radius-lg);
+}
+
+.assignment-workspace__queue-card {
+  padding: var(--client-card-padding);
+}
+
+.assignment-workspace__queue-card--accent {
+  border-color: color-mix(in srgb, var(--client-color-primary) 18%, var(--client-border-soft));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--client-color-primary) 10%, transparent);
+}
+
+.assignment-workspace__queue-header {
+  display: grid;
+  gap: var(--client-space-sm);
+}
+
+.assignment-workspace__queue-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: var(--client-space-md);
+}
+
+.assignment-workspace__queue-heading-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.assignment-workspace__queue-heading-copy .ant-typography {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.assignment-workspace__queue-primary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--client-space-sm);
+  flex-shrink: 0;
+}
+
+.assignment-workspace__queue-primary .client-button {
+  white-space: nowrap;
+}
+
+.assignment-workspace__queue-row {
+  display: grid;
+  gap: var(--client-space-sm);
+  padding: var(--client-space-md);
+}
+
+.assignment-workspace__queue-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--client-space-sm);
+  flex-wrap: wrap;
+}
+
+.assignment-workspace__brief-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(240px, 320px);
+  gap: var(--client-space-lg);
+}
+
+.assignment-workspace__brief-copy,
+.assignment-workspace__brief-side,
+.assignment-workspace__submission-form {
+  display: grid;
+  gap: var(--client-space-md);
+  min-width: 0;
+}
+
+.assignment-workspace__brief-note {
+  display: grid;
+  gap: 4px;
+  padding: var(--client-space-md);
+}
+
+.assignment-workspace__text-area.ant-input {
+  min-height: 220px;
+  border-radius: var(--client-radius-lg);
+  resize: vertical;
+}
+
+.assignment-workspace__upload-box {
+  display: grid;
+  gap: var(--client-space-sm);
+  padding: var(--client-space-lg);
+  border-radius: var(--client-radius-lg);
+  border: 1px dashed color-mix(in srgb, var(--client-color-primary) 24%, var(--client-border-soft));
+  background: color-mix(in srgb, var(--client-color-primary) 4%, var(--client-bg-surface));
+  cursor: pointer;
+}
+
+.assignment-workspace__upload-box[aria-disabled='true'] {
+  cursor: progress;
+  opacity: 0.8;
+}
+
+.assignment-workspace__upload-input {
+  display: none;
+}
+
+.assignment-workspace__selected-file,
+.assignment-workspace__submission-preview,
+.assignment-workspace__history-item,
+.assignment-workspace__resource-item {
+  display: grid;
+  gap: var(--client-space-sm);
+  padding: var(--client-space-md);
+}
+
+.assignment-workspace__submission-actions,
+.assignment-workspace__history-actions,
+.assignment-workspace__queue-row-actions,
+.assignment-workspace__resource-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--client-space-sm);
+}
+
+.assignment-workspace__submission-actions .client-button,
+.assignment-workspace__history-actions .client-button,
+.assignment-workspace__queue-row-actions .client-button,
+.assignment-workspace__resource-actions .client-button {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.assignment-workspace__sidebar-card {
+  padding: var(--client-card-padding);
+}
+
+.assignment-workspace__status-value {
+  font-size: clamp(1.75rem, 3vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--client-text-primary);
+}
+
+.assignment-workspace__history-item-title {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--client-space-sm);
+  align-items: start;
+}
+
+.assignment-workspace__history-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--client-space-xs);
+  color: var(--client-color-primary);
+  text-decoration: none;
+  min-width: 0;
+}
+
+.assignment-workspace__success-state {
+  padding: var(--client-space-md);
+  background: color-mix(in srgb, var(--client-color-success) 8%, var(--client-bg-surface));
+  border-color: color-mix(in srgb, var(--client-color-success) 18%, var(--client-border-soft));
+}
+
+.assignment-workspace__error-state {
+  padding: var(--client-space-md);
+  background: color-mix(in srgb, var(--client-color-danger) 6%, var(--client-bg-surface));
+  border-color: color-mix(in srgb, var(--client-color-danger) 18%, var(--client-border-soft));
+}
+
+.assignment-workspace__state-card,
+.assignment-workspace__skeleton-card {
+  padding: var(--client-card-padding);
+}
+
+.assignment-workspace__skeleton-shell {
+  display: grid;
+  gap: var(--client-space-md);
+}
+
+.assignment-workspace__skeleton-line,
+.assignment-workspace__skeleton-block {
+  border-radius: var(--client-radius-lg);
+  background: linear-gradient(90deg, var(--client-bg-surface-low) 0%, color-mix(in srgb, var(--client-bg-surface-low) 72%, var(--client-bg-surface)) 50%, var(--client-bg-surface-low) 100%);
+}
+
+.assignment-workspace__skeleton-line {
+  height: 14px;
+}
+
+.assignment-workspace__skeleton-line--title {
+  width: min(60%, 340px);
+  height: 28px;
+}
+
+.assignment-workspace__skeleton-line--meta {
+  width: min(40%, 220px);
+}
+
+.assignment-workspace__skeleton-block {
+  min-height: 120px;
+}
+
+@media (max-width: 1280px) {
+  .assignment-workspace__hero,
+  .assignment-workspace__layout,
+  .assignment-workspace__brief-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1024px) {
+  .assignment-workspace__metric-grid,
+  .assignment-workspace__status-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .assignment-workspace__metric-grid,
+  .assignment-workspace__status-grid,
+  .assignment-workspace__hero-meta,
+  .assignment-workspace__brief-meta,
+  .assignment-workspace__row-meta,
+  .assignment-workspace__history-meta,
+  .assignment-workspace__queue-footer,
+  .assignment-workspace__submission-actions,
+  .assignment-workspace__history-actions,
+  .assignment-workspace__queue-row-actions,
+  .assignment-workspace__resource-actions,
+  .assignment-workspace__section-header,
+  .assignment-workspace__section-header-actions,
+  .assignment-workspace__queue-controls,
+  .assignment-workspace__queue-heading,
+  .assignment-workspace__queue-primary,
+  .assignment-workspace__history-item-title {
+    grid-template-columns: 1fr;
+  }
+
+  .assignment-workspace__hero-meta,
+  .assignment-workspace__brief-meta,
+  .assignment-workspace__row-meta,
+  .assignment-workspace__history-meta,
+  .assignment-workspace__queue-footer,
+  .assignment-workspace__submission-actions,
+  .assignment-workspace__history-actions,
+  .assignment-workspace__queue-row-actions,
+  .assignment-workspace__resource-actions,
+  .assignment-workspace__section-header-actions,
+  .assignment-workspace__queue-controls,
+  .assignment-workspace__queue-primary {
+    display: grid;
+  }
+
+  .assignment-workspace__hero-meta,
+  .assignment-workspace__brief-meta,
+  .assignment-workspace__row-meta,
+  .assignment-workspace__history-meta {
+    align-items: start;
+  }
+
+  .assignment-workspace__submission-actions .client-button,
+  .assignment-workspace__history-actions .client-button,
+  .assignment-workspace__queue-row-actions .client-button,
+  .assignment-workspace__resource-actions .client-button,
+  .assignment-workspace__hero-summary .client-button,
+  .assignment-workspace__section-header-actions .client-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .assignment-workspace__metric-grid,
+  .assignment-workspace__status-grid {
+    grid-template-columns: 1fr;
+  }
+}

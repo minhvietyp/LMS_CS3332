@@ -20,6 +20,8 @@ import { progressRouter } from '@routes/progress.routes';
 import { quizzesRouter } from '@routes/quiz.routes';
 import { assignmentsRouter } from '@routes/assignment.routes';
 import { accessControlRouter } from '@routes/access-control.routes';
+import { notificationsRouter } from '@routes/notification.routes';
+import { chatRouter } from '@routes/chat.routes';
 
 export function createApp(): Application {
   const app = express();
@@ -88,6 +90,8 @@ export function createApp(): Application {
   apiRouter.use('/quizzes', quizzesRouter);
   apiRouter.use('/assignments', assignmentsRouter);
   apiRouter.use('/access-control', accessControlRouter);
+  apiRouter.use('/notifications', notificationsRouter);
+  apiRouter.use('/chat', chatRouter);
 
   app.use('/api/v1', apiRouter);
 

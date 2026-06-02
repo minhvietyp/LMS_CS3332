@@ -1,0 +1,8 @@
+.client-theme {
+  --client-z-base: 1;
+  --client-z-sticky: 50;
+  --client-z-dropdown: 1000;
+  --client-z-drawer: 1100;
+  --client-z-modal: 1200;
+  --client-z-toast: 1300;
+}
