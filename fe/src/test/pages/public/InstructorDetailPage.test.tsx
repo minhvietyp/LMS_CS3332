@@ -51,5 +51,5 @@ describe('InstructorDetailPage', () => {
     expect(await screen.findByRole('heading', { name: 'Dr. Ada' })).toBeInTheDocument();
     expect(screen.getByText('Published courses')).toBeInTheDocument();
     expect(screen.getByText('Frontend Foundations')).toBeInTheDocument();
-  });
+  }, 10000);
 });

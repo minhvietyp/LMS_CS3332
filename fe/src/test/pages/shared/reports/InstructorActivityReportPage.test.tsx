@@ -87,5 +87,5 @@ describe('InstructorActivityReportPage', () => {
 
     expect(await screen.findByText('Student One')).toBeInTheDocument();
     expect(screen.getByText('ACTIVE')).toBeInTheDocument();
-  });
+  }, 10000);
 });

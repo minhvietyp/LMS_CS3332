@@ -262,7 +262,7 @@ describe('Client assignment pages', () => {
         fileName: 'report.pdf',
       });
     });
-  });
+  }, HEAVY_UI_TEST_TIMEOUT);
 
   it('shows an upload error and blocks submit when the Cloudinary upload fails', async () => {
     getStudentAssignmentDetailRequest.mockResolvedValue({

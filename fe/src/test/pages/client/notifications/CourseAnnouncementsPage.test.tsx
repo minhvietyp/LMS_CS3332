@@ -8,6 +8,7 @@ import { CourseAnnouncementsPage } from '../../../../pages/client/notifications/
 const getCourseByIdRequest = vi.fn();
 const listNotificationsRequest = vi.fn();
 const markNotificationAsReadRequest = vi.fn();
+const markAllNotificationsAsReadRequest = vi.fn();
 
 vi.mock('../../../../services/api/courseApi', async () => {
   const actual = await vi.importActual<typeof import('../../../../services/api/courseApi')>(
@@ -23,6 +24,7 @@ vi.mock('../../../../services/api/courseApi', async () => {
 vi.mock('../../../../services/api/notificationApi', () => ({
   listNotificationsRequest: (...args: unknown[]) => listNotificationsRequest(...args),
   markNotificationAsReadRequest: (...args: unknown[]) => markNotificationAsReadRequest(...args),
+  markAllNotificationsAsReadRequest: (...args: unknown[]) => markAllNotificationsAsReadRequest(...args),
 }));
 
 function buildToken() {

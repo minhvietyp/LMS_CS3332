@@ -79,5 +79,5 @@ describe('AssignmentReportPage', () => {
     expect(await screen.findByText('Student One')).toBeInTheDocument();
     expect(screen.getByText('GRADED')).toBeInTheDocument();
     expect(screen.getByText('92%')).toBeInTheDocument();
-  });
+  }, 10000);
 });

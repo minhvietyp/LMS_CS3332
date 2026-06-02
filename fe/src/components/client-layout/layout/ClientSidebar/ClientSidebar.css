@@ -107,6 +107,9 @@
 }
 
 .client-sidebar__shortcut {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   min-width: 0;
   min-height: 40px;
   padding: 10px 12px;
@@ -121,10 +124,27 @@
   transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
 }
 
+.client-sidebar__shortcut-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--client-shell-text-muted);
+}
+
 .client-sidebar__shortcut:hover {
   border-color: var(--client-shell-active-accent);
   color: var(--client-shell-active-text);
   background: color-mix(in srgb, var(--client-shell-active-bg) 40%, var(--client-bg-surface));
+}
+
+.client-sidebar__shortcut:hover .client-sidebar__shortcut-icon,
+.client-sidebar__shortcut--active .client-sidebar__shortcut-icon {
+  color: currentColor;
+}
+
+.client-sidebar__shortcut--active {
+  border-color: var(--client-shell-active-accent);
+  background: color-mix(in srgb, var(--client-shell-active-bg) 45%, var(--client-bg-surface));
+  color: var(--client-shell-active-text);
 }
 
 .client-sidebar__item {
@@ -171,6 +191,30 @@
   margin-top: var(--client-space-md);
 }
 
+.client-sidebar__tools-dropdown {
+  z-index: 1100;
+}
+
+.client-sidebar__tools-dropdown .ant-dropdown-menu {
+  min-width: 220px;
+  padding: 8px;
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-xl);
+  background: var(--client-bg-surface);
+  box-shadow: var(--client-shadow-dropdown);
+}
+
+.client-sidebar__tools-dropdown .ant-dropdown-menu-item {
+  min-height: 42px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.client-sidebar__tools-dropdown .ant-dropdown-menu-item-selected {
+  background: var(--client-shell-active-bg);
+  color: var(--client-shell-active-text);
+}
+
 .client-sidebar__tools-accordion.ant-collapse {
   background: transparent;
 }
@@ -212,6 +256,97 @@
   padding-top: var(--client-space-lg);
   margin-top: var(--client-space-lg);
   border-top: 1px solid var(--client-shell-border);
+}
+
+.client-sidebar__resume-card,
+.client-sidebar__recent-item,
+.client-sidebar__collapsed-resume {
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.client-sidebar__resume-card {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--client-color-primary) 18%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--client-color-primary) 8%, var(--client-bg-surface));
+  color: var(--client-shell-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.client-sidebar__resume-card:hover,
+.client-sidebar__recent-item:hover,
+.client-sidebar__collapsed-resume:hover {
+  transform: translateY(-1px);
+  border-color: var(--client-shell-active-accent);
+}
+
+.client-sidebar__resume-card strong,
+.client-sidebar__recent-item strong {
+  color: var(--client-shell-text-strong);
+}
+
+.client-sidebar__resume-label {
+  color: var(--client-shell-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.client-sidebar__resume-progress {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--client-shell-active-text);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.client-sidebar__recent-list {
+  display: grid;
+  gap: 8px;
+}
+
+.client-sidebar__recent-item {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--client-shell-border);
+  border-radius: 14px;
+  background: var(--client-bg-surface);
+  color: var(--client-shell-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.client-sidebar__recent-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--client-shell-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.client-sidebar__collapsed-resume {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border: 1px solid color-mix(in srgb, var(--client-color-primary) 18%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--client-color-primary) 8%, var(--client-bg-surface));
+  color: var(--client-shell-active-accent);
+  cursor: pointer;
 }
 
 .client-sidebar__item--footer {

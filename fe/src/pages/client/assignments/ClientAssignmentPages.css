@@ -20,17 +20,19 @@
 .assignment-workspace__submission-shell,
 .assignment-workspace__sidebar-card {
   display: grid;
-  gap: var(--client-space-md);
+  gap: var(--client-space-lg);
   min-width: 0;
   border-radius: var(--client-radius-xl);
   border: 1px solid var(--client-border-soft);
   background: linear-gradient(180deg, var(--client-bg-surface) 0%, var(--client-bg-surface-low) 100%);
   box-shadow: var(--client-shadow-card);
+  padding: var(--client-card-padding);
 }
 
 .assignment-workspace__hero {
   grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
   align-items: stretch;
+  gap: var(--client-space-xl);
 }
 
 .assignment-workspace__hero-copy,
@@ -48,7 +50,7 @@
 
 .assignment-workspace__hero-copy {
   display: grid;
-  gap: var(--client-space-sm);
+  gap: var(--client-space-md);
 }
 
 .assignment-workspace__hero-copy .ant-typography,
@@ -56,6 +58,7 @@
 .assignment-workspace__queue-card .ant-typography,
 .assignment-workspace__sidebar-card .ant-typography {
   margin-bottom: 0;
+  line-height: 1.5;
 }
 
 .assignment-workspace__hero-meta,
@@ -64,7 +67,7 @@
 .assignment-workspace__history-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--client-space-sm);
+  gap: var(--client-space-md);
   align-items: center;
 }
 
@@ -95,15 +98,27 @@
 .assignment-workspace__metric-card,
 .assignment-workspace__status-tile {
   display: grid;
-  gap: 4px;
-  padding: var(--client-space-md);
+  gap: 8px;
+  padding: var(--client-card-padding);
+  border-radius: var(--client-radius-lg);
+  border: 1px solid var(--client-border-soft);
+  background: var(--client-bg-surface);
 }
 
 .assignment-workspace__metric-card strong,
 .assignment-workspace__status-tile strong {
   color: var(--client-text-primary);
-  font-size: clamp(1.35rem, 2vw, 1.85rem);
+  font-size: clamp(1.45rem, 2.5vw, 1.95rem);
   line-height: 1.1;
+  font-weight: 700;
+}
+
+.assignment-workspace__metric-card .ant-typography,
+.assignment-workspace__status-tile .ant-typography {
+  margin: 0;
+  color: var(--client-shell-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .assignment-workspace__metric-card--critical {

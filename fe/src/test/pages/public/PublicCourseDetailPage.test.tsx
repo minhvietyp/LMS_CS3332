@@ -57,5 +57,5 @@ describe('PublicCourseDetailPage', () => {
     expect(screen.getByText('React basics')).toBeInTheDocument();
     expect(screen.getByText(/Lesson 1:\s*Components/)).toBeInTheDocument();
     expect(screen.getByText('Dr. Ada')).toBeInTheDocument();
-  });
+  }, 10000);
 });

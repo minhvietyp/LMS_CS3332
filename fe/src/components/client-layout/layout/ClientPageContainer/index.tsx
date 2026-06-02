@@ -22,7 +22,7 @@ function getStaticLabel(pathname: string) {
   if (pathname === '/grades') return 'Grades';
   if (pathname === '/certificates') return 'Certificates';
   if (pathname === '/calendar') return 'Calendar';
-  if (pathname === '/community') return 'Community';
+  if (pathname === '/student/community') return 'Community';
   if (pathname === '/notifications') return 'Notifications';
   if (pathname === '/settings') return 'Settings';
   if (pathname === '/profile') return 'Profile';

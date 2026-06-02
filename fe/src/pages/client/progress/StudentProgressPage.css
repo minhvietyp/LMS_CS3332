@@ -126,15 +126,29 @@
 .progress-center__mini-metric {
   display: flex;
   flex-direction: column;
-  gap: var(--client-space-2);
+  gap: var(--client-space-sm);
+  min-width: 0;
+  padding: var(--client-space-md);
+  border-radius: var(--client-radius-lg);
+  border: 1px solid var(--client-color-border-subtle);
+  background: var(--client-color-surface-raised);
 }
 
 .progress-center__metric-card strong,
 .progress-center__mini-metric strong,
 .progress-center__secondary-metric strong {
-  font-size: var(--client-font-size-3xl);
-  line-height: 1.05;
+  font-size: 1.65rem;
+  line-height: 1.1;
   color: var(--client-color-text-strong);
+  font-weight: 700;
+}
+
+.progress-center__metric-card .ant-typography,
+.progress-center__mini-metric .ant-typography {
+  margin: 0;
+  color: var(--client-color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .progress-center__layout {

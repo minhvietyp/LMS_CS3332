@@ -46,3 +46,12 @@ export async function markNotificationAsReadRequest(notificationId: string): Pro
     throw new Error(getErrorMessage(error, 'Failed to update notification.'));
   }
 }
+
+export async function markAllNotificationsAsReadRequest(): Promise<number> {
+  try {
+    const response = await apiClient.patch<ApiEnvelope<{ updatedCount: number }>>('/notifications/read-all');
+    return response.data.data.updatedCount;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, 'Failed to mark all notifications as read.'));
+  }
+}

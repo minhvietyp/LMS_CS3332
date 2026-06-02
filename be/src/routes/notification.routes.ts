@@ -16,4 +16,10 @@ router.patch(
   asyncHandler(notificationController.markAsRead),
 );
 
+router.patch(
+  '/read-all',
+  authenticate,
+  asyncHandler(notificationController.markAllAsRead),
+);
+
 export { router as notificationsRouter };

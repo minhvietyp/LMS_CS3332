@@ -9,6 +9,7 @@ import { listCoursesRequest } from '../../../services/api/courseApi';
 import {
   listNotificationsRequest,
   markNotificationAsReadRequest,
+  markAllNotificationsAsReadRequest,
   type NotificationItem,
 } from '../../../services/api/notificationApi';
 import {
@@ -97,6 +98,18 @@ function getPrioritySectionTitle(notification: NotificationItem) {
   return 'System Update';
 }
 
+function getNotificationGroup(value: string) {
+  const createdAt = new Date(value);
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const createdTime = createdAt.getTime();
+  const diffDays = Math.floor((startOfToday - new Date(createdAt.getFullYear(), createdAt.getMonth(), createdAt.getDate()).getTime()) / (1000 * 60 * 60 * 24));
+
+  if (createdTime >= startOfToday) return 'Today';
+  if (diffDays <= 7) return 'This Week';
+  return 'Older';
+}
+
 export function ClientNotificationsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -120,6 +133,33 @@ export function ClientNotificationsPage() {
 
   const markReadMutation = useMutation({
     mutationFn: markNotificationAsReadRequest,
+    onMutate: async (notificationId) => {
+      setActionError(null);
+      await queryClient.cancelQueries({ queryKey: ['notifications'] });
+
+      const previousNotifications = queryClient.getQueriesData<NotificationItem[]>({ queryKey: ['notifications'] });
+      queryClient.setQueriesData<NotificationItem[]>({ queryKey: ['notifications'] }, (current) =>
+        Array.isArray(current)
+          ? current.map((item) =>
+              item.id === notificationId
+                ? {
+                    ...item,
+                    isRead: true,
+                    readAt: item.readAt ?? new Date().toISOString(),
+                  }
+                : item,
+            )
+          : current,
+      );
+
+      return { previousNotifications };
+    },
+    onError: (_error, _notificationId, context) => {
+      context?.previousNotifications.forEach(([queryKey, data]) => {
+        queryClient.setQueryData(queryKey, data);
+      });
+      setActionError('We could not update that notification right now.');
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['notifications', 'list'] });
     },
@@ -137,6 +177,15 @@ export function ClientNotificationsPage() {
   const filteredNotifications = useMemo(
     () => notifications.filter((item) => matchesCategory(item, activeCategory)),
     [activeCategory, notifications],
+  );
+  const groupedNotifications = useMemo(
+    () =>
+      filteredNotifications.reduce<Record<string, NotificationItem[]>>((groups, item) => {
+        const group = getNotificationGroup(item.createdAt);
+        groups[group] = [...(groups[group] ?? []), item];
+        return groups;
+      }, {}),
+    [filteredNotifications],
   );
 
   const categoryTabs = useMemo(() => {
@@ -184,30 +233,52 @@ export function ClientNotificationsPage() {
       variant: 'secondary',
       action: () => navigate(firstCourse ? `/courses/${firstCourse.id}/quizzes` : '/courses'),
     },
-    { label: 'Open Community', variant: 'secondary', action: () => navigate('/community') },
+    { label: 'Open Community', variant: 'secondary', action: () => navigate('/student/community') },
     { label: 'Browse Courses', variant: 'secondary', action: () => navigate('/courses') },
   ] as const;
 
   async function handleMarkRead(notificationId: string) {
-    setActionError(null);
     try {
       await markReadMutation.mutateAsync(notificationId);
     } catch {
-      setActionError('We could not update that notification right now.');
+      // handled in mutation lifecycle
     }
   }
+
+  const markAllMutation = useMutation({
+    mutationFn: markAllNotificationsAsReadRequest,
+    onMutate: async () => {
+      setActionError(null);
+      await queryClient.cancelQueries({ queryKey: ['notifications'] });
+
+      const previous = queryClient.getQueryData<NotificationItem[]>(['notifications', 'list']);
+
+      queryClient.setQueryData<NotificationItem[]>(['notifications', 'list'], (current) =>
+        Array.isArray(current)
+          ? current.map((item) => ({ ...item, isRead: true, readAt: item.readAt ?? new Date().toISOString() }))
+          : current,
+      );
+
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['notifications', 'list'], context.previous);
+      }
+      setActionError('We could not mark every notification as read.');
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
 
   async function handleMarkAllRead() {
     if (!unreadNotifications.length) return;
 
-    setActionError(null);
     try {
-      for (const notification of unreadNotifications) {
-        // eslint-disable-next-line no-await-in-loop
-        await markReadMutation.mutateAsync(notification.id);
-      }
+      await markAllMutation.mutateAsync();
     } catch {
-      setActionError('We could not mark every notification as read.');
+      // handled in mutation lifecycle
     }
   }
 
@@ -386,37 +457,49 @@ export function ClientNotificationsPage() {
                       </div>
                     ) : filteredNotifications.length ? (
                       <div className="notifications-workspace__stream">
-                        {filteredNotifications.map((item) => (
-                          <article
-                            key={item.id}
-                            className={`notifications-workspace__feed-card${!item.isRead ? ' notifications-workspace__feed-card--unread' : ''}`}
-                          >
-                            <div className="notifications-workspace__feed-main">
-                              <div className="notifications-workspace__feed-head">
-                                <div className="notifications-workspace__feed-labels">
-                                  <span className={getUrgencyBadgeClassName(item)}>{getNotificationTypeLabel(item)}</span>
-                                  {!item.isRead ? <span className="client-badge client-badge-info">Unread</span> : <span className="client-badge">Read</span>}
-                                </div>
-                                <Typography.Text className="client-meta">{formatDate(item.createdAt)}</Typography.Text>
+                        {(['Today', 'This Week', 'Older'] as const).map((groupLabel) =>
+                          groupedNotifications[groupLabel]?.length ? (
+                            <section key={groupLabel} className="notifications-workspace__group">
+                              <div className="notifications-workspace__group-header">
+                                <Typography.Text className="client-card-title">{groupLabel}</Typography.Text>
+                                <Typography.Text className="client-meta">{groupedNotifications[groupLabel].length} items</Typography.Text>
                               </div>
-                              <Typography.Text className="client-card-title">{item.message}</Typography.Text>
-                              <Typography.Text className="client-meta">{getNotificationSourceLabel(item)}</Typography.Text>
-                            </div>
-                            <div className="notifications-workspace__feed-actions">
-                              <Button
-                                className={`client-button ${item.type === 'ASSIGNMENT' || item.type === 'QUIZ' ? 'client-button-primary' : 'client-button-secondary'}`}
-                                onClick={() => navigate(getNotificationDestination(item))}
-                              >
-                                {getNotificationActionLabel(item)}
-                              </Button>
-                              {!item.isRead ? (
-                                <Button className="client-button client-button-ghost" onClick={() => void handleMarkRead(item.id)}>
-                                  Mark Read
-                                </Button>
-                              ) : null}
-                            </div>
-                          </article>
-                        ))}
+                              <div className="notifications-workspace__group-list">
+                                {groupedNotifications[groupLabel].map((item) => (
+                                  <article
+                                    key={item.id}
+                                    className={`notifications-workspace__feed-card${!item.isRead ? ' notifications-workspace__feed-card--unread' : ''}`}
+                                  >
+                                    <div className="notifications-workspace__feed-main">
+                                      <div className="notifications-workspace__feed-head">
+                                        <div className="notifications-workspace__feed-labels">
+                                          <span className={getUrgencyBadgeClassName(item)}>{getNotificationTypeLabel(item)}</span>
+                                          {!item.isRead ? <span className="client-badge client-badge-info">Unread</span> : <span className="client-badge">Read</span>}
+                                        </div>
+                                        <Typography.Text className="client-meta">{formatDate(item.createdAt)}</Typography.Text>
+                                      </div>
+                                      <Typography.Text className="client-card-title">{item.message}</Typography.Text>
+                                      <Typography.Text className="client-meta">{getNotificationSourceLabel(item)}</Typography.Text>
+                                    </div>
+                                    <div className="notifications-workspace__feed-actions">
+                                      <Button
+                                        className={`client-button ${item.type === 'ASSIGNMENT' || item.type === 'QUIZ' ? 'client-button-primary' : 'client-button-secondary'}`}
+                                        onClick={() => navigate(getNotificationDestination(item))}
+                                      >
+                                        {getNotificationActionLabel(item)}
+                                      </Button>
+                                      {!item.isRead ? (
+                                        <Button className="client-button client-button-ghost" onClick={() => void handleMarkRead(item.id)}>
+                                          Mark Read
+                                        </Button>
+                                      ) : null}
+                                    </div>
+                                  </article>
+                                ))}
+                              </div>
+                            </section>
+                          ) : null,
+                        )}
                       </div>
                     ) : activeCategory === 'UNREAD' ? (
                       <EmptyState title="No unread notifications" description="You have reviewed every alert in your current feed." compact />

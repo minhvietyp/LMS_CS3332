@@ -6,3 +6,5 @@ export { NotificationCard } from './NotificationCard';
 export { PageHeader } from './PageHeader';
 export { SectionHeader } from './SectionHeader';
 export { StatusBadge, type StatusTone } from './StatusBadge';
+export { ShellLoadingState } from './ShellLoadingState';
+export { ShellErrorState } from './ShellErrorState';

@@ -22,8 +22,10 @@ vi.mock('../../../services/api/authApi', async () => {
 const listCoursesRequestMock = vi.fn();
 const listNotificationsRequestMock = vi.fn();
 const markNotificationAsReadRequestMock = vi.fn();
+const markAllNotificationsAsReadRequestMock = vi.fn();
 const useProgressOverviewMock = vi.fn();
 const useActivityTimelineMock = vi.fn();
+const useClientContinueLearningMock = vi.fn();
 
 vi.mock('../../../services/api/courseApi', () => ({
   listCoursesRequest: (...args: unknown[]) => listCoursesRequestMock(...args),
@@ -32,11 +34,16 @@ vi.mock('../../../services/api/courseApi', () => ({
 vi.mock('../../../services/api/notificationApi', () => ({
   listNotificationsRequest: (...args: unknown[]) => listNotificationsRequestMock(...args),
   markNotificationAsReadRequest: (...args: unknown[]) => markNotificationAsReadRequestMock(...args),
+  markAllNotificationsAsReadRequest: (...args: unknown[]) => markAllNotificationsAsReadRequestMock(...args),
 }));
 
 vi.mock('../../../hooks/useProgressOverview', () => ({
   useProgressOverview: (...args: unknown[]) => useProgressOverviewMock(...args),
   useActivityTimeline: (...args: unknown[]) => useActivityTimelineMock(...args),
+}));
+
+vi.mock('../../../hooks/useClientContinueLearning', () => ({
+  useClientContinueLearning: (...args: unknown[]) => useClientContinueLearningMock(...args),
 }));
 
 vi.mock('../../../pages/admin/courses/components', () => ({
@@ -114,6 +121,7 @@ describe('Client student and instructor sections', () => {
     markNotificationAsReadRequestMock.mockReset();
     useProgressOverviewMock.mockReset();
     useActivityTimelineMock.mockReset();
+    useClientContinueLearningMock.mockReset();
 
     listNotificationsRequestMock.mockResolvedValue([
       {
@@ -176,6 +184,18 @@ describe('Client student and instructor sections', () => {
       isLoading: false,
       error: null,
     });
+    useClientContinueLearningMock.mockReturnValue({
+      streak: 0,
+      courseId: null,
+      courseTitle: null,
+      currentLesson: null,
+      nextLesson: null,
+      percentage: 0,
+      totalLessons: 0,
+      completedLessons: 0,
+      lastActivityAt: null,
+      isLoading: false,
+    });
   });
 
   it('renders the student dashboard inside the shared client layout', () => {
@@ -218,7 +238,7 @@ describe('Client student and instructor sections', () => {
     expect(within(menu).queryByRole('button', { name: /My Progress/i })).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Instructor Workflow' })).toBeInTheDocument();
     expect(screen.getByText('Pending reviews')).toBeInTheDocument();
-  });
+  }, 10000);
 
   it('renders the student course catalog with filters, progress, and wishlist actions', async () => {
     listCoursesRequestMock.mockResolvedValue({

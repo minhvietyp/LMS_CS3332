@@ -14,4 +14,9 @@ export class NotificationController {
     await notificationService.markAsRead(req.params.id, req.user!.sub);
     return ApiResponse.success(res, null, 'Notification marked as read');
   }
+
+  async markAllAsRead(req: Request, res: Response) {
+    const updatedCount = await notificationService.markAllAsRead(req.user!.sub);
+    return ApiResponse.success(res, { updatedCount }, 'All notifications marked as read');
+  }
 }

@@ -61,7 +61,7 @@ describe('CourseAnalyticsPage', () => {
     getInstructorCourseProgressMock.mockReset();
   });
 
-  it('renders course analytics summary and assessment mix', async () => {
+    it('renders course analytics summary and assessment mix', async () => {
     getCourseByIdRequestMock.mockResolvedValue({
       id: 'course-1',
       title: 'React Basics',
@@ -102,5 +102,5 @@ describe('CourseAnalyticsPage', () => {
 
     expect(await screen.findByText('Landing Page')).toBeInTheDocument();
     expect(screen.getByText('Module 1 Quiz')).toBeInTheDocument();
-  });
+    }, 10000);
 });

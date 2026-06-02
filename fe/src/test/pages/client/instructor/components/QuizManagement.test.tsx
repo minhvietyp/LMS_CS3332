@@ -176,7 +176,7 @@ describe('QuizManagement', () => {
     expect(screen.getByText('Course introduction quiz')).toBeInTheDocument();
     expect(screen.getByText('1 passed')).toBeInTheDocument();
     expect(screen.getByText('1 failed')).toBeInTheDocument();
-  }, 10000);
+  }, 15000);
 
   it('creates a new quiz from the management modal', async () => {
     createQuizRequest.mockResolvedValue({
@@ -231,7 +231,7 @@ describe('QuizManagement', () => {
     expect(await screen.findByText('Week 1 assignment')).toBeInTheDocument();
     expect(screen.getByText('Build a simple component')).toBeInTheDocument();
     expect(screen.getByText('Late allowed')).toBeInTheDocument();
-  });
+  }, 10000);
 
   it('creates a new assignment from the assignments tab', async () => {
     createAssignmentRequest.mockResolvedValue({

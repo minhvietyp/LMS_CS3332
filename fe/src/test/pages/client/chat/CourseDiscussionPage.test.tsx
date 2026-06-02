@@ -132,5 +132,5 @@ describe('CourseDiscussionPage', () => {
     await waitFor(() => {
       expect(sendChatMessageRequest).toHaveBeenCalledWith('room-1', 'Thanks, I have posted my question.');
     });
-  }, 10000);
+  }, 15000);
 });

@@ -7,6 +7,7 @@ import { StudentCommunityPage } from '../../../../pages/client/chat/StudentCommu
 
 const listMyChatRoomsRequest = vi.fn();
 const listNotificationsRequest = vi.fn();
+const markAllNotificationsAsReadRequest = vi.fn();
 
 vi.mock('../../../../services/api/chatApi', () => ({
   listMyChatRoomsRequest: (...args: unknown[]) => listMyChatRoomsRequest(...args),
@@ -14,6 +15,7 @@ vi.mock('../../../../services/api/chatApi', () => ({
 
 vi.mock('../../../../services/api/notificationApi', () => ({
   listNotificationsRequest: (...args: unknown[]) => listNotificationsRequest(...args),
+  markAllNotificationsAsReadRequest: (...args: unknown[]) => markAllNotificationsAsReadRequest(...args),
 }));
 
 function buildToken() {

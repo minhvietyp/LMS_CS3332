@@ -1,10 +1,14 @@
+import { useQuery } from '@tanstack/react-query';
 import { Avatar, Button, Collapse, Drawer, Dropdown, Layout, Tooltip, Typography } from 'antd';
 import type { MenuProps } from 'antd';
-import { BookCopy, LogOut } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { ArrowRight, Bell, BookCopy, ClipboardList, Clock3, LogOut, MessagesSquare } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { logoutRequest } from '../../../../services/api/authApi';
+import { listCoursesRequest } from '../../../../services/api/courseApi';
 import { useAuth } from '../../../../context/AuthContext';
+import { useClientContinueLearning } from '../../../../hooks/useClientContinueLearning';
+import { readRecentWorkspace, type RecentWorkspaceItem } from '../../../../utils/clientShellWorkspace';
 import { clientRoleLabels, getClientMenuMatch, getVisibleClientMenu } from '../ClientRoleMenu/clientMenu.config';
 import './ClientSidebar.css';
 
@@ -38,16 +42,29 @@ export function ClientSidebar({
   const navigate = useNavigate();
   const sections = useMemo(() => getVisibleClientMenu(user?.role), [user?.role]);
   const activeItem = getClientMenuMatch(location.pathname, user?.role);
+  const continueLearning = useClientContinueLearning();
   const isCollapsed = !isMobile && !isTablet && collapsed;
   const [expandedCourseToolKeys, setExpandedCourseToolKeys] = useState<string[]>([]);
+  const [recentItems, setRecentItems] = useState<RecentWorkspaceItem[]>([]);
+  const coursesQuery = useQuery({
+    queryKey: ['courses', 'sidebar-shortcuts'],
+    queryFn: () => listCoursesRequest({ limit: 1 }),
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+    enabled: user?.role === 'STUDENT',
+  });
   const currentCourseId = useMemo(() => {
     const courseMatch = location.pathname.match(/^\/courses\/([^/]+)(?:\/|$)/);
     return courseMatch?.[1] ?? null;
   }, [location.pathname]);
+  const fallbackCourseId = coursesQuery.data?.data?.[0]?.id ?? null;
+  const courseToolCourseId = currentCourseId ?? fallbackCourseId;
   const courseToolsActive = /^\/courses\/[^/]+\/(assignments|quizzes|announcements|discussion)/.test(location.pathname);
-  const shouldShowCourseTools = Boolean(
-    user?.role === 'STUDENT' && currentCourseId && location.pathname !== '/courses',
-  );
+  const shouldShowCourseTools = Boolean(user?.role === 'STUDENT' && courseToolCourseId);
+
+  useEffect(() => {
+    setRecentItems(readRecentWorkspace().slice(0, 5));
+  }, [location.pathname]);
 
   const studentCourseTools = useMemo(
     () =>
@@ -56,26 +73,30 @@ export function ClientSidebar({
             {
               key: 'assignments',
               label: 'Assignments',
-              path: `/courses/${currentCourseId}/assignments`,
+              path: `/courses/${courseToolCourseId}/assignments`,
+              icon: ClipboardList,
             },
             {
               key: 'quizzes',
               label: 'Quizzes',
-              path: `/courses/${currentCourseId}/quizzes`,
+              path: `/courses/${courseToolCourseId}/quizzes`,
+              icon: BookCopy,
             },
             {
               key: 'announcements',
               label: 'Announcements',
-              path: `/courses/${currentCourseId}/announcements`,
+              path: `/courses/${courseToolCourseId}/announcements`,
+              icon: Bell,
             },
             {
               key: 'discussion',
               label: 'Discussion',
-              path: `/courses/${currentCourseId}/discussion`,
+              path: `/courses/${courseToolCourseId}/discussion`,
+              icon: MessagesSquare,
             },
           ]
         : [],
-    [currentCourseId, shouldShowCourseTools],
+    [courseToolCourseId, shouldShowCourseTools],
   );
 
   const { primarySections, settingsItem } = useMemo(() => {
@@ -127,6 +148,7 @@ export function ClientSidebar({
     () =>
       studentCourseTools.map((item) => ({
         key: item.key,
+        icon: <item.icon size={16} />,
         label: item.label,
       })),
     [studentCourseTools],
@@ -176,11 +198,14 @@ export function ClientSidebar({
     );
   };
 
+  const isCourseToolPathActive = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`);
+
   const courseToolsAccordionItems = [
     {
       key: 'course-tools',
       label: (
         <div className="client-sidebar__tools-label">
+          <BookCopy size={16} />
           <span>Course Tools</span>
         </div>
       ),
@@ -190,9 +215,12 @@ export function ClientSidebar({
             <button
               key={item.key}
               type="button"
-              className="client-sidebar__shortcut"
+              className={`client-sidebar__shortcut${isCourseToolPathActive(item.path) ? ' client-sidebar__shortcut--active' : ''}`}
               onClick={() => handleNavigate(item.path)}
             >
+              <span className="client-sidebar__shortcut-icon">
+                <item.icon size={15} />
+              </span>
               <span>{item.label}</span>
             </button>
           ))}
@@ -200,6 +228,11 @@ export function ClientSidebar({
       ),
     },
   ];
+
+  const continueRoute =
+    continueLearning.courseId && continueLearning.currentLesson
+      ? `/courses/${continueLearning.courseId}/learn/${continueLearning.currentLesson.id}`
+      : null;
 
   const sidebarContent = (
     <div className={`client-sidebar${isCollapsed ? ' client-sidebar--collapsed' : ''}`}>
@@ -235,8 +268,11 @@ export function ClientSidebar({
         {shouldShowCourseTools && isCollapsed ? (
           <div className="client-sidebar__collapsed-tools">
             <Dropdown
+              trigger={['hover', 'click']}
+              classNames={{ root: 'client-sidebar__tools-dropdown' }}
               menu={{
                 items: courseToolsMenuItems,
+                selectedKeys: studentCourseTools.filter((item) => isCourseToolPathActive(item.path)).map((item) => item.key),
                 onClick: ({ key }) => {
                   const target = studentCourseTools.find((item) => item.key === key);
                   if (target) {
@@ -244,7 +280,6 @@ export function ClientSidebar({
                   }
                 },
               }}
-              trigger={['click']}
               placement="topRight"
             >
               <Tooltip placement="right" title="Course Tools">
@@ -259,9 +294,44 @@ export function ClientSidebar({
             </Dropdown>
           </div>
         ) : null}
+
+        {recentItems.length > 0 && !isCollapsed ? (
+          <section className="client-sidebar__shortcuts client-sidebar__recent-workspace" aria-label="Recent workspace">
+            <Typography.Text className="client-sidebar__group-label">Recent Workspace</Typography.Text>
+            <div className="client-sidebar__recent-list">
+              {recentItems.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="client-sidebar__recent-item"
+                  onClick={() => handleNavigate(item.route)}
+                >
+                  <span className="client-sidebar__recent-meta">
+                    <Clock3 size={14} />
+                    {item.type}
+                  </span>
+                  <strong>{item.title}</strong>
+                  {item.subtitle ? <span className="client-meta">{item.subtitle}</span> : null}
+                </button>
+              ))}
+            </div>
+          </section>
+        ) : null}
       </nav>
 
       <div className="client-sidebar__footer">
+        {continueRoute && !isCollapsed ? (
+          <button type="button" className="client-sidebar__resume-card" onClick={() => handleNavigate(continueRoute)}>
+            <span className="client-sidebar__resume-label">Continue Learning</span>
+            <strong>{continueLearning.courseTitle}</strong>
+            <span className="client-meta">{continueLearning.currentLesson?.title}</span>
+            <span className="client-sidebar__resume-progress">
+              {continueLearning.percentage}% complete
+              <ArrowRight size={14} />
+            </span>
+          </button>
+        ) : null}
+
         {settingsItem
           ? (() => {
               const SettingsIcon = settingsItem.icon;
@@ -306,14 +376,28 @@ export function ClientSidebar({
         ) : null}
 
         {isCollapsed ? (
-          <Tooltip placement="right" title="Logout">
-            <Button
-              className="client-sidebar__logout client-sidebar__logout--collapsed"
-              icon={<LogOut size={16} />}
-              onClick={() => void handleLogout()}
-              aria-label="Logout"
-            />
-          </Tooltip>
+          <>
+            {continueRoute ? (
+              <Tooltip placement="right" title={continueLearning.courseTitle ?? 'Continue learning'}>
+                <button
+                  type="button"
+                  className="client-sidebar__collapsed-resume"
+                  onClick={() => handleNavigate(continueRoute)}
+                  aria-label="Continue learning"
+                >
+                  <ArrowRight size={16} />
+                </button>
+              </Tooltip>
+            ) : null}
+            <Tooltip placement="right" title="Logout">
+              <Button
+                className="client-sidebar__logout client-sidebar__logout--collapsed"
+                icon={<LogOut size={16} />}
+                onClick={() => void handleLogout()}
+                aria-label="Logout"
+              />
+            </Tooltip>
+          </>
         ) : (
           <Button className="client-sidebar__logout" icon={<LogOut size={16} />} onClick={() => void handleLogout()}>
             Logout

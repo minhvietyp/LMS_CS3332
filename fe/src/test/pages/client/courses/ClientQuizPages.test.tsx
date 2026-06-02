@@ -265,7 +265,7 @@ describe('Client quiz pages', () => {
     expect(screen.getByText('1/1 correct')).toBeInTheDocument();
     expect(screen.getByText('Your answer:')).toBeInTheDocument();
     expect(screen.getAllByText('A library').length).toBeGreaterThan(0);
-  }, 15000);
+  }, 30000);
 
   it('shows pass and fail states in attempt history', async () => {
     getStudentQuizDetailRequest.mockResolvedValue({

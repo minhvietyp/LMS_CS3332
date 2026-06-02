@@ -7,15 +7,22 @@ import { ClientNotificationsPage } from '../../../../pages/client/notifications/
 
 const listNotificationsRequest = vi.fn();
 const markNotificationAsReadRequest = vi.fn();
+const markAllNotificationsAsReadRequest = vi.fn();
 const listCoursesRequest = vi.fn();
+const useClientContinueLearningMock = vi.fn();
 
 vi.mock('../../../../services/api/notificationApi', () => ({
   listNotificationsRequest: (...args: unknown[]) => listNotificationsRequest(...args),
   markNotificationAsReadRequest: (...args: unknown[]) => markNotificationAsReadRequest(...args),
+  markAllNotificationsAsReadRequest: (...args: unknown[]) => markAllNotificationsAsReadRequest(...args),
 }));
 
 vi.mock('../../../../services/api/courseApi', () => ({
   listCoursesRequest: (...args: unknown[]) => listCoursesRequest(...args),
+}));
+
+vi.mock('../../../../hooks/useClientContinueLearning', () => ({
+  useClientContinueLearning: (...args: unknown[]) => useClientContinueLearningMock(...args),
 }));
 
 function buildToken() {
@@ -52,6 +59,7 @@ describe('ClientNotificationsPage', () => {
     listNotificationsRequest.mockReset();
     markNotificationAsReadRequest.mockReset();
     listCoursesRequest.mockReset();
+    useClientContinueLearningMock.mockReset();
 
     listNotificationsRequest.mockResolvedValue([
       {
@@ -91,6 +99,18 @@ describe('ClientNotificationsPage', () => {
           updatedAt: '2026-01-02T00:00:00.000Z',
         },
       ],
+    });
+    useClientContinueLearningMock.mockReturnValue({
+      streak: 0,
+      courseId: null,
+      courseTitle: null,
+      currentLesson: null,
+      nextLesson: null,
+      percentage: 0,
+      totalLessons: 0,
+      completedLessons: 0,
+      lastActivityAt: null,
+      isLoading: false,
     });
   });
 

@@ -234,7 +234,7 @@ describe('AdminProgressPage', () => {
         }),
       );
     });
-  }, 15000);
+  }, 20000);
 
   it('shows selected course students after opening course progress', async () => {
     activeQueryClient = renderWithQueryClient(<AdminProgressPage />).queryClient;

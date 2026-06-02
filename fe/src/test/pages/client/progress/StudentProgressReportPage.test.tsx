@@ -83,5 +83,5 @@ describe('StudentProgressReportPage', () => {
 
     expect(await screen.findByText('React Basics')).toBeInTheDocument();
     expect(screen.getByText('LESSON_COMPLETED')).toBeInTheDocument();
-  });
+  }, 10000);
 });

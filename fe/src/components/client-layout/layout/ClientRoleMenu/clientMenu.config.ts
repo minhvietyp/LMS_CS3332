@@ -132,7 +132,7 @@ const clientMenuSections: ClientMenuSection[] = [
       {
         key: 'student-community',
         label: 'Community',
-        path: '/community',
+        path: '/student/community',
         icon: MessagesSquare,
         roles: ['STUDENT'],
       },

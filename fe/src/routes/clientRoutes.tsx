@@ -244,18 +244,10 @@ export function ClientRoutes() {
         }
       />
       <Route
-        path="/community"
-        element={
-          <ProtectedRoute allowedRoles={['STUDENT']}>
-            <StudentCommunityPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/student/community"
         element={
           <ProtectedRoute allowedRoles={['STUDENT']}>
-            <Navigate to="/community" replace />
+            <StudentCommunityPage />
           </ProtectedRoute>
         }
       />

@@ -25,4 +25,13 @@ export class NotificationService {
       data: { isRead: true, readAt: new Date() },
     });
   }
+
+  async markAllAsRead(userId: string): Promise<number> {
+    const result = await prisma.notification.updateMany({
+      where: { userId, isRead: false },
+      data: { isRead: true, readAt: new Date() },
+    });
+
+    return result.count;
+  }
 }

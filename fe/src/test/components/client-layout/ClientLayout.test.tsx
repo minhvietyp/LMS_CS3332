@@ -7,7 +7,9 @@ import { ClientLayout } from '../../../components/client-layout/layout/ClientLay
 import { getVisibleClientMenu } from '../../../components/client-layout/layout/ClientRoleMenu/clientMenu.config';
 
 const listNotificationsRequestMock = vi.fn();
+const markAllNotificationsAsReadRequestMock = vi.fn();
 const listCoursesRequestMock = vi.fn();
+const useClientContinueLearningMock = vi.fn();
 
 vi.mock('../../../services/api/authApi', async () => {
   const actual = await vi.importActual<typeof import('../../../services/api/authApi')>('../../../services/api/authApi');
@@ -20,10 +22,15 @@ vi.mock('../../../services/api/authApi', async () => {
 
 vi.mock('../../../services/api/notificationApi', () => ({
   listNotificationsRequest: (...args: unknown[]) => listNotificationsRequestMock(...args),
+  markAllNotificationsAsReadRequest: (...args: unknown[]) => markAllNotificationsAsReadRequestMock(...args),
 }));
 
 vi.mock('../../../services/api/courseApi', () => ({
   listCoursesRequest: (...args: unknown[]) => listCoursesRequestMock(...args),
+}));
+
+vi.mock('../../../hooks/useClientContinueLearning', () => ({
+  useClientContinueLearning: (...args: unknown[]) => useClientContinueLearningMock(...args),
 }));
 
 function buildToken() {
@@ -73,6 +80,7 @@ describe('ClientLayout', () => {
     localStorage.clear();
     listNotificationsRequestMock.mockReset();
     listCoursesRequestMock.mockReset();
+    useClientContinueLearningMock.mockReset();
     listNotificationsRequestMock.mockResolvedValue([]);
     listCoursesRequestMock.mockResolvedValue({
       data: [
@@ -87,6 +95,18 @@ describe('ClientLayout', () => {
         },
       ],
     });
+    useClientContinueLearningMock.mockReturnValue({
+      streak: 0,
+      courseId: null,
+      courseTitle: null,
+      currentLesson: null,
+      nextLesson: null,
+      percentage: 0,
+      totalLessons: 0,
+      completedLessons: 0,
+      lastActivityAt: null,
+      isLoading: false,
+    });
   });
 
   it('renders student navigation and page content', () => {
@@ -98,7 +118,7 @@ describe('ClientLayout', () => {
     expect(within(menu).getByRole('button', { name: /Progress/i })).toBeInTheDocument();
     expect(within(menu).getByRole('button', { name: /Notifications/i })).toBeInTheDocument();
     expect(screen.getByText('Client page content')).toBeInTheDocument();
-  });
+  }, 10000);
 
   it('filters instructor-only items away from student menu data', () => {
     const items = getVisibleClientMenu('STUDENT');

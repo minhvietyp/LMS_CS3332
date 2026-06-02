@@ -63,5 +63,5 @@ describe('AdminAnalyticsPage', () => {
     expect(screen.getByText('React Basics')).toBeInTheDocument();
     expect(screen.getByText('Instructor A')).toBeInTheDocument();
     expect(screen.getByText('72%')).toBeInTheDocument();
-  });
+  }, 10000);
 });

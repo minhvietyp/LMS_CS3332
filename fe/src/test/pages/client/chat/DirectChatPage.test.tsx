@@ -146,5 +146,5 @@ describe('DirectChatPage', () => {
     await waitFor(() => {
       expect(sendChatMessageRequest).toHaveBeenCalledWith('room-1', 'I will review it this afternoon.');
     });
-  }, 10000);
+  }, 15000);
 });

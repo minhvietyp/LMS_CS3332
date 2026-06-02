@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ReactNode } from 'react';
 import { AuthProvider } from '../../../../context/AuthContext';
 import { InstructorProgressPage } from '../../../../pages/client/progress/InstructorProgressPage';
 
@@ -91,6 +92,28 @@ vi.mock('@tanstack/react-query', () => ({
 vi.mock('../../../../hooks/useProgressOverview', () => ({
   useInstructorCourseProgress: (...args: unknown[]) => useInstructorCourseProgressMock(...args),
   useInstructorStudentCourseProgress: (...args: unknown[]) => useInstructorStudentCourseProgressMock(...args),
+}));
+
+vi.mock('../../../../components/client-layout', () => ({
+  ClientLayout: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  ClientPageContainer: ({
+    title,
+    subtitle,
+    actions,
+    children,
+  }: {
+    title?: ReactNode;
+    subtitle?: ReactNode;
+    actions?: ReactNode;
+    children: ReactNode;
+  }) => (
+    <div>
+      {title ? <h1>{title}</h1> : null}
+      {subtitle ? <p>{subtitle}</p> : null}
+      {actions}
+      {children}
+    </div>
+  ),
 }));
 
 describe('InstructorProgressPage', () => {

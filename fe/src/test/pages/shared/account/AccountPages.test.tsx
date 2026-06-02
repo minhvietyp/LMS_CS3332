@@ -13,6 +13,7 @@ const updateMyPasswordRequestMock = vi.fn();
 const updateMyContactRequestMock = vi.fn();
 const listCoursesRequestMock = vi.fn();
 const listNotificationsRequestMock = vi.fn();
+const markAllNotificationsAsReadRequestMock = vi.fn();
 
 vi.mock('../../../../services/api/authApi', async () => {
   const actual = await vi.importActual<typeof import('../../../../services/api/authApi')>('../../../../services/api/authApi');
@@ -35,6 +36,7 @@ vi.mock('../../../../services/api/courseApi', () => ({
 
 vi.mock('../../../../services/api/notificationApi', () => ({
   listNotificationsRequest: (...args: unknown[]) => listNotificationsRequestMock(...args),
+  markAllNotificationsAsReadRequest: (...args: unknown[]) => markAllNotificationsAsReadRequestMock(...args),
 }));
 
 function buildToken() {

@@ -32,6 +32,11 @@
   color: color-mix(in srgb, var(--client-state-info) 78%, var(--client-color-primary));
 }
 
+.client-theme .client-badge-neutral {
+  background: var(--client-bg-surface-mid);
+  color: var(--client-text-secondary);
+}
+
 .client-theme .client-status-badge {
   display: inline-flex;
   align-items: center;
