@@ -1,9 +1,10 @@
 .client-theme .client-card {
   background: var(--client-bg-surface);
-  border: 1px solid var(--client-border);
+  border: 1px solid var(--client-border-soft);
   border-radius: var(--client-radius-xl);
   box-shadow: var(--client-shadow-card);
   padding: var(--client-card-padding);
+  min-width: 0;
 }
 
 .client-theme .client-card-elevated {
@@ -13,13 +14,26 @@
 }
 
 .client-theme .client-card-hover {
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease;
 }
 
 .client-theme .client-card-hover:hover {
   transform: translateY(-1px);
   box-shadow: var(--client-shadow-elevated);
   border-color: rgba(0, 40, 142, 0.16);
+}
+
+.client-theme .ant-card.client-card,
+.client-theme .ant-card.client-dashboard-card {
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-xl);
+  background: var(--client-bg-surface);
+  box-shadow: var(--client-shadow-card);
+}
+
+.client-theme .ant-card.client-card .ant-card-body,
+.client-theme .ant-card.client-dashboard-card .ant-card-body {
+  padding: var(--client-card-padding);
 }
 
 .client-theme .client-card-title {

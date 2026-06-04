@@ -6,11 +6,8 @@ import {
   CalendarDays,
   ClipboardList,
   FolderKanban,
-  LayoutDashboard,
   MessageSquare,
   Search,
-  Settings,
-  Trophy,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEventHandler } from 'react';
@@ -18,8 +15,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   collectWorkspaceSearchItems,
   filterWorkspaceSearchItems,
-  readFrequentWorkspace,
-  readRecentWorkspace,
   recordFrequentWorkspace,
   recordRecentWorkspace,
   type WorkspaceSearchItemType,
@@ -38,35 +33,65 @@ type CommandPaletteItem = {
   subtitle?: string;
   type: WorkspaceSearchItemType;
   keywords: string[];
+  label?: string;
 };
 
 const QUICK_ACTIONS: CommandPaletteItem[] = [
-  { id: 'qa-dashboard', type: 'Quick Action', title: 'Dashboard', subtitle: 'Quick action', route: '/dashboard', keywords: ['dashboard'] },
-  { id: 'qa-courses', type: 'Quick Action', title: 'Courses', subtitle: 'Quick action', route: '/courses', keywords: ['courses', 'catalog'] },
-  { id: 'qa-calendar', type: 'Quick Action', title: 'Calendar', subtitle: 'Quick action', route: '/calendar', keywords: ['calendar', 'schedule'] },
-  { id: 'qa-progress', type: 'Quick Action', title: 'Progress', subtitle: 'Quick action', route: '/progress', keywords: ['progress'] },
-  { id: 'qa-grades', type: 'Quick Action', title: 'Grades', subtitle: 'Quick action', route: '/grades', keywords: ['grades'] },
-  { id: 'qa-certificates', type: 'Quick Action', title: 'Certificates', subtitle: 'Quick action', route: '/certificates', keywords: ['certificates'] },
-  { id: 'qa-community', type: 'Quick Action', title: 'Community', subtitle: 'Quick action', route: '/student/community', keywords: ['community', 'discussion'] },
-  { id: 'qa-notifications', type: 'Quick Action', title: 'Notifications', subtitle: 'Quick action', route: '/notifications', keywords: ['notifications', 'alerts'] },
-  { id: 'qa-settings', type: 'Quick Action', title: 'Settings', subtitle: 'Quick action', route: '/settings', keywords: ['settings', 'account'] },
+  {
+    id: 'qa-courses',
+    type: 'Quick Action',
+    title: 'Courses',
+    subtitle: 'Browse available and enrolled courses',
+    route: '/courses',
+    keywords: ['courses', 'catalog', 'class'],
+    label: 'Page',
+  },
+  {
+    id: 'qa-calendar',
+    type: 'Quick Action',
+    title: 'Calendar',
+    subtitle: 'View upcoming deadlines',
+    route: '/calendar',
+    keywords: ['calendar', 'schedule', 'deadline'],
+    label: 'Page',
+  },
+  {
+    id: 'qa-progress',
+    type: 'Quick Action',
+    title: 'Progress',
+    subtitle: 'Track your learning progress',
+    route: '/progress',
+    keywords: ['progress', 'learning'],
+    label: 'Page',
+  },
+  {
+    id: 'qa-grades',
+    type: 'Quick Action',
+    title: 'Grades',
+    subtitle: 'Review scores and feedback',
+    route: '/grades',
+    keywords: ['grades', 'scores', 'feedback'],
+    label: 'Page',
+  },
+  {
+    id: 'qa-community',
+    type: 'Quick Action',
+    title: 'Community',
+    subtitle: 'Open discussions and messages',
+    route: '/student/community',
+    keywords: ['community', 'discussion', 'messages'],
+    label: 'Page',
+  },
+  {
+    id: 'qa-notifications',
+    type: 'Quick Action',
+    title: 'Notifications',
+    subtitle: 'View recent updates',
+    route: '/notifications',
+    keywords: ['notifications', 'alerts', 'updates'],
+    label: 'Page',
+  },
 ];
-
-function mapRecentTypeToSearchType(type: 'course' | 'lesson' | 'assignment' | 'quiz' | 'discussion'): WorkspaceSearchItemType {
-  switch (type) {
-    case 'course':
-      return 'Course';
-    case 'lesson':
-      return 'Lesson';
-    case 'assignment':
-      return 'Assignment';
-    case 'quiz':
-      return 'Quiz';
-    case 'discussion':
-    default:
-      return 'Discussion';
-  }
-}
 
 function getItemIcon(type: WorkspaceSearchItemType) {
   switch (type) {
@@ -85,14 +110,12 @@ function getItemIcon(type: WorkspaceSearchItemType) {
       return Bell;
     case 'Quick Action':
     default:
-      return LayoutDashboard;
+      return Search;
   }
 }
 
 function getQuickActionIcon(title: string) {
   switch (title) {
-    case 'Dashboard':
-      return LayoutDashboard;
     case 'Courses':
       return FolderKanban;
     case 'Calendar':
@@ -101,16 +124,38 @@ function getQuickActionIcon(title: string) {
       return BookOpen;
     case 'Grades':
       return ClipboardList;
-    case 'Certificates':
-      return Trophy;
     case 'Community':
       return MessageSquare;
     case 'Notifications':
       return Bell;
-    case 'Settings':
     default:
-      return Settings;
+      return Search;
   }
+}
+
+function getSectionTitle(type: WorkspaceSearchItemType) {
+  switch (type) {
+    case 'Course':
+      return 'Courses';
+    case 'Assignment':
+      return 'Assignments';
+    case 'Quiz':
+      return 'Quizzes';
+    case 'Discussion':
+      return 'Discussions';
+    case 'Announcement':
+    case 'Notification':
+      return 'Notifications';
+    case 'Lesson':
+      return 'Lessons';
+    case 'Quick Action':
+    default:
+      return 'Pages';
+  }
+}
+
+function getItemTypeLabel(item: CommandPaletteItem) {
+  return item.label ?? (item.type === 'Quick Action' ? 'Page' : item.type);
 }
 
 function uniqueById(items: CommandPaletteItem[]) {
@@ -160,28 +205,6 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
   const searchItems = useMemo(() => uniqueById(collectWorkspaceSearchItems(queryClient) as CommandPaletteItem[]), [queryClient, cacheVersion]);
   const quickActions = useMemo(() => QUICK_ACTIONS.filter((item) => item.route !== location.pathname), [location.pathname]);
 
-  const recentItems = useMemo(() => {
-    return readRecentWorkspace().map((item) => ({
-      id: item.id,
-      route: item.route,
-      title: item.title,
-      subtitle: item.subtitle,
-      type: mapRecentTypeToSearchType(item.type),
-      keywords: [item.title, item.subtitle ?? '', item.type],
-    }));
-  }, [open]);
-
-  const frequentItems = useMemo(() => {
-    return readFrequentWorkspace().map((item) => ({
-      id: item.id,
-      route: item.route,
-      title: item.title,
-      subtitle: item.subtitle,
-      type: item.type,
-      keywords: [item.title, item.subtitle ?? '', item.type],
-    })) as CommandPaletteItem[];
-  }, [open]);
-
   const filteredResults = useMemo(() => {
     return filterWorkspaceSearchItems(searchItems, query) as CommandPaletteItem[];
   }, [query, searchItems]);
@@ -201,33 +224,30 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
 
   const sections = useMemo(() => {
     if (query.trim()) {
+      const groupedResults = filteredResults.reduce<Record<string, CommandPaletteItem[]>>((groups, item) => {
+        const title = getSectionTitle(item.type);
+        groups[title] = [...(groups[title] ?? []), item];
+        return groups;
+      }, {});
+
       return [
-        {
-          key: 'quick-actions',
-          title: 'Quick Actions',
-          items: filteredQuickActions,
-          meta: filteredQuickActions.length ? `${filteredQuickActions.length} action${filteredQuickActions.length === 1 ? '' : 's'}` : undefined,
-        },
-        {
-          key: 'results',
-          title: 'Search Results',
-          items: filteredResults,
-          meta: `${filteredResults.length} result${filteredResults.length === 1 ? '' : 's'}`,
-        },
+        { key: 'pages', title: 'Pages', items: filteredQuickActions },
+        ...Object.entries(groupedResults).map(([title, items]) => ({
+          key: title.toLowerCase(),
+          title,
+          items,
+        })),
       ].filter((section) => section.items.length > 0);
     }
 
     return [
-      { key: 'recent', title: 'Recent', items: recentItems, meta: recentItems.length ? `${recentItems.length} items` : undefined },
       {
-        key: 'frequent',
-        title: 'Frequently Used',
-        items: frequentItems.filter((item) => !recentItems.some((recentItem) => recentItem.id === item.id)).slice(0, 5),
-        meta: frequentItems.length ? `${Math.min(frequentItems.length, 5)} items` : undefined,
+        key: 'quick-actions',
+        title: 'Quick actions',
+        items: quickActions,
       },
-      { key: 'quick-actions', title: 'Quick Actions', items: quickActions, meta: `${quickActions.length} actions` },
     ].filter((section) => section.items.length > 0);
-  }, [filteredQuickActions, filteredResults, frequentItems, quickActions, query, recentItems]);
+  }, [filteredQuickActions, filteredResults, quickActions, query]);
 
   const flatItems = useMemo(() => sections.flatMap((section) => section.items), [sections]);
 
@@ -305,7 +325,7 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
         <input
           ref={inputRef}
           className="client-command-palette__input"
-          placeholder="Search courses, assignments, quizzes, discussions, and notifications"
+          placeholder="Search courses, assignments, quizzes..."
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={handleKeyDown}
@@ -320,7 +340,6 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
             <section key={section.key} className="client-command-palette__section" aria-label={section.title}>
               <div className="client-command-palette__section-header">
                 <strong>{section.title}</strong>
-                {section.meta ? <span className="client-command-palette__section-meta">{section.meta}</span> : null}
               </div>
               <div className="client-command-palette__list" role="listbox" aria-label={section.title}>
                 {section.items.map((item, itemIndex) => {
@@ -345,9 +364,11 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
                         <span className="client-command-palette__item-title">{item.title}</span>
                         {item.subtitle ? <span className="client-command-palette__item-subtitle">{item.subtitle}</span> : null}
                       </span>
-                      <span className="client-command-palette__item-meta">
-                        <span className="client-command-palette__item-type">{item.type}</span>
-                      </span>
+                      {item.type === 'Quick Action' && !query.trim() ? null : (
+                        <span className="client-command-palette__item-meta">
+                          <span className="client-command-palette__item-type">{getItemTypeLabel(item)}</span>
+                        </span>
+                      )}
                     </button>
                   );
                 })}
@@ -356,8 +377,8 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
           ))
         ) : (
           <div className="client-command-palette__empty">
-            <strong>No results found</strong>
-            <span>Try a different keyword or open a workspace that has loaded the data you want to search.</span>
+            <strong>No matching results found.</strong>
+            <span>Try Courses, Calendar, Progress, Grades, Community, or Notifications.</span>
           </div>
         )}
       </div>
@@ -366,7 +387,7 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
         <span>
           Navigate with <kbd>↑</kbd> <kbd>↓</kbd> and open with <kbd>Enter</kbd>
         </span>
-        <span>Loaded data only</span>
+        <span>Loaded workspace data only</span>
       </div>
     </div>
   );
@@ -392,7 +413,7 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
       onCancel={onClose}
       footer={null}
       centered
-      width="min(760px, calc(100vw - 32px))"
+      width="min(720px, calc(100vw - 24px))"
       className="client-command-palette__modal"
       rootClassName="client-command-palette__modal"
       destroyOnHidden

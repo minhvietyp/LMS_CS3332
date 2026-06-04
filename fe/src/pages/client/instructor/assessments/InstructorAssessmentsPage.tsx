@@ -1,4 +1,4 @@
-import { Card, Col, Row, Typography } from 'antd';
+import { Card, Typography } from 'antd';
 import { ClientLayout, ClientPageContainer } from '../../../../components/client-layout';
 import { QuizManagement } from '../quiz-management';
 import '../InstructorWorkspacePage.css';
@@ -7,30 +7,28 @@ export function InstructorAssessmentsPage() {
   return (
     <ClientLayout>
       <ClientPageContainer
-        title="Quiz and Assignment Management"
-        subtitle="Create quizzes, organize questions, and keep assessment workflows inside the instructor experience."
+        title="Assignments and quizzes"
+        subtitle="Create assignments, build quizzes, review submissions, and grade student work from one practical workspace."
       >
-        <Row gutter={[16, 16]} className="instructor-workspace-summary">
-          <Col xs={24} md={8}>
+        <section className="instructor-workspace">
+          <div className="instructor-workspace-summary">
             <Card className="instructor-workspace-card">
-              <Typography.Text type="secondary">Assessment flows</Typography.Text>
-              <Typography.Title level={3}>2</Typography.Title>
+              <Typography.Text className="instructor-workspace-card__label">Assignments</Typography.Text>
+              <Typography.Text strong>Create due-date work and review student submissions.</Typography.Text>
             </Card>
-          </Col>
-          <Col xs={24} md={8}>
             <Card className="instructor-workspace-card">
-              <Typography.Text type="secondary">Quiz builder</Typography.Text>
-              <Typography.Title level={3}>Live</Typography.Title>
+              <Typography.Text className="instructor-workspace-card__label">Quizzes</Typography.Text>
+              <Typography.Text strong>Build questions, publish quizzes, and inspect attempts.</Typography.Text>
             </Card>
-          </Col>
-          <Col xs={24} md={8}>
             <Card className="instructor-workspace-card">
-              <Typography.Text type="secondary">Assignment panel</Typography.Text>
-              <Typography.Title level={3}>Next</Typography.Title>
+              <Typography.Text className="instructor-workspace-card__label">Grading</Typography.Text>
+              <Typography.Text strong>Open submissions, assign scores, and return feedback.</Typography.Text>
             </Card>
-          </Col>
-        </Row>
-        <QuizManagement />
+          </div>
+          <div className="instructor-workspace__embedded">
+            <QuizManagement />
+          </div>
+        </section>
       </ClientPageContainer>
     </ClientLayout>
   );

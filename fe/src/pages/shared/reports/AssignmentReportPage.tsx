@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, Col, Empty, Row, Select, Space, Spin, Statistic, Table, Typography } from 'antd';
+import { Card, Col, Empty, Row, Select, Space, Spin, Statistic, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
 import {
@@ -9,6 +9,7 @@ import {
   type AssignmentSubmissionListItem,
 } from '../../../services/api/assignmentApi';
 import { listCoursesRequest } from '../../../services/api/courseApi';
+import './InstructorReports.css';
 
 function formatScore(value: number | null | undefined) {
   if (value == null) {
@@ -78,11 +79,9 @@ export function AssignmentReportPage() {
         title: 'Student',
         key: 'student',
         render: (_, record) => (
-          <div>
+          <div className="instructor-report-page__student-cell">
             <Typography.Text strong>{record.student?.name ?? 'Unknown student'}</Typography.Text>
-            <div>
-              <Typography.Text type="secondary">{record.student?.email ?? 'No email'}</Typography.Text>
-            </div>
+            <Typography.Text type="secondary">{record.student?.email ?? 'No email'}</Typography.Text>
           </div>
         ),
       },
@@ -90,6 +89,7 @@ export function AssignmentReportPage() {
         title: 'Status',
         dataIndex: 'status',
         key: 'status',
+        render: (value: string) => <Tag color={value === 'GRADED' || value === 'RETURNED' ? 'green' : 'blue'}>{value}</Tag>,
       },
       {
         title: 'Grade',
@@ -133,37 +133,39 @@ export function AssignmentReportPage() {
           </Space>
         }
       >
-        {coursesQuery.isLoading ? <Spin tip="Loading assignment reports..." /> : null}
+        <main className="instructor-report-page">
+          {coursesQuery.isLoading ? <Spin tip="Loading assignment reports..." /> : null}
 
-        {selectedCourse ? (
-          <Typography.Paragraph type="secondary">
-            Reporting on <Typography.Text strong>{selectedCourse.title}</Typography.Text>
-            {selectedAssignment ? ` / ${selectedAssignment.title}` : ''}
-          </Typography.Paragraph>
-        ) : null}
+          {selectedCourse ? (
+            <Typography.Paragraph className="instructor-report-page__context">
+              Reporting on <Typography.Text strong>{selectedCourse.title}</Typography.Text>
+              {selectedAssignment ? ` / ${selectedAssignment.title}` : ''}
+            </Typography.Paragraph>
+          ) : null}
 
-        {activeAssignmentId ? (
-          <>
-            <Row gutter={[16, 16]}>
-              <Col xs={24} md={12} xl={6}><Card><Statistic title="Submissions" value={summary.totalSubmissions} /></Card></Col>
-              <Col xs={24} md={12} xl={6}><Card><Statistic title="Graded" value={summary.gradedCount} /></Card></Col>
-              <Col xs={24} md={12} xl={6}><Card><Statistic title="Returned" value={summary.returnedCount} /></Card></Col>
-              <Col xs={24} md={12} xl={6}><Card><Statistic title="Average Grade" value={summary.averageGrade} suffix="%" /></Card></Col>
-            </Row>
+          {activeAssignmentId ? (
+            <>
+              <Row gutter={[16, 16]} className="instructor-report-page__summary">
+                <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Submissions" value={summary.totalSubmissions} /></Card></Col>
+                <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Graded" value={summary.gradedCount} /></Card></Col>
+                <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Returned" value={summary.returnedCount} /></Card></Col>
+                <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Average Grade" value={summary.averageGrade} suffix="%" /></Card></Col>
+              </Row>
 
-            <Card style={{ marginTop: 16 }}>
-              <Table
-                rowKey="id"
-                columns={columns}
-                dataSource={submissionsQuery.data ?? []}
-                loading={submissionsQuery.isLoading}
-                pagination={false}
-              />
-            </Card>
-          </>
-        ) : (
-          <Empty description="Choose a course and assignment to inspect submission outcomes." />
-        )}
+              <Card className="instructor-report-page__table-card">
+                <Table
+                  rowKey="id"
+                  columns={columns}
+                  dataSource={submissionsQuery.data ?? []}
+                  loading={submissionsQuery.isLoading}
+                  pagination={false}
+                />
+              </Card>
+            </>
+          ) : (
+            <Empty description="Choose a course and assignment to inspect submission outcomes." />
+          )}
+        </main>
       </ClientPageContainer>
     </ClientLayout>
   );

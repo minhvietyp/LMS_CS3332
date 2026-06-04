@@ -9,7 +9,13 @@ export type StatusTone =
   | 'passed'
   | 'failed'
   | 'completed'
-  | 'in-progress';
+  | 'in-progress'
+  | 'pending'
+  | 'draft'
+  | 'published'
+  | 'locked'
+  | 'active'
+  | 'unread';
 
 type StatusBadgeProps = {
   tone: StatusTone;

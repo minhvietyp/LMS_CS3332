@@ -183,7 +183,9 @@ export function ClientSidebar({
         aria-label={item.label}
       >
         <Icon size={18} />
-        {!isCollapsed ? <span>{item.label}</span> : null}
+        <span className="client-sidebar__item-label" aria-hidden={isCollapsed}>
+          {item.label}
+        </span>
       </button>
     );
 
@@ -238,7 +240,7 @@ export function ClientSidebar({
     <div className={`client-sidebar${isCollapsed ? ' client-sidebar--collapsed' : ''}`}>
       <div className="client-sidebar__brand">
         <span className="client-sidebar__mark">L</span>
-        <div className="client-sidebar__brand-copy" hidden={isCollapsed}>
+        <div className="client-sidebar__brand-copy" aria-hidden={isCollapsed}>
           <Typography.Text strong>LMS Client</Typography.Text>
         </div>
       </div>
@@ -246,9 +248,9 @@ export function ClientSidebar({
       <nav className="client-sidebar__nav" role="menu" aria-label="Client navigation">
         {primarySections.map((section) => (
           <section key={section.key} className="client-sidebar__group" aria-label={section.title}>
-            {!isCollapsed ? (
-              <Typography.Text className="client-sidebar__group-label">{section.title}</Typography.Text>
-            ) : null}
+            <Typography.Text className="client-sidebar__group-label" aria-hidden={isCollapsed}>
+              {section.title}
+            </Typography.Text>
             <div className="client-sidebar__menu">{section.items.map(renderNavButton)}</div>
           </section>
         ))}
@@ -345,7 +347,9 @@ export function ClientSidebar({
                   aria-label={settingsItem.label}
                 >
                   <SettingsIcon size={18} />
-                  {!isCollapsed ? <span>{settingsItem.label}</span> : null}
+                  <span className="client-sidebar__item-label" aria-hidden={isCollapsed}>
+                    {settingsItem.label}
+                  </span>
                 </button>
               );
 
@@ -362,16 +366,14 @@ export function ClientSidebar({
         {user?.role && user.role !== 'ADMIN' ? (
           <div className="client-sidebar__footer-user">
             <Avatar
-              size={isCollapsed ? 36 : 40}
+              size={40}
               src={user?.avatarUrl ?? undefined}
               icon={!user?.avatarUrl ? <span>{getInitials(user?.name)}</span> : undefined}
             />
-            {!isCollapsed ? (
-              <div className="client-sidebar__footer-user-copy">
-                <span className="client-sidebar__footer-name">{user?.name}</span>
-                <span className="client-sidebar__footer-role">{clientRoleLabels[user.role]}</span>
-              </div>
-            ) : null}
+            <div className="client-sidebar__footer-user-copy" aria-hidden={isCollapsed}>
+              <span className="client-sidebar__footer-name">{user?.name}</span>
+              <span className="client-sidebar__footer-role">{clientRoleLabels[user.role]}</span>
+            </div>
           </div>
         ) : null}
 

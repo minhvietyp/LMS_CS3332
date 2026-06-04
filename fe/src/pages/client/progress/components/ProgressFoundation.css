@@ -118,6 +118,14 @@
   width: 100%;
 }
 
+.progress-report__activity-card {
+  margin-top: var(--client-space-md);
+}
+
+.progress-history__card {
+  width: 100%;
+}
+
 .progress-course-list__results {
   color: var(--client-text-muted);
   font-size: var(--client-type-small-size);

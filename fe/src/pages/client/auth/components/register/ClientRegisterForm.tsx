@@ -60,9 +60,13 @@ export function ClientRegisterForm() {
     <main className="client-auth-page">
       <section className="client-auth-page__shell">
         <div className="client-auth-page__hero">
-          <p className="client-auth-page__eyebrow">Join the LMS</p>
+          <Link to="/" className="client-auth-page__brand">
+            <span>E</span>
+            <strong>EduFlow LMS</strong>
+          </Link>
+          <p className="client-auth-page__eyebrow">Student registration</p>
           <Typography.Title level={1} className="client-auth-page__title">
-            Create your student account
+            Create your account.
           </Typography.Title>
           <Typography.Paragraph className="client-auth-page__subtitle">
             Register to start learning, track lesson completion, and follow your progress across enrolled courses.
@@ -81,7 +85,7 @@ export function ClientRegisterForm() {
 
         <Card className="client-auth-page__card" bordered={false}>
           <Typography.Title level={3} className="client-auth-page__card-title">
-            Register
+            Create your account
           </Typography.Title>
           <Typography.Text className="client-auth-page__card-subtitle">
             Public registration creates student access only
@@ -134,7 +138,7 @@ export function ClientRegisterForm() {
             </Button>
 
             <div className="client-register-form__footer">
-              <Link to="/login">Already have an account? Sign in</Link>
+              <span>Already have an account?</span> <Link to="/login">Sign in</Link>
             </div>
           </Form>
         </Card>

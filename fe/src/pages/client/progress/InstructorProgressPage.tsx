@@ -244,25 +244,14 @@ export function InstructorProgressPage() {
         }
       >
         <main className="instructor-progress-page">
-          <section className="instructor-progress-page__header">
-            <div className="instructor-progress-page__heading">
-              <Typography.Text className="instructor-progress-page__eyebrow">
-                Learning Progress Tracking
-              </Typography.Text>
-              <Typography.Title level={2} className="instructor-progress-page__title">
-                Instructor progress monitoring
-              </Typography.Title>
-              <Typography.Paragraph className="instructor-progress-page__subtitle">
-                Review course completion, last activity, and lesson-level progress across your students.
-              </Typography.Paragraph>
-            </div>
-          </section>
-
           <Card className="instructor-progress-page__course-card">
-            <Typography.Title level={4} className="instructor-progress-page__course-title">
-              {selectedCourse?.title}
-            </Typography.Title>
-            <Typography.Text type="secondary">{selectedCourse?.status}</Typography.Text>
+            <div>
+              <Typography.Text className="instructor-progress-page__eyebrow">Selected course</Typography.Text>
+              <Typography.Title level={4} className="instructor-progress-page__course-title">
+                {selectedCourse?.title}
+              </Typography.Title>
+            </div>
+            <Tag color={selectedCourse?.status === 'PUBLISHED' ? 'green' : 'default'}>{selectedCourse?.status}</Tag>
           </Card>
 
           {progressQuery.isLoading ? (
@@ -407,7 +396,7 @@ export function InstructorProgressPage() {
                         </Tag>
                       </div>
                       <Typography.Text type="secondary">
-                        Weight {lesson.weight} • {lesson.completedAt ? formatDate(lesson.completedAt) : 'No completion date'}
+                        Weight {lesson.weight} / {lesson.completedAt ? formatDate(lesson.completedAt) : 'No completion date'}
                       </Typography.Text>
                     </Card>
                   ))}

@@ -3,6 +3,14 @@
   --client-color-primary-strong: #00175c;
   --client-color-primary-soft: #dde1ff;
   --client-color-primary-tint: #3d57ba;
+  --client-color-primary-50: #eff4ff;
+  --client-color-primary-100: #dde1ff;
+  --client-color-primary-300: #b8c4ff;
+  --client-color-primary-400: #7e97fe;
+  --client-color-primary-500: #3d57ba;
+  --client-color-primary-600: #00288e;
+  --client-color-primary-700: #001f76;
+  --client-color-primary-800: #00175c;
   --client-color-on-primary: #ffffff;
   --client-color-secondary: #4648d4;
   --client-color-secondary-strong: #06006c;
@@ -19,15 +27,21 @@
   --client-bg-elevated: #d3e4fe;
   --client-bg-inverse: #213145;
   --client-bg-glass: rgba(255, 255, 255, 0.72);
+  --client-color-surface-raised: var(--client-bg-surface);
+  --client-color-surface-muted: var(--client-bg-surface-low);
 
   --client-border: #c4c5d5;
   --client-border-strong: #757684;
   --client-border-soft: #d3e4fe;
+  --client-color-border-subtle: var(--client-border-soft);
 
   --client-text-primary: #0b1c30;
   --client-text-secondary: #444652;
   --client-text-muted: #757684;
   --client-text-inverse: #eaf1ff;
+  --client-color-text-strong: var(--client-text-primary);
+  --client-color-text-muted: var(--client-text-muted);
+  --client-color-text-inverse: var(--client-text-inverse);
 
   --client-state-success: #16a35a;
   --client-state-success-soft: #dff7e8;
@@ -35,6 +49,7 @@
   --client-state-warning-soft: #fff3d6;
   --client-state-danger: #ba1a1a;
   --client-state-danger-soft: #ffdad6;
+  --client-color-danger-50: #fff1ef;
   --client-state-info: #4d9cff;
   --client-state-info-soft: #deeeff;
 

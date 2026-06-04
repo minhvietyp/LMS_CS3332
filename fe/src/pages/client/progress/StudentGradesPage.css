@@ -1,0 +1,308 @@
+.grades-page {
+  display: grid;
+  gap: var(--client-space-lg);
+}
+
+.grades-page--loading {
+  gap: var(--client-space-lg);
+}
+
+.grades-page__summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--client-space-md);
+}
+
+.grades-page__summary-card {
+  display: grid;
+  gap: var(--client-space-xs);
+  min-height: 132px;
+  padding: var(--client-card-padding);
+}
+
+.grades-page__summary-card .ant-typography,
+.grades-page__course-card .ant-typography,
+.grades-page__section-header .ant-typography,
+.grades-page__calculation-note .ant-typography {
+  margin-bottom: 0;
+}
+
+.grades-page__summary-card strong {
+  color: var(--client-text-primary);
+  font-size: clamp(1.6rem, 2.4vw, 2.25rem);
+  line-height: 1;
+}
+
+.grades-page__course-list {
+  display: grid;
+  gap: var(--client-space-lg);
+}
+
+.grades-page__course-card {
+  display: grid;
+  gap: var(--client-space-lg);
+  padding: var(--client-space-lg);
+}
+
+.grades-page__course-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: var(--client-space-md);
+  align-items: start;
+}
+
+.grades-page__course-heading,
+.grades-page__course-score,
+.grades-page__section-header,
+.grades-page__item-copy {
+  display: grid;
+  gap: var(--client-space-xs);
+  min-width: 0;
+}
+
+.grades-page__course-heading .client-status-badge {
+  justify-self: start;
+}
+
+.grades-page__course-heading .client-section-title {
+  overflow-wrap: anywhere;
+}
+
+.grades-page__course-score {
+  justify-items: end;
+  padding: var(--client-space-md);
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-lg);
+  background: var(--client-bg-surface-low);
+}
+
+.grades-page__course-score strong {
+  color: var(--client-text-primary);
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  line-height: 1;
+}
+
+.grades-page__letter-grade {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  min-height: 32px;
+  padding-inline: var(--client-space-sm);
+  border-radius: var(--client-radius-pill);
+  background: var(--client-color-primary);
+  color: var(--client-color-on-primary);
+  font-weight: 700;
+}
+
+.grades-page__calculation-note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--client-space-xs);
+  align-items: start;
+  padding: var(--client-space-sm);
+  border: 1px solid color-mix(in srgb, var(--client-color-primary) 16%, var(--client-border-soft));
+  border-radius: var(--client-radius-md);
+  background: color-mix(in srgb, var(--client-color-primary) 5%, var(--client-bg-surface));
+  color: var(--client-text-secondary);
+  font-size: var(--client-type-small-size);
+  line-height: var(--client-type-small-line);
+}
+
+.grades-page__calculation-note svg,
+.grades-page__item-icon {
+  color: var(--client-color-primary);
+}
+
+.grades-page__table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-lg);
+}
+
+.grades-page__grade-table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+  background: var(--client-bg-surface);
+}
+
+.grades-page__grade-table th,
+.grades-page__grade-table td {
+  padding: var(--client-space-sm) var(--client-space-md);
+  border-bottom: 1px solid var(--client-border-soft);
+  color: var(--client-text-secondary);
+  font-size: var(--client-type-small-size);
+  line-height: var(--client-type-small-line);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.grades-page__grade-table th {
+  color: var(--client-text-muted);
+  font-size: var(--client-type-caption-size);
+  font-weight: var(--client-type-caption-weight);
+  letter-spacing: var(--client-type-caption-spacing);
+  line-height: var(--client-type-caption-line);
+  text-transform: uppercase;
+  background: var(--client-bg-surface-low);
+}
+
+.grades-page__grade-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.grades-page__grade-table td:nth-child(2),
+.grades-page__grade-table td:nth-child(3),
+.grades-page__grade-table td:nth-child(4),
+.grades-page__grade-table th:nth-child(2),
+.grades-page__grade-table th:nth-child(3),
+.grades-page__grade-table th:nth-child(4) {
+  text-align: right;
+}
+
+.grades-page__course-total {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--client-space-sm) var(--client-space-lg);
+  justify-content: flex-end;
+  padding: var(--client-space-sm) var(--client-space-md);
+  border-radius: var(--client-radius-md);
+  background: var(--client-bg-surface-low);
+  color: var(--client-text-secondary);
+}
+
+.grades-page__course-total strong {
+  color: var(--client-text-primary);
+}
+
+.grades-page__items-section {
+  display: grid;
+  gap: var(--client-space-md);
+}
+
+.grades-page__item-list {
+  display: grid;
+  gap: var(--client-space-sm);
+}
+
+.grades-page__item-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+  gap: var(--client-space-sm);
+  align-items: center;
+  padding: var(--client-space-sm);
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-md);
+  background: var(--client-bg-surface-low);
+}
+
+.grades-page__item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--client-radius-pill);
+  border: 1px solid var(--client-border-soft);
+  background: var(--client-bg-surface);
+}
+
+.grades-page__item-copy .ant-typography {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.grades-page__item-score {
+  color: var(--client-text-primary);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.grades-page__state-card {
+  padding: var(--client-space-lg);
+}
+
+.grades-page__skeleton-label {
+  width: 120px;
+  height: 14px;
+}
+
+.grades-page__skeleton-value {
+  width: 96px;
+  height: 36px;
+}
+
+.grades-page__skeleton-title {
+  width: min(360px, 100%);
+  height: 32px;
+}
+
+.grades-page__skeleton-row {
+  width: 100%;
+  height: 56px;
+}
+
+@media (max-width: 1279px) {
+  .grades-page__summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grades-page__course-header {
+    grid-template-columns: 1fr;
+  }
+
+  .grades-page__course-score {
+    justify-items: start;
+  }
+}
+
+@media (max-width: 1023px) {
+  .grades-page__item-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .grades-page__item-row .client-status-badge,
+  .grades-page__item-score,
+  .grades-page__item-row .client-button {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 767px) {
+  .grades-page {
+    gap: var(--client-space-md);
+  }
+
+  .grades-page__summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .grades-page__course-card,
+  .grades-page__state-card {
+    padding: var(--client-space-lg);
+  }
+
+  .grades-page__course-total {
+    justify-content: flex-start;
+  }
+
+  .grades-page__item-row {
+    grid-template-columns: 1fr;
+  }
+
+  .grades-page__item-row .client-status-badge,
+  .grades-page__item-score,
+  .grades-page__item-row .client-button {
+    grid-column: auto;
+    justify-self: stretch;
+  }
+
+  .grades-page__item-row .client-button,
+  .grades-page__item-row .ant-btn.client-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -55,31 +55,35 @@ export function ClientLoginForm() {
     <main className="client-auth-page">
       <section className="client-auth-page__shell">
         <div className="client-auth-page__hero">
-          <p className="client-auth-page__eyebrow">Learning starts here</p>
+          <Link to="/" className="client-auth-page__brand">
+            <span>E</span>
+            <strong>EduFlow LMS</strong>
+          </Link>
+          <p className="client-auth-page__eyebrow">Academic Portal</p>
           <Typography.Title level={1} className="client-auth-page__title">
-            Sign in to your learning workspace
+            Learn with a clearer workspace.
           </Typography.Title>
           <Typography.Paragraph className="client-auth-page__subtitle">
             Continue courses, review progress, submit assignments, and stay connected with your instructors.
           </Typography.Paragraph>
           <div className="client-auth-page__highlights">
             <div className="client-auth-page__highlight">
-              <strong>Student progress</strong>
-              Resume lessons, review completion history, and stay on track.
+              <strong>Course work</strong>
+              Resume lessons, assignments, quizzes, and course discussions.
             </div>
             <div className="client-auth-page__highlight">
-              <strong>Instructor tools</strong>
-              Monitor learners, manage course content, and review course progress.
+              <strong>Progress and updates</strong>
+              Track grades, deadlines, unread notifications, and completion history.
             </div>
           </div>
         </div>
 
         <Card className="client-auth-page__card" bordered={false}>
           <Typography.Title level={3} className="client-auth-page__card-title">
-            Login
+            Sign in
           </Typography.Title>
           <Typography.Text className="client-auth-page__card-subtitle">
-            Student and instructor access
+            Use your student or instructor account to continue.
           </Typography.Text>
 
           <Form<ClientLoginFormValues> form={form} layout="vertical" requiredMark={false} onFinish={handleFinish}>
@@ -122,7 +126,7 @@ export function ClientLoginForm() {
             </Button>
 
             <div className="client-auth-form__register">
-              <span>Not a member?</span> <Link to="/register">Register Now</Link>
+              <span>New to EduFlow?</span> <Link to="/register">Create your account</Link>
             </div>
           </Form>
         </Card>

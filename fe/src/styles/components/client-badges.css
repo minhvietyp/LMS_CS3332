@@ -2,8 +2,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 28px;
-  padding-inline: 10px;
+  min-height: 24px;
+  padding-inline: 9px;
   border-radius: var(--client-radius-pill);
   background: var(--client-bg-surface-mid);
   color: var(--client-text-primary);
@@ -41,8 +41,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 28px;
-  padding-inline: 10px;
+  min-height: 24px;
+  padding-inline: 9px;
   border-radius: var(--client-radius-pill);
   border: 1px solid transparent;
   font-size: var(--client-type-caption-size);
@@ -67,7 +67,9 @@
 }
 
 .client-theme .client-status-badge--submitted,
-.client-theme .client-status-badge--in-progress {
+.client-theme .client-status-badge--in-progress,
+.client-theme .client-status-badge--active,
+.client-theme .client-status-badge--unread {
   background: var(--client-state-info-soft);
   border-color: color-mix(in srgb, var(--client-state-info) 18%, transparent);
   color: color-mix(in srgb, var(--client-state-info) 72%, var(--client-color-primary));
@@ -75,8 +77,29 @@
 
 .client-theme .client-status-badge--graded,
 .client-theme .client-status-badge--passed,
-.client-theme .client-status-badge--completed {
+.client-theme .client-status-badge--completed,
+.client-theme .client-status-badge--published {
   background: var(--client-state-success-soft);
   border-color: color-mix(in srgb, var(--client-state-success) 18%, transparent);
   color: var(--client-state-success);
+}
+
+.client-theme .client-status-badge--pending,
+.client-theme .client-status-badge--draft,
+.client-theme .client-status-badge--locked {
+  background: var(--client-bg-surface-mid);
+  border-color: var(--client-border-soft);
+  color: var(--client-text-secondary);
+}
+
+.client-theme .ant-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  margin-inline-end: 0;
+  padding-inline: 9px;
+  border-radius: var(--client-radius-pill);
+  font-size: var(--client-type-caption-size);
+  font-weight: var(--client-type-label-weight);
+  line-height: var(--client-type-caption-line);
 }

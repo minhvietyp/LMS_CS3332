@@ -1,124 +1,92 @@
-import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Button, Typography } from 'antd';
-import {
-  BookOpen,
-  ChevronRight,
-  Megaphone,
-  MessageSquare,
-  Sparkles,
-  Users,
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { EmptyState, NotificationCard, SectionHeader } from '../../../components/client-ui';
+import { useEffect, useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button, Input, Typography } from 'antd';
+import { BookOpen, MessageCircle, Search, Send, Users } from 'lucide-react';
+import { EmptyState } from '../../../components/client-ui';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
 import { useAuth } from '../../../context/AuthContext';
-import { listMyChatRoomsRequest, type ChatMessageItem, type ChatRoomItem } from '../../../services/api/chatApi';
-import { listCoursesRequest, type CourseListItem } from '../../../services/api/courseApi';
-import { listNotificationsRequest } from '../../../services/api/notificationApi';
+import {
+  getChatRoomMessagesRequest,
+  listMyChatRoomsRequest,
+  sendChatMessageRequest,
+  type ChatMessageItem,
+  type ChatRoomItem,
+} from '../../../services/api/chatApi';
+import { connectChatSocket, joinChatRoom, subscribeToRoomMessages } from '../../../services/sockets/chatSocket';
 import './community-chat.css';
 
-type RoomCard = {
-  id: string;
-  courseId: string;
-  courseTitle: string;
-  instructorName: string;
-  latestMessage: ChatMessageItem | null;
-  latestMessageText: string;
-  latestMessageTime: string;
-  latestActivityLabel: string;
-  replyCount: number;
-  participantCount: number;
-  questionLike: boolean;
-  hasInstructorReply: boolean;
-  hasMyMessage: boolean;
-  statusLabel: 'Open' | 'Answered' | 'Instructor Replied';
-  statusClassName: string;
-};
+type RoomFilter = 'ALL' | 'COURSE' | 'DIRECT' | 'UNREAD';
 
-type AnnouncementPriority = 'Important' | 'Reminder' | 'Update' | 'Event';
+const roomFilters: Array<{ value: RoomFilter; label: string }> = [
+  { value: 'ALL', label: 'All' },
+  { value: 'COURSE', label: 'Course discussions' },
+  { value: 'DIRECT', label: 'Direct messages' },
+  { value: 'UNREAD', label: 'Unread' },
+];
 
-type AnnouncementCard = {
-  id: string;
-  courseId: string | null;
-  title: string;
-  body: string;
-  courseTitle: string;
-  priority: AnnouncementPriority;
-  priorityClassName: string;
-  isRead: boolean;
-  createdAtLabel: string;
-  href: string | null;
-};
-
-function formatDate(value?: string | null) {
-  if (!value) {
-    return 'No recent activity';
-  }
+function formatDateTime(value?: string | null) {
+  if (!value) return 'No activity yet';
 
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',
-    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
   }).format(new Date(value));
 }
 
-function formatRelativeTime(value?: string | null) {
-  if (!value) {
-    return 'No activity yet';
-  }
+function initialsFromName(name?: string | null) {
+  if (!name?.trim()) return 'U';
 
-  const timestamp = new Date(value).getTime();
-  const diffHours = Math.max(0, Math.round((Date.now() - timestamp) / (1000 * 60 * 60)));
-
-  if (diffHours < 1) {
-    return 'Updated just now';
-  }
-
-  if (diffHours < 24) {
-    return `Updated ${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
-  }
-
-  const diffDays = Math.round(diffHours / 24);
-  if (diffDays === 1) {
-    return 'Updated 1 day ago';
-  }
-
-  return `Updated ${diffDays} days ago`;
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('');
 }
 
-function deriveAnnouncementPriority(message: string): Pick<AnnouncementCard, 'priority' | 'priorityClassName'> {
-  const lower = message.toLowerCase();
-
-  if (/(maintenance|urgent|important|deadline|required|action required)/.test(lower)) {
-    return { priority: 'Important', priorityClassName: 'client-badge client-badge-danger' };
-  }
-
-  if (/(reminder|due|review|submit)/.test(lower)) {
-    return { priority: 'Reminder', priorityClassName: 'client-badge client-badge-warning' };
-  }
-
-  if (/(seminar|event|lecture|workshop|session)/.test(lower)) {
-    return { priority: 'Event', priorityClassName: 'client-badge client-badge-info' };
-  }
-
-  return { priority: 'Update', priorityClassName: 'client-badge client-badge-info' };
+function getSortedMessages(messages: ChatMessageItem[] = []) {
+  return [...messages].sort((left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime());
 }
 
-function deriveAnnouncementTitle(message: string) {
-  const firstSentence = message.split(/(?<=[.!?])\s/)[0]?.trim() ?? message.trim();
-  return firstSentence.length > 80 ? `${firstSentence.slice(0, 77)}...` : firstSentence;
+function getLatestMessage(room: ChatRoomItem) {
+  return getSortedMessages(room.messages).at(-1) ?? null;
 }
 
-function getRoomMessages(room: ChatRoomItem) {
-  return [...(room.messages ?? [])].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+function getRoomName(room: ChatRoomItem, currentUserId?: string) {
+  if (room.type === 'COURSE') return room.course?.title ?? room.name ?? 'Course discussion';
+
+  const otherMember = room.members?.find((member) => member.userId !== currentUserId)?.user;
+  return otherMember?.name ?? room.name ?? 'Direct conversation';
+}
+
+function getRoomTypeLabel(room: ChatRoomItem) {
+  if (room.type === 'COURSE') return 'Course';
+  if (room.type === 'DIRECT') return 'Direct';
+  return 'Not available';
+}
+
+function getUnreadCount(room: ChatRoomItem, currentUserId?: string) {
+  return (room.messages ?? []).filter((message) => !message.isRead && message.senderId !== currentUserId).length;
+}
+
+function getParticipantCount(room: ChatRoomItem) {
+  return room.members?.length ?? 0;
+}
+
+function messageSenderName(message: ChatMessageItem, currentUserId?: string) {
+  if (message.sender?.name) return message.sender.name;
+  return message.senderId === currentUserId ? 'You' : 'Participant';
 }
 
 export function StudentCommunityPage() {
-  const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const queryClient = useQueryClient();
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [roomFilter, setRoomFilter] = useState<RoomFilter>('ALL');
+  const [searchValue, setSearchValue] = useState('');
+  const [draftMessage, setDraftMessage] = useState('');
 
   const roomsQuery = useQuery({
     queryKey: ['chat', 'rooms'],
@@ -127,594 +95,304 @@ export function StudentCommunityPage() {
     retry: 1,
   });
 
-  const notificationsQuery = useQuery({
-    queryKey: ['notifications', 'list'],
-    queryFn: listNotificationsRequest,
-    staleTime: 60 * 1000,
-    retry: 1,
-  });
-
-  const coursesQuery = useQuery({
-    queryKey: ['community', 'courses'],
-    queryFn: () => listCoursesRequest({ page: 1, limit: 100 }),
-    staleTime: 60 * 1000,
-    retry: 1,
-  });
-
-  const coursesById = useMemo(() => {
-    return new Map((coursesQuery.data?.data ?? []).map((course) => [course.id, course] satisfies [string, CourseListItem]));
-  }, [coursesQuery.data?.data]);
-
-  const courseRooms = useMemo(
-    () =>
-      (roomsQuery.data ?? [])
-        .filter((room) => room.type === 'COURSE' && room.courseId)
-        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
-    [roomsQuery.data],
-  );
-
-  const roomCards = useMemo<RoomCard[]>(() => {
-    return courseRooms.map((room) => {
-      const course = room.courseId ? coursesById.get(room.courseId) : null;
-      const messages = getRoomMessages(room);
-      const latestMessage = messages[0] ?? null;
-      const visibleMessages = room.messages ?? [];
-      const hasInstructorReply =
-        visibleMessages.some(
-          (message) =>
-            message.senderId === course?.instructorId ||
-            room.members?.some(
-              (member) => member.userId === message.senderId && member.user?.role === 'INSTRUCTOR',
-            ),
-        ) ?? false;
-      const hasMyMessage = visibleMessages.some((message) => message.senderId === user?.id);
-      const replyCount = Math.max(0, visibleMessages.length - 1);
-      const questionLike =
-        latestMessage?.content.includes('?') ||
-        visibleMessages.some((message) => message.content.includes('?')) ||
-        false;
-
-      let statusLabel: RoomCard['statusLabel'] = 'Open';
-      let statusClassName = 'client-badge client-badge-info';
-
-      if (hasInstructorReply) {
-        statusLabel = 'Instructor Replied';
-        statusClassName = 'client-badge client-badge-info';
-      } else if (visibleMessages.length > 1) {
-        statusLabel = 'Answered';
-        statusClassName = 'client-badge client-badge-success';
-      }
-
-      return {
-        id: room.id,
-        courseId: room.courseId!,
-        courseTitle: room.course?.title ?? course?.title ?? 'Course discussion',
-        instructorName: course?.instructor?.name ?? 'Instructor unavailable',
-        latestMessage,
-        latestMessageText: latestMessage?.content ?? 'No discussion posts yet.',
-        latestMessageTime: formatDate(latestMessage?.createdAt ?? room.updatedAt),
-        latestActivityLabel: formatRelativeTime(latestMessage?.createdAt ?? room.updatedAt),
-        replyCount,
-        participantCount: room.members?.length ?? 0,
-        questionLike,
-        hasInstructorReply,
-        hasMyMessage,
-        statusLabel,
-        statusClassName,
-      };
+  const rooms = useMemo(() => {
+    return [...(roomsQuery.data ?? [])].sort((left, right) => {
+      const leftActivity = getLatestMessage(left)?.createdAt ?? left.updatedAt;
+      const rightActivity = getLatestMessage(right)?.createdAt ?? right.updatedAt;
+      return new Date(rightActivity).getTime() - new Date(leftActivity).getTime();
     });
-  }, [courseRooms, coursesById, user?.id]);
+  }, [roomsQuery.data]);
 
-  const notifications = notificationsQuery.data ?? [];
-  const courseAnnouncements = useMemo<AnnouncementCard[]>(() => {
-    return notifications
-      .filter((item) => item.type === 'COURSE')
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .map((item) => {
-        const course = item.courseId ? coursesById.get(item.courseId) : null;
-        const priority = deriveAnnouncementPriority(item.message);
-        return {
-          id: item.id,
-          courseId: item.courseId ?? null,
-          title: deriveAnnouncementTitle(item.message),
-          body: item.message,
-          courseTitle: course?.title ?? 'Course announcement',
-          priority: priority.priority,
-          priorityClassName: priority.priorityClassName,
-          isRead: item.isRead,
-          createdAtLabel: formatDate(item.createdAt),
-          href: item.courseId ? `/courses/${item.courseId}/announcements` : '/notifications',
-        };
-      });
-  }, [coursesById, notifications]);
+  useEffect(() => {
+    if (!selectedRoomId && rooms.length) {
+      setSelectedRoomId(rooms[0].id);
+    }
+  }, [rooms, selectedRoomId]);
 
-  const questionRoomRoute = roomCards[0]?.courseId
-    ? `/courses/${roomCards[0].courseId}/discussion?composer=question`
-    : '/courses';
-  const discussionRoomRoute = roomCards[0]?.courseId
-    ? `/courses/${roomCards[0].courseId}/discussion?composer=discussion`
-    : '/courses';
+  const selectedRoom = rooms.find((room) => room.id === selectedRoomId) ?? null;
 
-  const heroMetrics = {
-    activeDiscussions: roomCards.length,
-    openQuestions: roomCards.filter((room) => room.questionLike && !room.hasInstructorReply).length,
-    instructorAnnouncements: courseAnnouncements.length,
-    myDiscussions: roomCards.filter((room) => room.hasMyMessage).length,
-  };
+  const messagesQuery = useQuery({
+    queryKey: ['chat', 'messages', selectedRoomId],
+    queryFn: () => getChatRoomMessagesRequest(selectedRoomId!),
+    enabled: Boolean(selectedRoomId),
+    staleTime: 10 * 1000,
+    retry: 1,
+  });
 
-  const questionCards = roomCards.filter((room) => room.questionLike).slice(0, 3);
-  const myDiscussionCards = roomCards.filter((room) => room.hasMyMessage).slice(0, 3);
-  const trendingCards = [...roomCards]
-    .sort((a, b) => {
-      if (b.replyCount !== a.replyCount) {
-        return b.replyCount - a.replyCount;
-      }
+  const sendMessageMutation = useMutation({
+    mutationFn: (payload: { roomId: string; content: string }) => sendChatMessageRequest(payload.roomId, payload.content),
+    onSuccess: async (_, variables) => {
+      setDraftMessage('');
+      await queryClient.invalidateQueries({ queryKey: ['chat', 'messages', variables.roomId] });
+      await queryClient.invalidateQueries({ queryKey: ['chat', 'rooms'] });
+    },
+  });
 
-      return new Date(b.latestMessage?.createdAt ?? '').getTime() - new Date(a.latestMessage?.createdAt ?? '').getTime();
-    })
-    .slice(0, 4);
+  useEffect(() => {
+    if (!token || !selectedRoomId) return;
 
-  const partialDataUnavailable = Boolean(coursesQuery.error);
-  const criticalError = roomsQuery.error && notificationsQuery.error;
+    connectChatSocket(token);
+    joinChatRoom(selectedRoomId);
+
+    const unsubscribe = subscribeToRoomMessages(() => {
+      void queryClient.invalidateQueries({ queryKey: ['chat', 'messages', selectedRoomId] });
+      void queryClient.invalidateQueries({ queryKey: ['chat', 'rooms'] });
+    });
+
+    return () => {
+      unsubscribe?.();
+    };
+  }, [queryClient, selectedRoomId, token]);
+
+  const filteredRooms = useMemo(() => {
+    const search = searchValue.trim().toLowerCase();
+
+    return rooms.filter((room) => {
+      const unread = getUnreadCount(room, user?.id);
+      const roomName = getRoomName(room, user?.id).toLowerCase();
+      const latestMessage = getLatestMessage(room)?.content.toLowerCase() ?? '';
+      const matchesSearch = !search || roomName.includes(search) || latestMessage.includes(search);
+      const matchesFilter =
+        roomFilter === 'ALL' ||
+        (roomFilter === 'COURSE' && room.type === 'COURSE') ||
+        (roomFilter === 'DIRECT' && room.type === 'DIRECT') ||
+        (roomFilter === 'UNREAD' && unread > 0);
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [roomFilter, rooms, searchValue, user?.id]);
+
+  const messages = useMemo(() => getSortedMessages(messagesQuery.data ?? []), [messagesQuery.data]);
+  const selectedRoomName = selectedRoom ? getRoomName(selectedRoom, user?.id) : 'Conversation';
+  const selectedRoomType = selectedRoom ? getRoomTypeLabel(selectedRoom) : 'Not available';
+  const participantCount = selectedRoom ? getParticipantCount(selectedRoom) : 0;
+  const unreadTotal = rooms.reduce((sum, room) => sum + getUnreadCount(room, user?.id), 0);
+
+  const canSend = Boolean(selectedRoomId && draftMessage.trim() && !sendMessageMutation.isPending);
+  const error = roomsQuery.error || messagesQuery.error || sendMessageMutation.error;
 
   return (
     <ClientLayout>
       <ClientPageContainer
-        title="Learning Community"
-        subtitle="Ask questions, share ideas, and learn together in your course spaces."
+        title="Community"
+        subtitle="Join course discussions and continue conversations with your classmates."
       >
-        <div className="community-workspace">
-          {criticalError ? (
-            <section className="client-card community-workspace__state-card">
+        <div className="community-chat-shell">
+          {error ? (
+            <section className="client-card community-chat-shell__state">
               <EmptyState
                 title="Unable to load community"
-                description="We could not load your discussion rooms and announcements right now."
+                description={error instanceof Error ? error.message : 'Community conversations could not be loaded right now.'}
                 action={
                   <Button
                     className="client-button client-button-primary"
                     onClick={() => {
                       void roomsQuery.refetch();
-                      void notificationsQuery.refetch();
+                      if (selectedRoomId) void messagesQuery.refetch();
                     }}
                   >
-                    Refresh Community
+                    Retry
                   </Button>
                 }
               />
             </section>
           ) : null}
 
-          {!criticalError ? (
-            <>
-              <section className="client-card community-workspace__hero">
-                <div className="community-workspace__hero-copy">
-                  <span className="client-badge client-badge-info">Academic collaboration</span>
-                  <Typography.Title level={2} className="community-workspace__hero-title">
-                    Learning Community
-                  </Typography.Title>
-                  <Typography.Paragraph className="client-body">
-                    Ask questions, join discussions, and follow instructor updates without leaving your learning workspace.
-                  </Typography.Paragraph>
-                  <div className="community-workspace__hero-actions">
-                    <Button
-                      className="client-button client-button-primary"
-                      onClick={() => navigate(questionRoomRoute)}
-                    >
-                      Ask Question
-                    </Button>
-                    <Button
-                      className="client-button client-button-secondary"
-                      onClick={() => navigate(discussionRoomRoute)}
-                    >
-                      Start Discussion
-                    </Button>
-                  </div>
-                </div>
-                <div className="community-workspace__hero-metrics">
-                  <article className="community-workspace__metric">
-                    <MessageSquare size={18} />
-                    <strong>{heroMetrics.activeDiscussions}</strong>
-                    <span>Active Discussions</span>
-                  </article>
-                  <article className="community-workspace__metric">
-                    <BookOpen size={18} />
-                    <strong>{heroMetrics.openQuestions}</strong>
-                    <span>Open Questions</span>
-                  </article>
-                  <article className="community-workspace__metric">
-                    <Megaphone size={18} />
-                    <strong>{heroMetrics.instructorAnnouncements}</strong>
-                    <span>Instructor Announcements</span>
-                  </article>
-                  <article className="community-workspace__metric">
-                    <Users size={18} />
-                    <strong>{heroMetrics.myDiscussions}</strong>
-                    <span>My Discussions</span>
-                  </article>
-                </div>
-              </section>
+          <section className="client-card community-chat-shell__summary" aria-label="Community summary">
+            <div className="community-chat-shell__summary-item">
+              <MessageCircle size={18} aria-hidden="true" />
+              <Typography.Text className="client-meta">Conversations</Typography.Text>
+              <strong>{rooms.length}</strong>
+            </div>
+            <div className="community-chat-shell__summary-item">
+              <BookOpen size={18} aria-hidden="true" />
+              <Typography.Text className="client-meta">Course rooms</Typography.Text>
+              <strong>{rooms.filter((room) => room.type === 'COURSE').length}</strong>
+            </div>
+            <div className="community-chat-shell__summary-item">
+              <Users size={18} aria-hidden="true" />
+              <Typography.Text className="client-meta">Direct rooms</Typography.Text>
+              <strong>{rooms.filter((room) => room.type === 'DIRECT').length}</strong>
+            </div>
+            <div className="community-chat-shell__summary-item">
+              <MessageCircle size={18} aria-hidden="true" />
+              <Typography.Text className="client-meta">Unread</Typography.Text>
+              <strong>{unreadTotal}</strong>
+            </div>
+          </section>
 
-              <div className="community-workspace__layout">
-                <div className="community-workspace__main">
-                  <section className="client-card community-workspace__section">
-                    <SectionHeader
-                      title="Discussion Feed"
-                      subtitle="The most active course discussions in your learning workspace."
-                    />
-                    {roomsQuery.isLoading ? (
-                      <div className="community-workspace__skeleton-list" aria-hidden="true">
-                        {Array.from({ length: 3 }).map((_, index) => (
-                          <div key={index} className="community-workspace__skeleton-card" />
-                        ))}
+          <div className="community-chat-shell__layout">
+            <aside className="client-card community-chat-shell__rooms" aria-label="Conversation list">
+              <div className="community-chat-shell__rooms-header">
+                <div>
+                  <Typography.Text className="client-caption">Rooms</Typography.Text>
+                  <Typography.Title level={3} className="client-section-title">
+                    Conversations
+                  </Typography.Title>
+                </div>
+              </div>
+
+              <Input
+                value={searchValue}
+                onChange={(event) => setSearchValue(event.target.value)}
+                placeholder="Search conversations..."
+                prefix={<Search size={16} />}
+                className="community-chat-shell__search"
+              />
+
+              <div className="community-chat-shell__filters" aria-label="Room filters">
+                {roomFilters.map((filter) => (
+                  <button
+                    key={filter.value}
+                    type="button"
+                    className={`community-chat-shell__filter${roomFilter === filter.value ? ' community-chat-shell__filter--active' : ''}`}
+                    onClick={() => setRoomFilter(filter.value)}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+
+              {roomsQuery.isLoading ? (
+                <div className="community-chat-shell__skeleton-list" aria-hidden="true">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <div key={index} className="community-chat-shell__skeleton-row" />
+                  ))}
+                </div>
+              ) : !rooms.length ? (
+                <EmptyState title="No conversations yet." description="Course discussions and direct messages will appear here when available." compact />
+              ) : !filteredRooms.length ? (
+                <EmptyState title="No conversations match your filters." description="Try another room type or search term." compact />
+              ) : (
+                <div className="community-chat-shell__room-list">
+                  {filteredRooms.map((room) => {
+                    const latestMessage = getLatestMessage(room);
+                    const unread = getUnreadCount(room, user?.id);
+                    const isSelected = room.id === selectedRoomId;
+
+                    return (
+                      <button
+                        key={room.id}
+                        type="button"
+                        className={`community-chat-shell__room-row${isSelected ? ' community-chat-shell__room-row--active' : ''}`}
+                        onClick={() => setSelectedRoomId(room.id)}
+                      >
+                        <div className="community-chat-shell__room-avatar" aria-hidden="true">
+                          {initialsFromName(getRoomName(room, user?.id))}
+                        </div>
+                        <div className="community-chat-shell__room-copy">
+                          <div className="community-chat-shell__room-title-row">
+                            <Typography.Text className="client-card-title">{getRoomName(room, user?.id)}</Typography.Text>
+                            {unread > 0 ? <span className="community-chat-shell__unread-count">{unread}</span> : null}
+                          </div>
+                          <div className="community-chat-shell__room-meta">
+                            <span className={room.type === 'COURSE' ? 'client-badge client-badge-info' : 'client-badge'}>{getRoomTypeLabel(room)}</span>
+                            {room.type === 'COURSE' && room.course?.title ? <span>{room.course.title}</span> : null}
+                          </div>
+                          <Typography.Text className="client-meta community-chat-shell__room-preview">
+                            {latestMessage?.content ?? 'No messages in this room yet.'}
+                          </Typography.Text>
+                          <Typography.Text className="client-meta">{formatDateTime(latestMessage?.createdAt ?? room.updatedAt)}</Typography.Text>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </aside>
+
+            <main className="client-card community-chat-shell__messages" aria-label="Selected conversation">
+              {!selectedRoom ? (
+                <EmptyState
+                  title="Select a conversation to start."
+                  description="Choose a course discussion or direct message from the room list."
+                />
+              ) : (
+                <>
+                  <div className="community-chat-shell__message-header">
+                    <div>
+                      <Typography.Text className="client-caption">{selectedRoomType}</Typography.Text>
+                      <Typography.Title level={3} className="client-section-title">
+                        {selectedRoomName}
+                      </Typography.Title>
+                      <Typography.Text className="client-meta">
+                        {selectedRoom.type === 'COURSE' ? selectedRoom.course?.title ?? 'Course discussion' : 'Direct conversation'}
+                        {participantCount ? ` - ${participantCount} participants` : ''}
+                      </Typography.Text>
+                    </div>
+                    <span className={selectedRoom.type === 'COURSE' ? 'client-badge client-badge-info' : 'client-badge'}>
+                      {selectedRoomType}
+                    </span>
+                  </div>
+
+                  <div className="community-chat-shell__message-list">
+                    {messagesQuery.isLoading ? (
+                      <div className="community-chat-shell__skeleton-list" aria-hidden="true">
+                        <div className="community-chat-shell__skeleton-message" />
+                        <div className="community-chat-shell__skeleton-message" />
+                        <div className="community-chat-shell__skeleton-message" />
                       </div>
-                    ) : roomsQuery.error ? (
-                      <EmptyState
-                        title="Discussion feed unavailable"
-                        description="We couldn't load discussion activity right now."
-                        compact
-                      />
-                    ) : roomCards.length ? (
-                      <div className="community-workspace__feed-list">
-                        {roomCards.slice(0, 4).map((room) => (
-                          <article key={room.id} className="community-workspace__feed-card">
-                            <div className="community-workspace__feed-header">
-                              <div className="community-workspace__feed-title">
-                                <span className={room.statusClassName}>{room.statusLabel}</span>
+                    ) : !messages.length ? (
+                      <EmptyState title="No messages in this room yet." description="Start the conversation when you are ready." compact />
+                    ) : (
+                      messages.map((message) => {
+                        const isOwn = message.senderId === user?.id;
+                        return (
+                          <article
+                            key={message.id}
+                            className={`community-chat-shell__message${isOwn ? ' community-chat-shell__message--own' : ''}`}
+                          >
+                            <div className="community-chat-shell__message-avatar" aria-hidden="true">
+                              {initialsFromName(messageSenderName(message, user?.id))}
+                            </div>
+                            <div className="community-chat-shell__bubble">
+                              <div className="community-chat-shell__bubble-meta">
                                 <Typography.Text className="client-card-title">
-                                  {room.latestMessageText}
+                                  {messageSenderName(message, user?.id)}
                                 </Typography.Text>
+                                <Typography.Text className="client-meta">{formatDateTime(message.createdAt)}</Typography.Text>
                               </div>
-                              <Typography.Text className="client-meta">
-                                {room.latestActivityLabel}
-                              </Typography.Text>
-                            </div>
-                            <div className="community-workspace__feed-meta">
-                              <span>{room.courseTitle}</span>
-                              <span>{room.instructorName}</span>
-                              <span>{room.replyCount} replies</span>
-                              <span>{room.participantCount} participants</span>
-                            </div>
-                            <div className="community-workspace__feed-actions">
-                              <Button
-                                className="client-button client-button-secondary"
-                                onClick={() => navigate(`/courses/${room.courseId}/discussion`)}
-                              >
-                                Open Discussion
-                              </Button>
-                              <Button
-                                className="client-button client-button-ghost"
-                                onClick={() => navigate(`/courses/${room.courseId}/discussion?composer=reply`)}
-                              >
-                                Reply
-                              </Button>
+                              <Typography.Paragraph className="community-chat-shell__bubble-text">
+                                {message.content}
+                              </Typography.Paragraph>
                             </div>
                           </article>
-                        ))}
-                      </div>
-                    ) : (
-                      <EmptyState
-                        title="No discussions yet"
-                        description="You haven't joined any course discussion rooms yet."
-                        action={
-                          <Button className="client-button client-button-secondary" onClick={() => navigate('/courses')}>
-                            Browse Courses
-                          </Button>
-                        }
-                        compact
-                      />
+                        );
+                      })
                     )}
-                  </section>
-
-                  <div className="community-workspace__split-grid">
-                    <section className="client-card community-workspace__section">
-                      <SectionHeader
-                        title="Academic Q&A"
-                        subtitle="Question-led discussions that still need attention or review."
-                      />
-                      {questionCards.length ? (
-                        <div className="community-workspace__qa-list">
-                          {questionCards.map((room) => (
-                            <article key={room.id} className="community-workspace__qa-card">
-                              <div className="community-workspace__qa-score">
-                                <strong>{room.replyCount}</strong>
-                                <span>answers</span>
-                              </div>
-                              <div className="community-workspace__qa-copy">
-                                <Typography.Text className="client-card-title">
-                                  {room.latestMessageText}
-                                </Typography.Text>
-                                <div className="community-workspace__feed-meta">
-                                  <span>{room.courseTitle}</span>
-                                  <span>{room.latestMessageTime}</span>
-                                </div>
-                              </div>
-                              <div className="community-workspace__qa-actions">
-                                <Button
-                                  className="client-button client-button-secondary"
-                                  onClick={() => navigate(`/courses/${room.courseId}/discussion`)}
-                                >
-                                  View Answers
-                                </Button>
-                                <Button
-                                  className="client-button client-button-ghost"
-                                  onClick={() => navigate(`/courses/${room.courseId}/discussion?composer=question`)}
-                                >
-                                  Answer Question
-                                </Button>
-                              </div>
-                            </article>
-                          ))}
-                        </div>
-                      ) : (
-                        <EmptyState
-                          title="No open questions"
-                          description="New question-led discussions will appear here when learners ask for help."
-                          action={
-                            <Button
-                              className="client-button client-button-primary"
-                              onClick={() => navigate(questionRoomRoute)}
-                            >
-                              Ask Question
-                            </Button>
-                          }
-                          compact
-                        />
-                      )}
-                    </section>
-
-                    <section className="client-card community-workspace__section">
-                      <SectionHeader
-                        title="Course Discussion Rooms"
-                        subtitle="Enter the rooms attached to your active course spaces."
-                      />
-                      {roomCards.length ? (
-                        <div className="community-workspace__room-grid">
-                          {roomCards.slice(0, 4).map((room) => (
-                            <article key={room.id} className="community-workspace__room-card">
-                              <div className="community-workspace__room-header">
-                                <Typography.Text className="client-card-title">
-                                  {room.courseTitle}
-                                </Typography.Text>
-                                <span className="client-badge">{room.participantCount} active</span>
-                              </div>
-                              <Typography.Text className="client-meta">
-                                {room.instructorName}
-                              </Typography.Text>
-                              <div className="community-workspace__room-stats">
-                                <div>
-                                  <strong>{room.replyCount}</strong>
-                                  <span>Replies</span>
-                                </div>
-                                <div>
-                                  <strong>{room.participantCount}</strong>
-                                  <span>Participants</span>
-                                </div>
-                              </div>
-                              <Typography.Paragraph className="client-meta">
-                                {room.latestMessageText}
-                              </Typography.Paragraph>
-                              <div className="community-workspace__room-actions">
-                                <Button
-                                  className="client-button client-button-primary"
-                                  onClick={() => navigate(`/courses/${room.courseId}/discussion`)}
-                                >
-                                  Enter Room
-                                </Button>
-                                <Button
-                                  className="client-button client-button-secondary"
-                                  onClick={() => navigate(`/courses/${room.courseId}/discussion`)}
-                                >
-                                  View Discussions
-                                </Button>
-                              </div>
-                            </article>
-                          ))}
-                        </div>
-                      ) : (
-                        <EmptyState
-                          title="No course rooms yet"
-                          description="Course discussion rooms will appear once your courses enable collaboration."
-                          compact
-                        />
-                      )}
-                    </section>
                   </div>
 
-                  <div className="community-workspace__split-grid">
-                    <section className="client-card community-workspace__section">
-                      <SectionHeader
-                        title="Instructor Announcements"
-                        subtitle="Structured course updates, reminders, and official notices."
-                        action={
-                          courseAnnouncements[0]?.courseId ? (
-                            <Button
-                              className="client-button client-button-ghost"
-                              onClick={() => navigate(`/courses/${courseAnnouncements[0].courseId}/announcements`)}
-                            >
-                              View All
-                            </Button>
-                          ) : undefined
-                        }
-                      />
-                      {notificationsQuery.isLoading ? (
-                        <div className="community-workspace__skeleton-list" aria-hidden="true">
-                          {Array.from({ length: 3 }).map((_, index) => (
-                            <div key={index} className="community-workspace__skeleton-card" />
-                          ))}
-                        </div>
-                      ) : courseAnnouncements.length ? (
-                        <div className="community-workspace__announcement-list">
-                          {courseAnnouncements.slice(0, 4).map((announcement) => (
-                            <article key={announcement.id} className="community-workspace__announcement-card">
-                              <div className="community-workspace__announcement-media" aria-hidden="true" />
-                              <div className="community-workspace__announcement-copy">
-                                <div className="community-workspace__announcement-meta">
-                                  <span className={announcement.priorityClassName}>{announcement.priority}</span>
-                                  <Typography.Text className="client-meta">
-                                    {announcement.createdAtLabel}
-                                  </Typography.Text>
-                                </div>
-                                <Typography.Text className="client-card-title">
-                                  {announcement.title}
-                                </Typography.Text>
-                                <Typography.Text className="client-meta">
-                                  {announcement.courseTitle}
-                                </Typography.Text>
-                                <Typography.Paragraph className="client-meta">
-                                  {announcement.body}
-                                </Typography.Paragraph>
-                                <div className="community-workspace__announcement-actions">
-                                  <Button
-                                    className="client-button client-button-secondary"
-                                    onClick={() => navigate(announcement.href ?? '/notifications')}
-                                  >
-                                    Read Announcement
-                                  </Button>
-                                  {!announcement.isRead ? (
-                                    <span className="client-badge client-badge-info">Unread</span>
-                                  ) : null}
-                                </div>
-                              </div>
-                            </article>
-                          ))}
-                        </div>
-                      ) : (
-                        <EmptyState
-                          title="No announcements"
-                          description="Official instructor announcements will appear here."
-                          compact
-                        />
-                      )}
-                    </section>
-
-                    <section className="client-card community-workspace__section">
-                      <SectionHeader
-                        title="My Discussions"
-                        subtitle="Resume conversations where you've already contributed."
-                      />
-                      {myDiscussionCards.length ? (
-                        <div className="community-workspace__resume-list">
-                          {myDiscussionCards.map((room) => (
-                            <NotificationCard
-                              key={room.id}
-                              title={room.latestMessageText}
-                              message={`${room.courseTitle} · ${room.replyCount} replies`}
-                              time={room.latestMessageTime}
-                              unread={!room.hasInstructorReply}
-                              action={
-                                <div className="community-workspace__inline-actions">
-                                  <Button
-                                    className="client-button client-button-secondary"
-                                    onClick={() => navigate(`/courses/${room.courseId}/discussion`)}
-                                  >
-                                    Continue Discussion
-                                  </Button>
-                                  <Button
-                                    className="client-button client-button-ghost"
-                                    onClick={() => navigate(`/courses/${room.courseId}/discussion`)}
-                                  >
-                                    View Answers
-                                  </Button>
-                                </div>
-                              }
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <EmptyState
-                          title="No personal discussions yet"
-                          description="When you post or reply inside a course room, it will show up here."
-                          compact
-                        />
-                      )}
-                    </section>
-                  </div>
-                </div>
-
-                <aside className="community-workspace__aside">
-                  <section className="client-card community-workspace__sidebar-card">
-                    <SectionHeader title="Trending Discussions" subtitle="Most active course conversations right now." />
-                    {trendingCards.length ? (
-                      <div className="community-workspace__trending-list">
-                        {trendingCards.map((room) => (
-                          <button
-                            key={room.id}
-                            type="button"
-                            className="community-workspace__trending-item"
-                            onClick={() => navigate(`/courses/${room.courseId}/discussion`)}
-                          >
-                            <div>
-                              <Typography.Text className="client-card-title">{room.latestMessageText}</Typography.Text>
-                              <Typography.Text className="client-meta">
-                                {room.courseTitle} · {room.replyCount} replies
-                              </Typography.Text>
-                            </div>
-                            <ChevronRight size={16} />
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <EmptyState
-                        title="Quiet on campus"
-                        description="No trending course discussions are visible right now."
-                        compact
-                      />
-                    )}
-                  </section>
-
-                  <section className="client-card community-workspace__sidebar-card">
-                    <SectionHeader title="Community Sidebar" subtitle="Compact utility and workspace summary." />
-                    <div className="community-workspace__sidebar-actions">
+                  <div className="community-chat-shell__composer">
+                    <Input.TextArea
+                      rows={3}
+                      value={draftMessage}
+                      onChange={(event) => setDraftMessage(event.target.value)}
+                      placeholder="Write a message..."
+                    />
+                    {sendMessageMutation.error ? (
+                      <Typography.Text className="community-chat-shell__composer-error">
+                        Message could not be sent. Please try again.
+                      </Typography.Text>
+                    ) : null}
+                    <div className="community-chat-shell__composer-actions">
                       <Button
                         className="client-button client-button-primary"
-                        onClick={() => navigate(questionRoomRoute)}
+                        icon={<Send size={16} />}
+                        disabled={!canSend}
+                        loading={sendMessageMutation.isPending}
+                        onClick={() => {
+                          if (!selectedRoomId || !draftMessage.trim()) return;
+                          sendMessageMutation.mutate({ roomId: selectedRoomId, content: draftMessage.trim() });
+                        }}
                       >
-                        Ask Question
-                      </Button>
-                      <Button
-                        className="client-button client-button-secondary"
-                        onClick={() => navigate(discussionRoomRoute)}
-                      >
-                        Start Discussion
-                      </Button>
-                      <Button
-                        className="client-button client-button-ghost"
-                        onClick={() => navigate('/courses')}
-                      >
-                        Browse Courses
+                        Send message
                       </Button>
                     </div>
-                    <div className="community-workspace__sidebar-stats">
-                      <div>
-                        <strong>{heroMetrics.activeDiscussions}</strong>
-                        <span>Rooms</span>
-                      </div>
-                      <div>
-                        <strong>{heroMetrics.myDiscussions}</strong>
-                        <span>My threads</span>
-                      </div>
-                      <div>
-                        <strong>{notifications.filter((item) => item.type === 'CHAT' && !item.isRead).length}</strong>
-                        <span>Unread replies</span>
-                      </div>
-                    </div>
-                  </section>
-
-                  {partialDataUnavailable ? (
-                    <section className="client-card community-workspace__sidebar-card community-workspace__sidebar-card--notice">
-                      <Sparkles size={18} />
-                      <Typography.Text className="client-card-title">
-                        Course metadata partially unavailable
-                      </Typography.Text>
-                      <Typography.Text className="client-meta">
-                        Discussion rooms and announcements still load, but some instructor or course metadata could not be resolved.
-                      </Typography.Text>
-                    </section>
-                  ) : null}
-                </aside>
-              </div>
-            </>
-          ) : null}
+                  </div>
+                </>
+              )}
+            </main>
+          </div>
         </div>
       </ClientPageContainer>
     </ClientLayout>

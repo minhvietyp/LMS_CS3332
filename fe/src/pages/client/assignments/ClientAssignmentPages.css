@@ -388,17 +388,210 @@
   min-height: 120px;
 }
 
+.assignment-workspace--management {
+  display: flex;
+  flex-direction: column;
+  gap: var(--client-space-6);
+  min-width: 0;
+}
+
+.assignment-workspace__summary-panel,
+.assignment-workspace__assignment-panel {
+  border-radius: var(--client-radius-3xl);
+  border: 1px solid var(--client-color-border-subtle);
+  background: var(--client-color-surface-raised);
+  box-shadow: var(--client-shadow-sm);
+  padding: var(--client-space-6);
+}
+
+.assignment-workspace__summary-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
+  gap: var(--client-space-6);
+  align-items: center;
+}
+
+.assignment-workspace__summary-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--client-space-2);
+  min-width: 0;
+}
+
+.assignment-workspace__summary-heading .client-section-title {
+  margin: 0;
+}
+
+.assignment-workspace__summary-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--client-space-4);
+  min-width: 0;
+}
+
+.assignment-workspace__summary-card {
+  min-width: 0;
+  border-radius: var(--client-radius-2xl);
+  border: 1px solid var(--client-color-border-subtle);
+  background: var(--client-color-surface-muted);
+  box-shadow: none;
+  padding: var(--client-space-4);
+  display: grid;
+  gap: var(--client-space-2);
+}
+
+.assignment-workspace__summary-card svg {
+  color: var(--client-color-primary);
+}
+
+.assignment-workspace__summary-card strong {
+  color: var(--client-color-text-strong);
+  font-size: 2rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.assignment-workspace__assignment-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--client-space-4);
+}
+
+.assignment-workspace__management-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: var(--client-space-3);
+  min-width: 0;
+}
+
+.assignment-workspace__search.ant-input-affix-wrapper,
+.assignment-workspace__sort.ant-select .ant-select-selector {
+  border-radius: var(--client-radius-lg);
+}
+
+.assignment-workspace__filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--client-space-2);
+  min-width: 0;
+}
+
+.assignment-workspace__filter-tab {
+  min-height: 38px;
+  border-radius: var(--client-radius-lg);
+  border: 1px solid var(--client-color-border-subtle);
+  background: var(--client-color-surface-muted);
+  color: var(--client-color-text);
+  padding: 0 var(--client-space-4);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.assignment-workspace__filter-tab--active {
+  border-color: var(--client-color-primary);
+  background: var(--client-color-primary);
+  color: var(--client-color-on-primary);
+}
+
+.assignment-workspace__assignment-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--client-space-3);
+  min-width: 0;
+}
+
+.assignment-workspace__assignment-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--client-space-4);
+  align-items: center;
+  min-width: 0;
+  padding: var(--client-space-4);
+  border-radius: var(--client-radius-2xl);
+  border: 1px solid var(--client-color-border-subtle);
+  background: var(--client-color-surface-muted);
+}
+
+.assignment-workspace__assignment-row--overdue {
+  border-color: color-mix(in srgb, var(--client-state-danger) 34%, var(--client-color-border-subtle));
+  background: color-mix(in srgb, var(--client-state-danger-soft) 40%, var(--client-color-surface-raised));
+}
+
+.assignment-workspace__assignment-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--client-radius-xl);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--client-color-primary-50);
+  color: var(--client-color-primary);
+}
+
+.assignment-workspace__assignment-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--client-space-2);
+  min-width: 0;
+}
+
+.assignment-workspace__assignment-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--client-space-3);
+  align-items: center;
+  min-width: 0;
+}
+
+.assignment-workspace__assignment-title-row .client-card-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.assignment-workspace__assignment-description {
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.assignment-workspace__assignment-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--client-space-2) var(--client-space-4);
+  min-width: 0;
+  color: var(--client-color-text-muted);
+  font-size: var(--client-type-small-size);
+}
+
+.assignment-workspace__feedback-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--client-space-1);
+  color: var(--client-color-primary);
+  font-weight: 600;
+}
+
+.assignment-workspace__assignment-action {
+  white-space: nowrap;
+}
+
 @media (max-width: 1280px) {
   .assignment-workspace__hero,
   .assignment-workspace__layout,
-  .assignment-workspace__brief-grid {
+  .assignment-workspace__brief-grid,
+  .assignment-workspace__summary-panel {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 1024px) {
   .assignment-workspace__metric-grid,
-  .assignment-workspace__status-grid {
+  .assignment-workspace__status-grid,
+  .assignment-workspace__summary-cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -411,6 +604,7 @@
   .assignment-workspace__row-meta,
   .assignment-workspace__history-meta,
   .assignment-workspace__queue-footer,
+  .assignment-workspace__management-controls,
   .assignment-workspace__submission-actions,
   .assignment-workspace__history-actions,
   .assignment-workspace__queue-row-actions,
@@ -420,6 +614,7 @@
   .assignment-workspace__queue-controls,
   .assignment-workspace__queue-heading,
   .assignment-workspace__queue-primary,
+  .assignment-workspace__assignment-row,
   .assignment-workspace__history-item-title {
     grid-template-columns: 1fr;
   }
@@ -435,7 +630,8 @@
   .assignment-workspace__resource-actions,
   .assignment-workspace__section-header-actions,
   .assignment-workspace__queue-controls,
-  .assignment-workspace__queue-primary {
+  .assignment-workspace__queue-primary,
+  .assignment-workspace__filter-tabs {
     display: grid;
   }
 
@@ -450,6 +646,7 @@
   .assignment-workspace__history-actions .client-button,
   .assignment-workspace__queue-row-actions .client-button,
   .assignment-workspace__resource-actions .client-button,
+  .assignment-workspace__assignment-action,
   .assignment-workspace__hero-summary .client-button,
   .assignment-workspace__section-header-actions .client-button {
     width: 100%;
@@ -457,7 +654,8 @@
   }
 
   .assignment-workspace__metric-grid,
-  .assignment-workspace__status-grid {
+  .assignment-workspace__status-grid,
+  .assignment-workspace__summary-cards {
     grid-template-columns: 1fr;
   }
 }

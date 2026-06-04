@@ -1,146 +1,148 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Input, Select, Typography } from 'antd';
-import { ArrowLeft, CalendarDays, Search } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, CalendarDays, CheckCircle2, ClipboardList, MessageSquareText, Search, TimerReset } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '../../../components/client-ui';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
 import { getCourseByIdRequest } from '../../../services/api/courseApi';
 import { listStudentCourseAssignmentsRequest, type AssignmentSubmissionRecord, type StudentAssignmentListItem } from '../../../services/api/assignmentApi';
 import './ClientAssignmentPages.css';
 
-type AssignmentQueueFilter = 'ALL' | 'PENDING' | 'DUE_SOON' | 'OVERDUE' | 'SUBMITTED' | 'GRADED';
+type AssignmentStatus = 'PENDING' | 'SUBMITTED' | 'GRADED' | 'OVERDUE' | 'NOT_AVAILABLE';
+type AssignmentFilter = 'ALL' | AssignmentStatus;
+type AssignmentSort = 'DUE_DATE' | 'STATUS' | 'UPDATED';
 
-type QueuePresentation = {
-  label: string;
-  badgeClassName: string;
-  primaryAction: 'Submit' | 'Open assignment' | 'Continue Submission' | 'Review Submission' | 'View Details';
-  summary: string;
-  isOverdue: boolean;
+type AssignmentViewItem = {
+  assignment: StudentAssignmentListItem;
+  latestSubmission: AssignmentSubmissionRecord | null;
+  status: AssignmentStatus;
+  dueTime: number | null;
+  updatedTime: number;
 };
 
-function getLatestSubmission(assignment: StudentAssignmentListItem) {
-  return assignment.submissions[0] ?? null;
+const statusFilters: Array<{ value: AssignmentFilter; label: string }> = [
+  { value: 'ALL', label: 'All' },
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'SUBMITTED', label: 'Submitted' },
+  { value: 'GRADED', label: 'Graded' },
+  { value: 'OVERDUE', label: 'Overdue' },
+];
+
+const statusRank: Record<AssignmentStatus, number> = {
+  OVERDUE: 0,
+  PENDING: 1,
+  SUBMITTED: 2,
+  GRADED: 3,
+  NOT_AVAILABLE: 4,
+};
+
+function getLatestSubmission(submissions: AssignmentSubmissionRecord[] = []) {
+  return [...submissions].sort((left, right) => {
+    const leftTime = left.submittedAt ? new Date(left.submittedAt).getTime() : 0;
+    const rightTime = right.submittedAt ? new Date(right.submittedAt).getTime() : 0;
+    return rightTime - leftTime;
+  })[0] ?? null;
 }
 
-function isOverdue(assignment: StudentAssignmentListItem) {
-  if (!assignment.dueDate) return false;
-  if (assignment.allowLateSubmission) return false;
-  if (assignment.submissions.length > 0) return false;
-  return new Date(assignment.dueDate).getTime() < Date.now();
+function getAssignmentStatus(assignment: StudentAssignmentListItem, latestSubmission: AssignmentSubmissionRecord | null, now: Date): AssignmentStatus {
+  if (latestSubmission?.grade != null || latestSubmission?.status === 'GRADED') {
+    return 'GRADED';
+  }
+
+  if (latestSubmission) {
+    return 'SUBMITTED';
+  }
+
+  if (assignment.dueDate && new Date(assignment.dueDate).getTime() < now.getTime()) {
+    return 'OVERDUE';
+  }
+
+  return 'PENDING';
 }
 
-function isDueSoon(assignment: StudentAssignmentListItem) {
-  if (!assignment.dueDate || assignment.submissions.length > 0) return false;
-  const diffMs = new Date(assignment.dueDate).getTime() - Date.now();
-  return diffMs >= 0 && diffMs <= 1000 * 60 * 60 * 72;
+function formatDateTime(value?: string | null) {
+  if (!value) return 'No due date';
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(value));
 }
 
-function formatDueLabel(dueDate?: string | null) {
-  if (!dueDate) return 'No due date';
+function getRelativeDueLabel(value?: string | null) {
+  if (!value) return 'No deadline published';
 
-  const diffMs = new Date(dueDate).getTime() - Date.now();
-  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  const today = new Date();
+  const due = new Date(value);
+  const isPastDue = due.getTime() < today.getTime();
+  const diffDays = Math.floor(
+    (new Date(due.getFullYear(), due.getMonth(), due.getDate()).getTime() -
+      new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) /
+      (1000 * 60 * 60 * 24),
+  );
 
-  if (diffDays < 0) return 'Past due';
+  if (isPastDue && diffDays === 0) return 'Past due today';
+  if (diffDays < 0) return `Past due by ${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? '' : 's'}`;
   if (diffDays === 0) return 'Due today';
   if (diffDays === 1) return 'Due tomorrow';
   return `Due in ${diffDays} days`;
 }
 
-function formatDueDateTime(dueDate?: string | null) {
-  if (!dueDate) return 'No deadline published';
-
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(new Date(dueDate));
-}
-
-function getSubmissionStatusPresentation(
-  assignment: StudentAssignmentListItem,
-  latestSubmission: AssignmentSubmissionRecord | null,
-): QueuePresentation {
-  if (latestSubmission?.status === 'RETURNED') {
-    return {
-      label: 'Returned',
-      badgeClassName: 'client-badge client-badge-warning',
-      primaryAction: 'Continue Submission',
-      summary: latestSubmission.feedback ? `Feedback returned: ${latestSubmission.feedback}` : 'Feedback returned for revision.',
-      isOverdue: false,
-    };
-  }
-
-  if (latestSubmission?.status === 'GRADED') {
-    return {
-      label: latestSubmission.grade != null ? `Graded ${latestSubmission.grade}%` : 'Graded',
-      badgeClassName: 'client-badge client-badge-success',
-      primaryAction: 'Review Submission',
-      summary: latestSubmission.feedback ? latestSubmission.feedback : 'Review your graded submission and instructor notes.',
-      isOverdue: false,
-    };
-  }
-
-  if (latestSubmission) {
-    return {
-      label: latestSubmission.isLate ? 'Late' : 'Submitted',
-      badgeClassName: latestSubmission.isLate ? 'client-badge client-badge-warning' : 'client-badge client-badge-info',
-      primaryAction: 'Review Submission',
-      summary: latestSubmission.fileName || latestSubmission.textContent || 'Submission received.',
-      isOverdue: false,
-    };
-  }
-
-  if (isOverdue(assignment)) {
-    return {
-      label: 'Overdue',
-      badgeClassName: 'client-badge client-badge-danger',
-      primaryAction: 'Submit',
-      summary: assignment.allowLateSubmission ? 'Late submission is still allowed.' : 'Submission window has passed.',
-      isOverdue: true,
-    };
-  }
-
-  if (isDueSoon(assignment)) {
-    return {
-      label: 'Due Soon',
-      badgeClassName: 'client-badge client-badge-warning',
-      primaryAction: 'Submit',
-      summary: 'Complete and submit this assignment soon.',
-      isOverdue: false,
-    };
-  }
-
-  return {
-    label: 'Awaiting submission',
-    badgeClassName: 'client-badge',
-    primaryAction: 'Open assignment',
-    summary: 'Open the workspace to review instructions and submit your work.',
-    isOverdue: false,
-  };
-}
-
-function matchesFilter(
-  assignment: StudentAssignmentListItem,
-  latestSubmission: AssignmentSubmissionRecord | null,
-  filter: AssignmentQueueFilter,
-) {
-  switch (filter) {
-    case 'PENDING':
-      return !latestSubmission;
-    case 'DUE_SOON':
-      return isDueSoon(assignment);
-    case 'OVERDUE':
-      return isOverdue(assignment);
+function getStatusLabel(status: AssignmentStatus) {
+  switch (status) {
     case 'SUBMITTED':
-      return latestSubmission !== null && latestSubmission.status !== 'GRADED';
+      return 'Submitted';
     case 'GRADED':
-      return latestSubmission !== null && (latestSubmission.status === 'GRADED' || latestSubmission.status === 'RETURNED');
+      return 'Graded';
+    case 'OVERDUE':
+      return 'Overdue';
+    case 'NOT_AVAILABLE':
+      return 'Not available';
+    case 'PENDING':
     default:
-      return true;
+      return 'Pending';
   }
+}
+
+function getStatusBadgeClass(status: AssignmentStatus) {
+  switch (status) {
+    case 'OVERDUE':
+      return 'client-badge client-badge-danger';
+    case 'SUBMITTED':
+      return 'client-badge client-badge-info';
+    case 'GRADED':
+      return 'client-badge client-badge-success';
+    case 'NOT_AVAILABLE':
+      return 'client-badge';
+    case 'PENDING':
+    default:
+      return 'client-badge client-badge-warning';
+  }
+}
+
+function getPrimaryAction(status: AssignmentStatus) {
+  switch (status) {
+    case 'GRADED':
+      return 'View grade';
+    case 'SUBMITTED':
+      return 'View submission';
+    case 'OVERDUE':
+    case 'PENDING':
+      return 'Open assignment';
+    case 'NOT_AVAILABLE':
+    default:
+      return 'View details';
+  }
+}
+
+function getEmptyTitle(filter: AssignmentFilter, hasAssignments: boolean) {
+  if (!hasAssignments) return 'No assignments available yet.';
+  if (filter === 'PENDING') return 'No pending assignments.';
+  return 'No assignments match your filters.';
 }
 
 function buildListSkeleton() {
@@ -167,8 +169,10 @@ function buildListSkeleton() {
 export function ClientCourseAssignmentsPage() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
+  const now = useMemo(() => new Date(), []);
   const [searchValue, setSearchValue] = useState('');
-  const [activeFilter, setActiveFilter] = useState<AssignmentQueueFilter>('ALL');
+  const [activeFilter, setActiveFilter] = useState<AssignmentFilter>('ALL');
+  const [sortBy, setSortBy] = useState<AssignmentSort>('DUE_DATE');
 
   const courseQuery = useQuery({
     queryKey: ['assignments', 'course-header', courseId],
@@ -185,98 +189,96 @@ export function ClientCourseAssignmentsPage() {
     retry: 1,
   });
 
+  const courseTitle = courseQuery.data?.title ?? 'Current course';
   const assignments = assignmentsQuery.data ?? [];
 
-  const metrics = useMemo(() => {
-    const pending = assignments.filter((assignment) => assignment.submissions.length === 0).length;
-    const submitted = assignments.filter((assignment) => assignment.submissions.length > 0).length;
-    const graded = assignments.filter((assignment) => {
-      const latestSubmission = getLatestSubmission(assignment);
-      return Boolean(latestSubmission) && (latestSubmission.status === 'GRADED' || latestSubmission.status === 'RETURNED');
-    }).length;
-    const overdue = assignments.filter((assignment) => isOverdue(assignment)).length;
-    const dueSoon = assignments.filter((assignment) => isDueSoon(assignment)).length;
+  const assignmentItems = useMemo<AssignmentViewItem[]>(() => {
+    return assignments.map((assignment) => {
+      const latestSubmission = getLatestSubmission(assignment.submissions);
+      return {
+        assignment,
+        latestSubmission,
+        status: getAssignmentStatus(assignment, latestSubmission, now),
+        dueTime: assignment.dueDate ? new Date(assignment.dueDate).getTime() : null,
+        updatedTime: new Date(assignment.updatedAt ?? assignment.createdAt ?? assignment.dueDate ?? 0).getTime(),
+      };
+    });
+  }, [assignments, now]);
 
-    return { pending, submitted, graded, overdue, dueSoon };
-  }, [assignments]);
+  const metrics = useMemo(() => {
+    return {
+      pending: assignmentItems.filter((item) => item.status === 'PENDING').length,
+      overdue: assignmentItems.filter((item) => item.status === 'OVERDUE').length,
+      submitted: assignmentItems.filter((item) => item.status === 'SUBMITTED').length,
+      graded: assignmentItems.filter((item) => item.status === 'GRADED').length,
+    };
+  }, [assignmentItems]);
 
   const filteredAssignments = useMemo(() => {
     const search = searchValue.trim().toLowerCase();
 
-    return assignments.filter((assignment) => {
-      const latestSubmission = getLatestSubmission(assignment);
-      const matchesSearch =
-        !search ||
-        assignment.title.toLowerCase().includes(search) ||
-        (assignment.description ?? '').toLowerCase().includes(search);
+    return assignmentItems
+      .filter((item) => {
+        const matchesStatus = activeFilter === 'ALL' || item.status === activeFilter;
+        const matchesSearch =
+          !search ||
+          item.assignment.title.toLowerCase().includes(search) ||
+          (item.assignment.description ?? '').toLowerCase().includes(search) ||
+          courseTitle.toLowerCase().includes(search);
 
-      return matchesSearch && matchesFilter(assignment, latestSubmission, activeFilter);
-    });
-  }, [activeFilter, assignments, searchValue]);
+        return matchesStatus && matchesSearch;
+      })
+      .sort((left, right) => {
+        if (sortBy === 'STATUS') return statusRank[left.status] - statusRank[right.status];
+        if (sortBy === 'UPDATED') return right.updatedTime - left.updatedTime;
 
-  const dueSoonAssignments = filteredAssignments.filter((assignment) => {
-    const latestSubmission = getLatestSubmission(assignment);
-    return !latestSubmission && (isDueSoon(assignment) || isOverdue(assignment));
-  });
-  const activeAssignments = filteredAssignments.filter((assignment) => {
-    const latestSubmission = getLatestSubmission(assignment);
-    return !latestSubmission && !isDueSoon(assignment) && !isOverdue(assignment);
-  });
-  const submittedAssignments = filteredAssignments.filter((assignment) => {
-    const latestSubmission = getLatestSubmission(assignment);
-    return latestSubmission !== null;
-  });
+        if (left.dueTime == null && right.dueTime == null) return left.assignment.title.localeCompare(right.assignment.title);
+        if (left.dueTime == null) return 1;
+        if (right.dueTime == null) return -1;
+        return left.dueTime - right.dueTime;
+      });
+  }, [activeFilter, assignmentItems, courseTitle, searchValue, sortBy]);
 
-  const firstPendingAssignment = dueSoonAssignments[0] ?? activeAssignments[0] ?? assignments[0] ?? null;
-
-  const renderAssignmentRow = (assignment: StudentAssignmentListItem, accent = false) => {
-    const latestSubmission = getLatestSubmission(assignment);
-    const presentation = getSubmissionStatusPresentation(assignment, latestSubmission);
+  const renderAssignmentRow = (item: AssignmentViewItem) => {
+    const { assignment, latestSubmission, status } = item;
+    const href = `/courses/${courseId}/assignments/${assignment.id}`;
+    const hasFeedback = Boolean(latestSubmission?.feedback);
+    const score = latestSubmission?.grade != null ? `${latestSubmission.grade}%` : null;
 
     return (
-      <article
-        key={assignment.id}
-        className={`assignment-workspace__queue-card${accent ? ' assignment-workspace__queue-card--accent' : ''}`}
-      >
-        <div className="assignment-workspace__queue-header">
-          <div className="assignment-workspace__queue-heading">
-            <div className="assignment-workspace__queue-heading-copy">
-              <Typography.Text className="client-card-title">{assignment.title}</Typography.Text>
-              <Typography.Text className="client-meta">
-                {assignment.description || 'Assignment instructions are available inside the submission workspace.'}
-              </Typography.Text>
-            </div>
-            <div className="assignment-workspace__queue-primary">
-              <span className={presentation.badgeClassName}>{presentation.label}</span>
-              <Button
-                className={presentation.primaryAction === 'Submit' ? 'client-button client-button-primary' : 'client-button client-button-secondary'}
-                onClick={() => navigate(`/courses/${courseId}/assignments/${assignment.id}`)}
-              >
-                {presentation.primaryAction}
-              </Button>
-            </div>
+      <article key={assignment.id} className={`assignment-workspace__assignment-row assignment-workspace__assignment-row--${status.toLowerCase()}`}>
+        <div className="assignment-workspace__assignment-icon" aria-hidden="true">
+          <ClipboardList size={18} />
+        </div>
+        <div className="assignment-workspace__assignment-copy">
+          <div className="assignment-workspace__assignment-title-row">
+            <Typography.Text className="client-card-title">{assignment.title}</Typography.Text>
+            <span className={getStatusBadgeClass(status)}>{getStatusLabel(status)}</span>
           </div>
-          <div className="assignment-workspace__row-meta">
-            <Typography.Text className="client-meta">{formatDueDateTime(assignment.dueDate)}</Typography.Text>
-            <Typography.Text className="client-meta">{formatDueLabel(assignment.dueDate)}</Typography.Text>
-            {latestSubmission ? (
-              <Typography.Text className="client-meta">
-                Submitted {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(latestSubmission.submittedAt))}
-              </Typography.Text>
+          <Typography.Text className="client-meta">{courseTitle}</Typography.Text>
+          {assignment.description ? (
+            <Typography.Paragraph className="client-body assignment-workspace__assignment-description">
+              {assignment.description}
+            </Typography.Paragraph>
+          ) : (
+            <Typography.Text className="client-meta">Assignment instructions are available inside the submission workspace.</Typography.Text>
+          )}
+          <div className="assignment-workspace__assignment-meta">
+            <span>Due {formatDateTime(assignment.dueDate)}</span>
+            <span>{getRelativeDueLabel(assignment.dueDate)}</span>
+            {latestSubmission ? <span>Submitted {formatDateTime(latestSubmission.submittedAt)}</span> : null}
+            {score ? <span>Score {score}</span> : null}
+            {hasFeedback ? (
+              <span className="assignment-workspace__feedback-indicator">
+                <MessageSquareText size={14} />
+                Feedback available
+              </span>
             ) : null}
           </div>
         </div>
-        <Typography.Text className="client-body">{presentation.summary}</Typography.Text>
-        <div className="assignment-workspace__queue-footer">
-          <Typography.Text className="client-meta">
-            {assignment.allowLateSubmission ? 'Late submissions are allowed when the course policy permits it.' : 'Late submissions are not allowed for this assignment.'}
-          </Typography.Text>
-          <div className="assignment-workspace__queue-row-actions">
-            <Button className="client-button client-button-ghost" onClick={() => navigate(`/courses/${courseId}/assignments/${assignment.id}`)}>
-              View Details
-            </Button>
-          </div>
-        </div>
+        <Link className={status === 'PENDING' || status === 'OVERDUE' ? 'client-button client-button-primary assignment-workspace__assignment-action' : 'client-button client-button-secondary assignment-workspace__assignment-action'} to={href}>
+          {getPrimaryAction(status)}
+        </Link>
       </article>
     );
   };
@@ -285,7 +287,7 @@ export function ClientCourseAssignmentsPage() {
     <ClientLayout>
       <ClientPageContainer
         title="Assignments"
-        subtitle="Track, complete, and submit your course assignments from one workspace."
+        subtitle="Manage pending, submitted, graded, and overdue coursework."
         actions={
           <Button className="client-button client-button-secondary" icon={<ArrowLeft size={16} />} onClick={() => navigate(`/courses/${courseId}`)}>
             Back to Course
@@ -298,7 +300,7 @@ export function ClientCourseAssignmentsPage() {
           <section className="client-card assignment-workspace__state-card">
             <EmptyState
               title="Unable to load assignments"
-              description={assignmentsQuery.error instanceof Error ? assignmentsQuery.error.message : 'The assignment queue could not be loaded right now.'}
+              description={assignmentsQuery.error instanceof Error ? assignmentsQuery.error.message : 'The assignment list could not be loaded right now.'}
               action={
                 <Button className="client-button client-button-primary" onClick={() => assignmentsQuery.refetch()}>
                   Retry
@@ -308,199 +310,94 @@ export function ClientCourseAssignmentsPage() {
           </section>
         ) : null}
 
-        {!assignmentsQuery.isLoading && !assignments.length ? (
-          <section className="client-card assignment-workspace__state-card">
-            <EmptyState
-              title="No assignments are available for this course yet."
-              description="Assignments will appear here when they are published to the course."
-            />
-          </section>
-        ) : null}
-
-        {!assignmentsQuery.isLoading && assignments.length ? (
-          <div className="assignment-workspace__stack">
-            <section className="client-card assignment-workspace__hero">
-              <div className="assignment-workspace__hero-copy">
-                <Typography.Text className="client-caption">
-                  {courseQuery.data?.title ?? 'Assignment workspace'}
-                </Typography.Text>
-                <Typography.Title level={1} className="client-page-title">
-                  Assignment queue
+        {!assignmentsQuery.isLoading && !assignmentsQuery.error ? (
+          <div className="assignment-workspace assignment-workspace--management">
+            <section className="client-card assignment-workspace__summary-panel">
+              <div className="assignment-workspace__summary-heading">
+                <Typography.Text className="client-caption">{courseTitle}</Typography.Text>
+                <Typography.Title level={2} className="client-section-title">
+                  Assignment status
                 </Typography.Title>
-                <Typography.Paragraph className="client-body">
-                  Keep submission deadlines, current work, and graded feedback in one focused student workspace.
-                </Typography.Paragraph>
-                <div className="assignment-workspace__hero-meta">
-                  <span className="client-badge">{assignments.length} total assignments</span>
-                  <span className="client-badge client-badge-info">{metrics.submitted} submitted</span>
-                  <span className="client-badge client-badge-success">{metrics.graded} graded</span>
-                  {metrics.overdue ? <span className="client-badge client-badge-danger">{metrics.overdue} overdue</span> : null}
-                </div>
               </div>
-              <div className="assignment-workspace__hero-summary">
-                <Typography.Text className="client-card-title">Current focus</Typography.Text>
-                <div className="assignment-workspace__metric-grid">
-                  <div className="assignment-workspace__metric-card assignment-workspace__metric-card--focus">
-                    <Typography.Text className="client-meta">Pending</Typography.Text>
-                    <strong>{metrics.pending}</strong>
-                  </div>
-                  <div className="assignment-workspace__metric-card">
-                    <Typography.Text className="client-meta">Due Soon</Typography.Text>
-                    <strong>{metrics.dueSoon}</strong>
-                  </div>
-                  <div className="assignment-workspace__metric-card">
-                    <Typography.Text className="client-meta">Submitted</Typography.Text>
-                    <strong>{metrics.submitted}</strong>
-                  </div>
-                  <div className={`assignment-workspace__metric-card${metrics.overdue ? ' assignment-workspace__metric-card--critical' : ''}`}>
-                    <Typography.Text className="client-meta">Overdue</Typography.Text>
-                    <strong>{metrics.overdue}</strong>
-                  </div>
+              <div className="assignment-workspace__summary-cards">
+                <div className="client-card assignment-workspace__summary-card">
+                  <TimerReset size={18} aria-hidden="true" />
+                  <Typography.Text className="client-meta">Pending</Typography.Text>
+                  <strong>{metrics.pending}</strong>
                 </div>
-                {firstPendingAssignment ? (
-                  <Button
-                    className="client-button client-button-primary"
-                    onClick={() => navigate(`/courses/${courseId}/assignments/${firstPendingAssignment.id}`)}
-                  >
-                    {getLatestSubmission(firstPendingAssignment) ? 'Review current submission' : 'Open next assignment'}
-                  </Button>
-                ) : null}
+                <div className="client-card assignment-workspace__summary-card">
+                  <CalendarDays size={18} aria-hidden="true" />
+                  <Typography.Text className="client-meta">Overdue</Typography.Text>
+                  <strong>{metrics.overdue}</strong>
+                </div>
+                <div className="client-card assignment-workspace__summary-card">
+                  <ClipboardList size={18} aria-hidden="true" />
+                  <Typography.Text className="client-meta">Submitted</Typography.Text>
+                  <strong>{metrics.submitted}</strong>
+                </div>
+                <div className="client-card assignment-workspace__summary-card">
+                  <CheckCircle2 size={18} aria-hidden="true" />
+                  <Typography.Text className="client-meta">Graded</Typography.Text>
+                  <strong>{metrics.graded}</strong>
+                </div>
               </div>
             </section>
 
-            <div className="assignment-workspace__layout">
-              <main className="assignment-workspace__main">
-                <section className="client-card assignment-workspace__panel">
-                  <div className="assignment-workspace__section-header">
-                    <div className="assignment-workspace__section-header-copy">
-                      <Typography.Text className="client-caption">Assignment queue</Typography.Text>
-                      <Typography.Title level={3} className="client-section-title">
-                        Manage assignment work
-                      </Typography.Title>
-                    </div>
-                  </div>
-                  <div className="assignment-workspace__queue-controls">
-                    <Input
-                      value={searchValue}
-                      onChange={(event) => setSearchValue(event.target.value)}
-                      placeholder="Search assignments..."
-                      prefix={<Search size={16} />}
-                      className="assignment-workspace__search"
-                    />
-                    <Select<AssignmentQueueFilter>
-                      value={activeFilter}
-                      onChange={setActiveFilter}
-                      className="assignment-workspace__queue-filter"
-                      options={[
-                        { value: 'ALL', label: 'All' },
-                        { value: 'PENDING', label: 'Pending' },
-                        { value: 'DUE_SOON', label: 'Due Soon' },
-                        { value: 'OVERDUE', label: 'Overdue' },
-                        { value: 'SUBMITTED', label: 'Submitted' },
-                        { value: 'GRADED', label: 'Graded' },
-                      ]}
-                    />
-                  </div>
-
-                  {filteredAssignments.length === 0 ? (
-                    <EmptyState
-                      title="No assignments match this view."
-                      description="Try a different filter or clear the search query."
-                      compact
-                    />
-                  ) : (
-                    <div className="assignment-workspace__stack">
-                      {dueSoonAssignments.length ? (
-                        <section className="assignment-workspace__stack">
-                          <div className="assignment-workspace__section-header">
-                            <div className="assignment-workspace__section-header-copy">
-                              <Typography.Text className="client-caption">Priority</Typography.Text>
-                              <Typography.Title level={4} className="client-card-title">
-                                Due Soon & Overdue
-                              </Typography.Title>
-                            </div>
-                          </div>
-                          {dueSoonAssignments.map((assignment) => renderAssignmentRow(assignment, true))}
-                        </section>
-                      ) : null}
-
-                      {activeAssignments.length ? (
-                        <section className="assignment-workspace__stack">
-                          <div className="assignment-workspace__section-header">
-                            <div className="assignment-workspace__section-header-copy">
-                              <Typography.Text className="client-caption">Upcoming assignments</Typography.Text>
-                              <Typography.Title level={4} className="client-card-title">
-                                Plan your next submission
-                              </Typography.Title>
-                            </div>
-                          </div>
-                          {activeAssignments.map((assignment) => renderAssignmentRow(assignment))}
-                        </section>
-                      ) : null}
-
-                      {submittedAssignments.length ? (
-                        <section className="assignment-workspace__stack">
-                          <div className="assignment-workspace__section-header">
-                            <div className="assignment-workspace__section-header-copy">
-                              <Typography.Text className="client-caption">Submitted & graded</Typography.Text>
-                              <Typography.Title level={4} className="client-card-title">
-                                Review submitted work
-                              </Typography.Title>
-                            </div>
-                          </div>
-                          {submittedAssignments.map((assignment) => renderAssignmentRow(assignment))}
-                        </section>
-                      ) : null}
-                    </div>
-                  )}
-                </section>
-              </main>
-
-              <aside className="assignment-workspace__sidebar">
-                <section className="client-card assignment-workspace__sidebar-card">
-                  <Typography.Text className="client-caption">Queue summary</Typography.Text>
-                  <Typography.Title level={4} className="client-card-title">
-                    Submission status
+            <section className="client-card assignment-workspace__panel assignment-workspace__assignment-panel">
+              <div className="assignment-workspace__section-header">
+                <div className="assignment-workspace__section-header-copy">
+                  <Typography.Text className="client-caption">Coursework</Typography.Text>
+                  <Typography.Title level={3} className="client-section-title">
+                    Manage assignments
                   </Typography.Title>
-                  <div className="assignment-workspace__status-grid">
-                    <div className="assignment-workspace__status-tile">
-                      <Typography.Text className="client-meta">Pending work</Typography.Text>
-                      <strong>{metrics.pending}</strong>
-                    </div>
-                    <div className="assignment-workspace__status-tile">
-                      <Typography.Text className="client-meta">Submitted</Typography.Text>
-                      <strong>{metrics.submitted}</strong>
-                    </div>
-                    <div className="assignment-workspace__status-tile">
-                      <Typography.Text className="client-meta">Graded</Typography.Text>
-                      <strong>{metrics.graded}</strong>
-                    </div>
-                    <div className={`assignment-workspace__status-tile${metrics.overdue ? ' assignment-workspace__metric-card--critical' : ''}`}>
-                      <Typography.Text className="client-meta">Overdue</Typography.Text>
-                      <strong>{metrics.overdue}</strong>
-                    </div>
-                  </div>
-                </section>
+                </div>
+              </div>
 
-                <section className="client-card assignment-workspace__sidebar-card">
-                  <Typography.Text className="client-caption">Calendar</Typography.Text>
-                  <Typography.Title level={4} className="client-card-title">
-                    Assignment timing
-                  </Typography.Title>
-                  <Typography.Text className="client-meta">
-                    Use the assignment queue to stay ahead of due dates and review returned work quickly.
-                  </Typography.Text>
-                  <div className="assignment-workspace__action-group">
-                    <Button className="client-button client-button-secondary" icon={<CalendarDays size={16} />} onClick={() => navigate('/calendar')}>
-                      Calendar View
-                    </Button>
-                    <Button className="client-button client-button-ghost" onClick={() => navigate(`/courses/${courseId}`)}>
-                      View Course
-                    </Button>
-                  </div>
-                </section>
-              </aside>
-            </div>
+              <div className="assignment-workspace__management-controls">
+                <Input
+                  value={searchValue}
+                  onChange={(event) => setSearchValue(event.target.value)}
+                  placeholder="Search assignments..."
+                  prefix={<Search size={16} />}
+                  className="assignment-workspace__search"
+                />
+                <Select<AssignmentSort>
+                  value={sortBy}
+                  onChange={setSortBy}
+                  className="assignment-workspace__sort"
+                  options={[
+                    { value: 'DUE_DATE', label: 'Sort by due date' },
+                    { value: 'STATUS', label: 'Sort by status' },
+                    { value: 'UPDATED', label: 'Sort by recently updated' },
+                  ]}
+                />
+              </div>
+
+              <div className="assignment-workspace__filter-tabs" aria-label="Assignment status filters">
+                {statusFilters.map((filter) => (
+                  <button
+                    key={filter.value}
+                    type="button"
+                    className={`assignment-workspace__filter-tab${activeFilter === filter.value ? ' assignment-workspace__filter-tab--active' : ''}`}
+                    onClick={() => setActiveFilter(filter.value)}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+
+              {!assignments.length || !filteredAssignments.length ? (
+                <EmptyState
+                  compact
+                  title={getEmptyTitle(activeFilter, assignments.length > 0)}
+                  description={assignments.length ? 'Try another status or search term.' : 'Assignments will appear here when they are published to this course.'}
+                />
+              ) : (
+                <div className="assignment-workspace__assignment-list">
+                  {filteredAssignments.map((item) => renderAssignmentRow(item))}
+                </div>
+              )}
+            </section>
           </div>
         ) : null}
       </ClientPageContainer>

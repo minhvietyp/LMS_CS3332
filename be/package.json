@@ -2,11 +2,11 @@
   "name": "lms-backend",
   "version": "1.0.0",
   "description": "LMS Backend — Modular Monolith with Express + TypeScript + Prisma",
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node -r ./register-paths.js dist/src/server.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint src --ext .ts",

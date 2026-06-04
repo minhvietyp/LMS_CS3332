@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, Col, Empty, Row, Select, Spin, Statistic, Table, Typography } from 'antd';
+import { Card, Col, Empty, Row, Select, Spin, Statistic, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
 import { listCoursesRequest } from '../../../services/api/courseApi';
 import { progressService } from '../../../services/api/progressService';
 import type { InstructorStudentProgressItem } from '../../../types/progress';
+import './InstructorReports.css';
 
 export function InstructorActivityReportPage() {
   const [selectedCourseId, setSelectedCourseId] = useState<string>();
@@ -43,9 +44,9 @@ export function InstructorActivityReportPage() {
         title: 'Student',
         key: 'student',
         render: (_, record) => (
-          <div>
+          <div className="instructor-report-page__student-cell">
             <Typography.Text strong>{record.studentName}</Typography.Text>
-            <div><Typography.Text type="secondary">{record.studentEmail}</Typography.Text></div>
+            <Typography.Text type="secondary">{record.studentEmail}</Typography.Text>
           </div>
         ),
       },
@@ -53,6 +54,7 @@ export function InstructorActivityReportPage() {
         title: 'Status',
         dataIndex: 'enrollmentStatus',
         key: 'enrollmentStatus',
+        render: (value: string) => <Tag color={value === 'COMPLETED' ? 'green' : value === 'DROPPED' ? 'red' : 'blue'}>{value}</Tag>,
       },
       {
         title: 'Weighted Progress',
@@ -85,30 +87,32 @@ export function InstructorActivityReportPage() {
           />
         }
       >
-        {coursesQuery.isLoading ? <Spin tip="Loading instructor activity..." /> : null}
+        <main className="instructor-report-page">
+          {coursesQuery.isLoading ? <Spin tip="Loading instructor activity..." /> : null}
 
-        {progressQuery.data ? (
-          <>
-            <Row gutter={[16, 16]}>
-              <Col xs={24} md={12} xl={6}><Card><Statistic title="Students" value={progressQuery.data.course.totalStudents} /></Card></Col>
-              <Col xs={24} md={12} xl={6}><Card><Statistic title="Active" value={progressQuery.data.course.activeStudents} /></Card></Col>
-              <Col xs={24} md={12} xl={6}><Card><Statistic title="Completed" value={progressQuery.data.course.completedStudents} /></Card></Col>
-              <Col xs={24} md={12} xl={6}><Card><Statistic title="Avg Weighted Progress" value={progressQuery.data.course.averageWeightedProgress} suffix="%" /></Card></Col>
-            </Row>
+          {progressQuery.data ? (
+            <>
+              <Row gutter={[16, 16]} className="instructor-report-page__summary">
+                <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Students" value={progressQuery.data.course.totalStudents} /></Card></Col>
+                <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Active" value={progressQuery.data.course.activeStudents} /></Card></Col>
+                <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Completed" value={progressQuery.data.course.completedStudents} /></Card></Col>
+                <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Avg Weighted Progress" value={progressQuery.data.course.averageWeightedProgress} suffix="%" /></Card></Col>
+              </Row>
 
-            <Card style={{ marginTop: 16 }}>
-              <Table
-                rowKey="studentId"
-                columns={columns}
-                dataSource={progressQuery.data.students}
-                loading={progressQuery.isLoading}
-                pagination={false}
-              />
-            </Card>
-          </>
-        ) : (
-          <Empty description="Choose a course to review instructor activity trends." />
-        )}
+              <Card className="instructor-report-page__table-card">
+                <Table
+                  rowKey="studentId"
+                  columns={columns}
+                  dataSource={progressQuery.data.students}
+                  loading={progressQuery.isLoading}
+                  pagination={false}
+                />
+              </Card>
+            </>
+          ) : (
+            <Empty description="Choose a course to review instructor activity trends." />
+          )}
+        </main>
       </ClientPageContainer>
     </ClientLayout>
   );

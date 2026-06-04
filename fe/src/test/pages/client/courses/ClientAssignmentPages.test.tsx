@@ -163,13 +163,14 @@ describe('Client assignment pages', () => {
     const pendingTitle = await screen.findByText('Build a Landing Page', {}, { timeout: HEAVY_UI_TEST_TIMEOUT * 2 });
     const pendingCard = pendingTitle.closest('article');
     expect(pendingCard).not.toBeNull();
-    expect(within(pendingCard!).getByText('Awaiting submission')).toBeInTheDocument();
-    expect(within(pendingCard!).getByRole('button', { name: 'Open assignment' })).toBeInTheDocument();
+    expect(within(pendingCard!).getByText('Pending')).toBeInTheDocument();
+    expect(within(pendingCard!).getByRole('link', { name: 'Open assignment' })).toBeInTheDocument();
 
     const returnedTitle = await screen.findByText('Reflection', {}, { timeout: HEAVY_UI_TEST_TIMEOUT * 2 });
     const returnedCard = returnedTitle.closest('article');
     expect(returnedCard).not.toBeNull();
-    expect(within(returnedCard!).getByText('Returned')).toBeInTheDocument();
+    expect(within(returnedCard!).getByText('Graded')).toBeInTheDocument();
+    expect(within(returnedCard!).getByText('Score 96%')).toBeInTheDocument();
   }, 30000);
 
   it('submits a text-only assignment response', async () => {

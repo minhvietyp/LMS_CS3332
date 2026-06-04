@@ -1,157 +1,125 @@
 import { Button, Typography } from 'antd';
-import { BookOpen, LayoutList } from 'lucide-react';
+import { BookOpen, CalendarDays, UserRound } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { CourseListItem } from '../../../../services/api/courseApi';
+import type { CourseProgressItem } from '../../../../types/progress';
+import { StatusBadge, type StatusTone } from '../../../../components/client-ui';
+
+export type CourseCatalogStatus = 'available' | 'enrolled' | 'in-progress' | 'completed' | 'draft' | 'archived';
 
 type CourseCatalogCardProps = {
   course: CourseListItem;
-  category: string;
-  level: string;
-  role?: string;
-  progressPercent?: number | null;
+  status: CourseCatalogStatus;
+  progress: CourseProgressItem | null;
+  progressPercent: number | null;
 };
 
 type StatusPresentation = {
   label: string;
-  className: string;
+  tone: StatusTone;
 };
 
-function getStatusPresentation(
-  course: CourseListItem,
-  role?: string,
-  progressPercent?: number | null,
-): StatusPresentation {
-  if (typeof progressPercent === 'number' && progressPercent >= 100) {
-    return { label: 'Completed', className: 'client-course-card__status client-course-card__status--completed' };
+const statusPresentation: Record<CourseCatalogStatus, StatusPresentation> = {
+  available: { label: 'Available', tone: 'published' },
+  enrolled: { label: 'Enrolled', tone: 'active' },
+  'in-progress': { label: 'In progress', tone: 'in-progress' },
+  completed: { label: 'Completed', tone: 'completed' },
+  draft: { label: 'Draft', tone: 'draft' },
+  archived: { label: 'Archived', tone: 'locked' },
+};
+
+function getPrimaryAction(status: CourseCatalogStatus) {
+  if (status === 'completed') {
+    return 'Review';
   }
 
-  if (typeof progressPercent === 'number' && progressPercent > 0) {
-    return { label: 'In Progress', className: 'client-course-card__status client-course-card__status--progress' };
+  if (status === 'in-progress' || status === 'enrolled') {
+    return 'Continue';
   }
 
-  if (role === 'INSTRUCTOR') {
-    if (course.status === 'DRAFT') {
-      return { label: 'Draft', className: 'client-course-card__status client-course-card__status--draft' };
-    }
-
-    if (course.status === 'ARCHIVED') {
-      return { label: 'Archived', className: 'client-course-card__status client-course-card__status--archived' };
-    }
-  }
-
-  return { label: 'Available', className: 'client-course-card__status client-course-card__status--available' };
+  return 'View course';
 }
 
-function getCourseInitials(title: string): string {
-  return title
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? '')
-    .join('');
+function getUpdatedLabel(updatedAt: string) {
+  const parsedDate = new Date(updatedAt);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return 'Recently updated';
+  }
+
+  return `Updated ${parsedDate.toLocaleDateString()}`;
 }
 
 export function CourseCatalogCard({
   course,
-  category,
-  level,
-  role,
+  status,
+  progress,
   progressPercent,
 }: CourseCatalogCardProps) {
   const navigate = useNavigate();
-  const status = getStatusPresentation(course, role, progressPercent);
-  const primaryLabel = typeof progressPercent === 'number' && progressPercent > 0 ? 'Continue Learning' : 'View Course';
-  const showCurriculum = course.status === 'PUBLISHED';
-  const hasProgress = typeof progressPercent === 'number' && progressPercent > 0;
+  const statusConfig = statusPresentation[status];
+  const showProgress = progressPercent !== null && (status === 'enrolled' || status === 'in-progress' || status === 'completed');
+  const lessonCount = progress?.totalLessons ?? null;
 
   return (
     <article className="client-course-card client-card client-card-hover">
-      <div className="client-course-card__media">
-        {course.thumbnailUrl ? (
-          <img src={course.thumbnailUrl} alt="" className="client-course-card__image" />
-        ) : (
-          <div className="client-course-card__image-fallback" aria-hidden="true">
-            <span>{getCourseInitials(course.title)}</span>
-          </div>
-        )}
-        <div className="client-course-card__media-overlay">
-          <span className={status.className}>{status.label}</span>
-        </div>
+      <div className="client-course-card__header">
+        <StatusBadge tone={statusConfig.tone}>{statusConfig.label}</StatusBadge>
       </div>
 
-      <div className="client-course-card__body">
-        <div className="client-course-card__badges">
-          <span className="client-badge client-badge-info">{category}</span>
-          <span className="client-badge client-badge-neutral">{level}</span>
-        </div>
+      <div className="client-course-card__copy">
+        <Typography.Title level={4} className="client-course-card__title">
+          {course.title}
+        </Typography.Title>
+        <span className="client-course-card__instructor">
+          <UserRound size={15} />
+          {progress?.instructorName || course.instructor?.name || 'Instructor unavailable'}
+        </span>
+        <Typography.Paragraph className="client-course-card__description">
+          {course.description || 'Course details are available on the full course page.'}
+        </Typography.Paragraph>
+      </div>
 
-        <div className="client-course-card__copy">
-          <Typography.Title level={4} className="client-course-card__title">
-            {course.title}
-          </Typography.Title>
-          <Typography.Text className="client-course-card__instructor">
-            {course.instructor?.name ?? 'Instructor unavailable'}
-          </Typography.Text>
-          <Typography.Paragraph className="client-course-card__description">
-            {course.description || 'Course details are available on the full course page.'}
-          </Typography.Paragraph>
-        </div>
-
-        {hasProgress ? (
-          <div className="client-course-card__progress">
-            <div className="client-course-card__progress-copy">
-              <span>Progress</span>
-              <strong>{progressPercent}%</strong>
-            </div>
-            <div
-              className="client-course-card__progress-track"
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={progressPercent}
-              aria-label={`Course progress ${progressPercent} percent`}
-            >
-              <span className="client-course-card__progress-fill" style={{ width: `${progressPercent}%` }} />
-            </div>
+      {showProgress ? (
+        <div className="client-course-card__progress">
+          <div className="client-course-card__progress-copy">
+            <span>Progress</span>
+            <strong>{progressPercent}%</strong>
           </div>
-        ) : null}
-
-        <div className="client-course-card__footer">
-          <Button
-            type="primary"
-            className="client-button client-button-primary"
-            onClick={() => navigate(`/courses/${course.id}`)}
+          <div
+            className="client-course-card__progress-track"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progressPercent ?? 0}
+            aria-label={`Course progress ${progressPercent ?? 0} percent`}
           >
-            {primaryLabel}
-          </Button>
-
-          <div className="client-course-card__footer-actions">
-            <Button
-              className="client-button client-button-secondary"
-              onClick={() => navigate(`/courses/${course.id}`)}
-            >
-              Details
-            </Button>
-            {showCurriculum ? (
-              <Button
-                className="client-button client-button-ghost"
-                onClick={() => navigate(`/courses/${course.id}`)}
-              >
-                Curriculum
-              </Button>
-            ) : null}
+            <span className="client-course-card__progress-fill" style={{ width: `${progressPercent ?? 0}%` }} />
           </div>
         </div>
+      ) : null}
 
-        <div className="client-course-card__meta">
+      <div className="client-course-card__meta">
+        {lessonCount !== null && lessonCount > 0 ? (
           <span className="client-course-card__meta-item">
             <BookOpen size={15} />
-            {course.status === 'PUBLISHED' ? 'Open now' : 'Private draft'}
+            {lessonCount} lesson{lessonCount === 1 ? '' : 's'}
           </span>
-          <span className="client-course-card__meta-item">
-            <LayoutList size={15} />
-            Updated {new Date(course.updatedAt).toLocaleDateString()}
-          </span>
-        </div>
+        ) : null}
+        <span className="client-course-card__meta-item">
+          <CalendarDays size={15} />
+          {getUpdatedLabel(course.updatedAt)}
+        </span>
+      </div>
+
+      <div className="client-course-card__footer">
+        <Button
+          type="primary"
+          className="client-button client-button-primary"
+          onClick={() => navigate(`/courses/${course.id}`)}
+        >
+          {getPrimaryAction(status)}
+        </Button>
       </div>
     </article>
   );

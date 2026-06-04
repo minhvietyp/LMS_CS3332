@@ -10,6 +10,23 @@
   background: var(--client-bg-surface);
   color: var(--client-text-primary);
   box-shadow: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.client-theme .client-input:hover,
+.client-theme .ant-input.client-input:hover,
+.client-theme .ant-input-affix-wrapper.client-input:hover,
+.client-theme .client-select:hover {
+  border-color: color-mix(in srgb, var(--client-color-primary) 34%, var(--client-border));
+}
+
+.client-theme .client-input:focus,
+.client-theme .ant-input.client-input:focus,
+.client-theme .ant-input-affix-wrapper.client-input-focused,
+.client-theme .ant-input-affix-wrapper.client-input:focus-within,
+.client-theme .client-select:focus-within {
+  border-color: var(--client-color-primary);
+  box-shadow: var(--client-shadow-focus);
 }
 
 .client-theme .client-field {

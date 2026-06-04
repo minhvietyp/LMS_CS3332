@@ -1,458 +1,285 @@
-.progress-center,
-.progress-secondary-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--client-space-6);
+.progress-page {
+  display: grid;
+  gap: var(--client-space-lg);
+}
+
+.progress-page--loading {
+  gap: var(--client-space-lg);
+}
+
+.progress-page__summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--client-space-md);
+}
+
+.progress-page__summary-card {
+  display: grid;
+  gap: var(--client-space-xs);
+  min-height: 128px;
+  padding: var(--client-card-padding);
+}
+
+.progress-page__summary-card .ant-typography,
+.progress-page__panel .ant-typography,
+.progress-page__section-header .ant-typography {
+  margin-bottom: 0;
+}
+
+.progress-page__summary-card strong {
+  color: var(--client-text-primary);
+  font-size: clamp(1.6rem, 2.4vw, 2.25rem);
+  line-height: 1;
+}
+
+.progress-page__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+  gap: var(--client-space-lg);
+  align-items: start;
+}
+
+.progress-page__main,
+.progress-page__aside,
+.progress-page__panel,
+.progress-page__course-list,
+.progress-page__activity-list {
+  display: grid;
+  gap: var(--client-space-md);
   min-width: 0;
 }
 
-.progress-center__page-actions,
-.progress-center__action-row,
-.progress-center__section-actions {
+.progress-page__aside {
+  position: sticky;
+  top: 96px;
+}
+
+.progress-page__panel {
+  padding: var(--client-space-lg);
+}
+
+.progress-page__section-header {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--client-space-3);
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--client-space-md);
 }
 
-.progress-center__hero,
-.progress-center__section,
-.progress-center__metric-card,
-.progress-center__preview-card {
-  border-radius: var(--client-radius-3xl);
-  border: 1px solid var(--client-color-border-subtle);
-  background: var(--client-color-surface-raised);
-  box-shadow: var(--client-shadow-sm);
-}
-
-.progress-center__hero,
-.progress-center__section,
-.progress-center__preview-card {
-  padding: var(--client-space-6);
-}
-
-.progress-center__hero {
+.progress-page__course-row,
+.progress-page__activity-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.9fr);
-  gap: var(--client-space-6);
-  min-width: 0;
-}
-
-.progress-center__hero-copy,
-.progress-center__hero-summary,
-.progress-center__main,
-.progress-center__aside,
-.progress-center__course-main,
-.progress-center__tracker-copy,
-.progress-center__attention-copy,
-.progress-center__section-copy {
-  min-width: 0;
-}
-
-.progress-center__hero-copy,
-.progress-center__hero-summary,
-.progress-center__main,
-.progress-center__aside,
-.progress-center__section,
-.progress-center__certificate-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--client-space-4);
-}
-
-.progress-center__hero-copy .client-page-title,
-.progress-center__section-copy .client-section-title {
-  margin: 0;
-}
-
-.progress-center__hero-alert {
-  padding: var(--client-space-4);
-  border-radius: var(--client-radius-xl);
-  background: var(--client-color-surface-muted);
-  border: 1px solid var(--client-color-border-subtle);
-}
-
-.progress-center__hero-summary {
-  padding: var(--client-space-5);
-  border-radius: var(--client-radius-2xl);
-  background: linear-gradient(180deg, var(--client-color-primary-50), var(--client-color-surface-raised));
-}
-
-.progress-center__hero-progress {
-  display: grid;
-  grid-template-columns: 128px minmax(0, 1fr);
-  gap: var(--client-space-4);
-  align-items: center;
-}
-
-.progress-center__hero-ring {
-  width: 128px;
-  height: 128px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(circle at center, var(--client-color-surface-raised) 58%, transparent 60%),
-    conic-gradient(var(--client-color-primary-700) 0deg, var(--client-color-primary-700) 245deg, var(--client-color-primary-100) 245deg 360deg);
-  color: var(--client-color-text-strong);
-  font-size: var(--client-font-size-4xl);
-  font-weight: 700;
-}
-
-.progress-center__metric-grid,
-.progress-center__metrics,
-.progress-center__preview-grid,
-.progress-secondary-page__metrics {
-  display: grid;
-  gap: var(--client-space-4);
-}
-
-.progress-center__metric-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.progress-center__metrics,
-.progress-secondary-page__metrics {
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-}
-
-.progress-center__metric-card,
-.progress-center__mini-metric,
-.progress-center__preview-card {
-  min-width: 0;
-  padding: var(--client-space-4);
-}
-
-.progress-center__metric-card,
-.progress-center__mini-metric {
-  display: flex;
-  flex-direction: column;
   gap: var(--client-space-sm);
+  align-items: center;
   min-width: 0;
   padding: var(--client-space-md);
+  border: 1px solid var(--client-border-soft);
   border-radius: var(--client-radius-lg);
-  border: 1px solid var(--client-color-border-subtle);
-  background: var(--client-color-surface-raised);
+  background: var(--client-bg-surface-low);
 }
 
-.progress-center__metric-card strong,
-.progress-center__mini-metric strong,
-.progress-center__secondary-metric strong {
-  font-size: 1.65rem;
-  line-height: 1.1;
-  color: var(--client-color-text-strong);
-  font-weight: 700;
+.progress-page__course-row {
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
-.progress-center__metric-card .ant-typography,
-.progress-center__mini-metric .ant-typography {
-  margin: 0;
-  color: var(--client-color-text-muted);
-  font-size: 0.85rem;
-  line-height: 1.4;
-}
-
-.progress-center__layout {
+.progress-page__course-copy,
+.progress-page__activity-copy,
+.progress-page__continue-course {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.85fr);
-  gap: var(--client-space-6);
+  gap: var(--client-space-xs);
   min-width: 0;
 }
 
-.progress-center__main,
-.progress-center__aside {
-  display: flex;
-  flex-direction: column;
-  gap: var(--client-space-6);
-}
-
-.progress-center__split-grid,
-.progress-secondary-page__split-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--client-space-6);
-  min-width: 0;
-}
-
-.progress-center__section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--client-space-4);
-}
-
-.progress-center__course-list,
-.progress-center__tracker-list,
-.progress-center__attention-list,
-.progress-secondary-page__record-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--client-space-3);
-  min-width: 0;
-}
-
-.progress-center__course-row,
-.progress-center__tracker-item,
-.progress-center__attention-item,
-.progress-secondary-page__record-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--client-space-4);
-  min-width: 0;
-  padding: var(--client-space-4);
-  border-radius: var(--client-radius-2xl);
-  border: 1px solid var(--client-color-border-subtle);
-  background: var(--client-color-surface-muted);
-}
-
-.progress-center__course-main,
-.progress-center__tracker-copy,
-.progress-center__attention-copy,
-.progress-secondary-page__record-copy {
-  display: flex;
-  flex-direction: column;
-  gap: var(--client-space-2);
-}
-
-.progress-center__course-title-row,
-.progress-center__tracker-title-row {
+.progress-page__course-title-row {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--client-space-3);
+  gap: var(--client-space-sm);
   align-items: center;
 }
 
-.progress-center__progress-row {
+.progress-page__progress-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--client-space-3);
+  gap: var(--client-space-sm);
   align-items: center;
 }
 
-.progress-center__progress-track {
-  height: 10px;
-  border-radius: 999px;
-  background: var(--client-color-primary-100);
+.progress-page__progress-row strong {
+  color: var(--client-text-primary);
+}
+
+.progress-page__progress-track {
+  width: 100%;
+  height: 8px;
+  border-radius: var(--client-radius-pill);
+  background: color-mix(in srgb, var(--client-color-primary) 8%, var(--client-bg-surface));
   overflow: hidden;
 }
 
-.progress-center__progress-fill {
+.progress-page__progress-fill {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--client-color-primary-600), var(--client-color-primary-700));
+  background: var(--client-color-primary);
 }
 
-.progress-center__course-meta,
-.progress-center__secondary-meta {
+.progress-page__course-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--client-space-4);
+  gap: var(--client-space-xs) var(--client-space-md);
 }
 
-.progress-center__course-actions,
-.progress-center__tracker-actions,
-.progress-secondary-page__record-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: var(--client-space-3);
-  flex-shrink: 0;
-  min-width: 0;
+.progress-page__course-action {
+  justify-self: end;
 }
 
-.progress-center__mini-metrics {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--client-space-3);
+.progress-page__course-action .client-button,
+.progress-page__course-action .ant-btn.client-button {
+  min-width: 112px;
+  justify-content: center;
 }
 
-.progress-center__mini-metric {
-  border-radius: var(--client-radius-xl);
-  background: var(--client-color-surface-muted);
-  border: 1px solid var(--client-color-border-subtle);
+.progress-page__activity-row {
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
 }
 
-.progress-center__certificate-card,
-.progress-center__partial-state {
-  padding: var(--client-space-4);
-  border-radius: var(--client-radius-xl);
-  border: 1px solid var(--client-color-border-subtle);
-  background: var(--client-color-surface-muted);
+.progress-page__activity-icon,
+.progress-page__continue-course > svg,
+.progress-page__balance-grid svg {
+  color: var(--client-color-primary);
 }
 
-.progress-center__certificate-stat {
-  display: flex;
+.progress-page__activity-icon {
+  display: inline-flex;
   align-items: center;
-  gap: var(--client-space-3);
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--client-radius-pill);
+  border: 1px solid var(--client-border-soft);
+  background: var(--client-bg-surface);
 }
 
-.progress-center__preview-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.progress-page__partial-note {
+  padding: var(--client-space-sm);
+  border: 1px dashed var(--client-border-soft);
+  border-radius: var(--client-radius-md);
+  background: var(--client-bg-surface-low);
 }
 
-.progress-center__state-card {
-  padding: var(--client-space-8);
-  border-radius: var(--client-radius-3xl);
-  border: 1px solid var(--client-color-border-subtle);
-  background: var(--client-color-surface-raised);
-  box-shadow: var(--client-shadow-sm);
+.progress-page__continue-panel .client-button,
+.progress-page__continue-panel .ant-btn.client-button {
+  width: 100%;
+  justify-content: center;
 }
 
-.progress-center__skeleton-shell {
-  display: flex;
-  flex-direction: column;
-  gap: var(--client-space-4);
+.progress-page__continue-course {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  padding: var(--client-space-sm);
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-md);
+  background: var(--client-bg-surface-low);
 }
 
-.progress-center__skeleton-line,
-.progress-center__skeleton-block {
-  border-radius: var(--client-radius-xl);
-  background: linear-gradient(90deg, var(--client-color-primary-50), var(--client-color-surface-muted), var(--client-color-primary-50));
+.progress-page__balance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--client-space-sm);
 }
 
-.progress-center__skeleton-line {
+.progress-page__balance-grid div {
+  display: grid;
+  gap: 4px;
+  padding: var(--client-space-sm);
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-md);
+  background: var(--client-bg-surface-low);
+}
+
+.progress-page__balance-grid strong {
+  color: var(--client-text-primary);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.progress-page__state-card {
+  padding: var(--client-space-lg);
+}
+
+.progress-page__skeleton-label {
+  width: 120px;
   height: 14px;
 }
 
-.progress-center__skeleton-line--short {
-  width: 28%;
+.progress-page__skeleton-value {
+  width: 96px;
+  height: 36px;
 }
 
-.progress-center__skeleton-line--title {
-  width: 52%;
-  height: 32px;
+.progress-page__skeleton-title {
+  width: min(360px, 100%);
+  height: 28px;
 }
 
-.progress-center__skeleton-block {
-  height: 96px;
-}
-
-.progress-center__skeleton-block--tall {
-  height: 240px;
-}
-
-.progress-center__section--attention {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--client-color-danger-50) 42%, white), var(--client-color-surface-raised));
-}
-
-.progress-secondary-page__toolbar {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--client-space-4);
-  align-items: flex-start;
-}
-
-.progress-secondary-page__summary {
-  display: flex;
-  flex-direction: column;
-  gap: var(--client-space-3);
-}
-
-.progress-secondary-page__record-tag-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--client-space-2);
-}
-
-.progress-secondary-page__record-actions {
-  min-width: 140px;
-}
-
-.progress-secondary-page__secondary-grid {
-  display: grid;
-  gap: var(--client-space-4);
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.progress-secondary-page__empty-note {
-  padding: var(--client-space-4);
-  border-radius: var(--client-radius-xl);
-  border: 1px solid var(--client-color-border-subtle);
-  background: var(--client-color-surface-muted);
+.progress-page__skeleton-row {
+  width: 100%;
+  height: 70px;
 }
 
 @media (max-width: 1279px) {
-  .progress-center__hero,
-  .progress-center__layout {
+  .progress-page__summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .progress-page__layout {
     grid-template-columns: 1fr;
   }
 
-  .progress-center__aside {
-    order: 2;
+  .progress-page__aside {
+    position: static;
   }
 }
 
 @media (max-width: 1023px) {
-  .progress-center__split-grid,
-  .progress-secondary-page__split-grid,
-  .progress-secondary-page__secondary-grid {
+  .progress-page__section-header {
+    display: grid;
+  }
+
+  .progress-page__course-row,
+  .progress-page__activity-row {
     grid-template-columns: 1fr;
   }
 
-  .progress-center__mini-metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .progress-page__course-action {
+    justify-self: stretch;
   }
 
-  .progress-center__preview-grid {
-    grid-template-columns: 1fr;
+  .progress-page__course-action .client-button,
+  .progress-page__course-action .ant-btn.client-button,
+  .progress-page__activity-row .client-button,
+  .progress-page__activity-row .ant-btn.client-button {
+    width: 100%;
+    justify-content: center;
   }
 }
 
 @media (max-width: 767px) {
-  .progress-center__hero,
-  .progress-center__section,
-  .progress-center__preview-card,
-  .progress-center__state-card {
-    padding: var(--client-space-5);
+  .progress-page {
+    gap: var(--client-space-md);
   }
 
-  .progress-center__hero-progress {
+  .progress-page__summary-grid,
+  .progress-page__balance-grid {
     grid-template-columns: 1fr;
   }
 
-  .progress-center__hero-ring {
-    width: 112px;
-    height: 112px;
+  .progress-page__panel,
+  .progress-page__state-card {
+    padding: var(--client-space-lg);
   }
 
-  .progress-center__metric-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .progress-center__course-row,
-  .progress-center__tracker-item,
-  .progress-center__attention-item,
-  .progress-secondary-page__record-item,
-  .progress-secondary-page__toolbar,
-  .progress-center__section-header {
-    flex-direction: column;
-  }
-
-  .progress-center__course-actions,
-  .progress-center__tracker-actions,
-  .progress-secondary-page__record-actions {
-    align-items: stretch;
-    width: 100%;
-  }
-
-  .progress-center__course-actions .client-button,
-  .progress-center__tracker-actions .client-button,
-  .progress-secondary-page__record-actions .client-button,
-  .progress-center__page-actions .client-button,
-  .progress-center__action-row .client-button {
-    width: 100%;
-  }
-
-  .progress-center__mini-metrics,
-  .progress-center__metrics,
-  .progress-secondary-page__metrics {
-    grid-template-columns: 1fr;
-  }
-
-  .progress-center__course-meta,
-  .progress-center__secondary-meta {
-    flex-direction: column;
-    gap: var(--client-space-2);
+  .progress-page__course-meta {
+    display: grid;
+    gap: var(--client-space-xs);
   }
 }

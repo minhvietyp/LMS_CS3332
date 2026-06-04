@@ -11,6 +11,8 @@ import './ClientLayout.css';
 
 const CLIENT_SIDEBAR_STORAGE_KEY = 'client-shell.sidebar-collapsed';
 
+export type ActiveHeaderPanel = 'notifications' | 'user' | 'search' | null;
+
 type ClientLayoutProps = {
   children?: ReactNode;
 };
@@ -23,7 +25,7 @@ export function ClientLayout({ children }: ClientLayoutProps) {
   const isTablet = Boolean(screens.md) && !screens.xl;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [activeHeaderPanel, setActiveHeaderPanel] = useState<ActiveHeaderPanel>(null);
 
   useEffect(() => {
     if (isMobile || isTablet) {
@@ -53,11 +55,11 @@ export function ClientLayout({ children }: ClientLayoutProps) {
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
-        setCommandPaletteOpen(true);
+        setActiveHeaderPanel('search');
       }
 
       if (event.key === 'Escape') {
-        setCommandPaletteOpen(false);
+        setActiveHeaderPanel(null);
       }
     };
 
@@ -87,13 +89,15 @@ export function ClientLayout({ children }: ClientLayoutProps) {
         <ClientHeader
           onOpenMobileSidebar={() => setMobileOpen(true)}
           onToggleSidebar={handleToggleSidebar}
-          onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+          activeHeaderPanel={activeHeaderPanel}
+          setActiveHeaderPanel={setActiveHeaderPanel}
+          onOpenCommandPalette={() => setActiveHeaderPanel('search')}
           isMobileOrTablet={isMobile || isTablet}
           isSidebarCollapsed={sidebarCollapsed}
         />
         <div className="client-main__content">{children ?? <Outlet />}</div>
       </Layout>
-      <ClientCommandPalette open={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
+      <ClientCommandPalette open={activeHeaderPanel === 'search'} onClose={() => setActiveHeaderPanel(null)} />
     </Layout>
   );
 }

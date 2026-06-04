@@ -1,5 +1,6 @@
 import { Alert, Card, Empty, List, Spin, Tag, Typography } from 'antd';
 import { useMyProgressHistory } from '../../../../hooks/useProgressOverview';
+import './ProgressFoundation.css';
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat('en-US', {
@@ -45,7 +46,7 @@ export function ProgressHistoryList() {
       dataSource={data.items}
       renderItem={(item) => (
         <List.Item>
-          <Card size="small" style={{ width: '100%' }}>
+          <Card size="small" className="client-card progress-history__card">
             <Typography.Text strong>{item.courseTitle}</Typography.Text>
             <div>
               <Tag color="blue">{toActionLabel(item.actionType)}</Tag>

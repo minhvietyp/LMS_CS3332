@@ -1,28 +1,43 @@
 .client-layout {
+  --client-sidebar-motion-duration: 200ms;
+  --client-sidebar-motion-ease: cubic-bezier(0.2, 0, 0, 1);
+
   min-height: 100vh;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top left, rgba(119, 176, 255, 0.12), transparent 24%),
     linear-gradient(180deg, #f7fbff 0%, #eef4fb 100%);
-  transition: background 0.22s ease;
 }
 
 .client-main {
   background: transparent;
   min-width: 0;
-  transition: padding 0.22s ease, transform 0.22s ease;
+  overflow-x: hidden;
+  transition:
+    margin var(--client-sidebar-motion-duration) var(--client-sidebar-motion-ease),
+    transform var(--client-sidebar-motion-duration) var(--client-sidebar-motion-ease);
 }
 
 .client-main__content {
   min-height: calc(100vh - 80px);
   min-width: 0;
-  transition: padding 0.22s ease, transform 0.22s ease;
+  overflow-x: hidden;
 }
 
 .client-layout .ant-layout-sider,
 .client-layout .client-sidebar-shell.ant-layout-sider {
   transition:
-    width 0.22s ease,
-    min-width 0.22s ease,
-    max-width 0.22s ease,
-    flex-basis 0.22s ease;
+    width var(--client-sidebar-motion-duration) var(--client-sidebar-motion-ease),
+    min-width var(--client-sidebar-motion-duration) var(--client-sidebar-motion-ease),
+    max-width var(--client-sidebar-motion-duration) var(--client-sidebar-motion-ease),
+    flex-basis var(--client-sidebar-motion-duration) var(--client-sidebar-motion-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .client-main,
+  .client-layout .ant-layout-sider,
+  .client-layout .client-sidebar-shell.ant-layout-sider {
+    transition: none !important;
+    transform: none !important;
+  }
 }

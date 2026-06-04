@@ -1,10 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { Alert, Button, Col, Empty, Row, Skeleton, Statistic, Typography } from 'antd';
+import { Alert, Button, Col, Empty, Row, Skeleton, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 import { MarketingLayout } from '../../components/public/MarketingLayout';
 import { PublicCourseCard } from '../../components/public/PublicCourseCard';
-import { PublicInstructorCard } from '../../components/public/PublicInstructorCard';
-import { listPublicInstructorsRequest } from '../../services/api/authApi';
 import { listPublicCoursesRequest } from '../../services/api/courseApi';
 
 export function PublicHomePage() {
@@ -14,51 +12,97 @@ export function PublicHomePage() {
     staleTime: 60 * 1000,
     retry: 1,
   });
-  const instructorsQuery = useQuery({
-    queryKey: ['public', 'home', 'instructors'],
-    queryFn: listPublicInstructorsRequest,
-    staleTime: 60 * 1000,
-    retry: 1,
-  });
 
   return (
     <MarketingLayout
       hero={
         <section className="marketing-hero">
           <article className="marketing-hero__panel">
-            <span className="marketing-hero__eyebrow">University learning platform</span>
+            <span className="marketing-hero__eyebrow">EduFlow Academic LMS</span>
             <Typography.Title className="marketing-hero__title">
-              Discover academic courses, trusted instructors, and guided learning paths.
+              Learn, track progress, and manage coursework in one place.
             </Typography.Title>
             <Typography.Paragraph className="marketing-hero__copy">
-              Browse published courses, review instructor profiles, and move directly into a secure learning workspace when you are ready to enroll.
+              EduFlow gives students a focused entry point for courses, lessons, assignments, quizzes, progress, notifications, and course conversations.
             </Typography.Paragraph>
             <div className="marketing-hero__actions">
-              <Link to="/catalog">
-                <Button type="primary" size="large">Explore catalog</Button>
+              <Link to="/register">
+                <Button type="primary" size="large">Get started</Button>
               </Link>
-              <Link to="/instructors">
-                <Button size="large">Meet instructors</Button>
+              <Link to="/login">
+                <Button size="large">Sign in</Button>
               </Link>
             </div>
           </article>
-          <div className="marketing-stat-grid">
-            <div className="marketing-stat-card">
-              <Statistic title="Published courses" value={coursesQuery.data?.length ?? 0} />
+          <aside className="marketing-product-card" aria-label="EduFlow workspace preview">
+            <div className="marketing-product-card__topbar">
+              <span />
+              <strong>Student Workspace</strong>
             </div>
-            <div className="marketing-stat-card">
-              <Statistic title="Active instructors" value={instructorsQuery.data?.length ?? 0} />
+            <div className="marketing-product-card__body">
+              <div className="marketing-product-card__course">
+                <span>Active course</span>
+                <strong>Intro to Academic Computing</strong>
+                <div className="marketing-product-card__progress">
+                  <span className="marketing-product-card__progress-value" />
+                </div>
+              </div>
+              <div className="marketing-product-card__grid">
+                <div>
+                  <span>Assignments</span>
+                  <strong>Review</strong>
+                </div>
+                <div>
+                  <span>Quizzes</span>
+                  <strong>Attempt</strong>
+                </div>
+                <div>
+                  <span>Progress</span>
+                  <strong>Track</strong>
+                </div>
+                <div>
+                  <span>Alerts</span>
+                  <strong>Read</strong>
+                </div>
+              </div>
             </div>
-            <div className="marketing-stat-card">
-              <Statistic title="Academic support" value="24/7" />
-            </div>
-            <div className="marketing-stat-card">
-              <Statistic title="Learning experience" value="Structured" />
-            </div>
-          </div>
+          </aside>
         </section>
       }
     >
+      <section className="marketing-section">
+        <div className="marketing-feature-grid">
+          <article>
+            <span>01</span>
+            <Typography.Title level={4}>Course learning</Typography.Title>
+            <Typography.Paragraph type="secondary">
+              Browse published courses, open lessons, and keep learning activity in a focused workspace.
+            </Typography.Paragraph>
+          </article>
+          <article>
+            <span>02</span>
+            <Typography.Title level={4}>Assignments and quizzes</Typography.Title>
+            <Typography.Paragraph type="secondary">
+              Review course tasks, submit work, attempt quizzes, and return to feedback from the same course context.
+            </Typography.Paragraph>
+          </article>
+          <article>
+            <span>03</span>
+            <Typography.Title level={4}>Progress tracking</Typography.Title>
+            <Typography.Paragraph type="secondary">
+              See completion, grades, calendar deadlines, and course progress without extra dashboard clutter.
+            </Typography.Paragraph>
+          </article>
+          <article>
+            <span>04</span>
+            <Typography.Title level={4}>Notifications and community</Typography.Title>
+            <Typography.Paragraph type="secondary">
+              Follow unread updates, announcements, discussions, and system messages in the student workspace.
+            </Typography.Paragraph>
+          </article>
+        </div>
+      </section>
+
       <section className="marketing-section">
         <div className="marketing-section__header">
           <div>
@@ -82,42 +126,26 @@ export function PublicHomePage() {
       </section>
 
       <section className="marketing-section">
-        <div className="marketing-section__header">
-          <div>
-            <Typography.Title level={2}>Instructors</Typography.Title>
-            <Typography.Paragraph type="secondary">
-              Review teaching profiles, expertise, and the courses each instructor currently leads.
-            </Typography.Paragraph>
-          </div>
-          <Link to="/instructors">Browse directory</Link>
-        </div>
-        <Row gutter={[16, 16]}>
-          {(instructorsQuery.data ?? []).slice(0, 3).map((instructor) => (
-            <Col key={instructor.id} xs={24} md={12} xl={8}>
-              <PublicInstructorCard instructor={instructor} />
-            </Col>
-          ))}
-        </Row>
-      </section>
-
-      <section className="marketing-section">
-        <div className="marketing-support-grid">
+        <div className="marketing-step-grid">
           <article>
-            <Typography.Title level={4}>Catalog first</Typography.Title>
+            <span>1</span>
+            <Typography.Title level={4}>Join a course</Typography.Title>
             <Typography.Paragraph type="secondary">
-              Public discovery starts with a browseable catalog and course detail pages before login.
+              Start from the public catalog or sign in to access the courses attached to your account.
             </Typography.Paragraph>
           </article>
           <article>
-            <Typography.Title level={4}>Instructor visibility</Typography.Title>
+            <span>2</span>
+            <Typography.Title level={4}>Complete lessons</Typography.Title>
             <Typography.Paragraph type="secondary">
-              Instructor profiles explain expertise, bio, and the public courses attached to each faculty member.
+              Work through modules, lesson material, assignments, quizzes, and course discussions.
             </Typography.Paragraph>
           </article>
           <article>
-            <Typography.Title level={4}>Support ready</Typography.Title>
+            <span>3</span>
+            <Typography.Title level={4}>Track progress</Typography.Title>
             <Typography.Paragraph type="secondary">
-              Help Center and FAQ pages keep onboarding and course questions accessible before enrollment.
+              Review grades, deadlines, completion history, and notifications as your coursework changes.
             </Typography.Paragraph>
           </article>
         </div>

@@ -12,27 +12,27 @@
   --client-type-display-lg-weight: 700;
   --client-type-display-lg-spacing: -0.02em;
 
-  --client-type-page-title-size: 24px;
-  --client-type-page-title-line: 32px;
-  --client-type-page-title-weight: 600;
+  --client-type-page-title-size: 32px;
+  --client-type-page-title-line: 40px;
+  --client-type-page-title-weight: 700;
 
   --client-type-section-title-size: 20px;
   --client-type-section-title-line: 28px;
   --client-type-section-title-weight: 600;
 
-  --client-type-card-title-size: 18px;
-  --client-type-card-title-line: 28px;
+  --client-type-card-title-size: 16px;
+  --client-type-card-title-line: 24px;
   --client-type-card-title-weight: 600;
 
   --client-type-body-lg-size: 18px;
   --client-type-body-lg-line: 28px;
   --client-type-body-lg-weight: 400;
 
-  --client-type-body-size: 16px;
+  --client-type-body-size: 15px;
   --client-type-body-line: 24px;
   --client-type-body-weight: 400;
 
-  --client-type-small-size: 14px;
+  --client-type-small-size: 13px;
   --client-type-small-line: 20px;
   --client-type-small-weight: 400;
 

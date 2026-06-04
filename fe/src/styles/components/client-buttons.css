@@ -4,8 +4,8 @@
   align-items: center;
   justify-content: center;
   gap: var(--client-space-sm);
-  min-height: 44px;
-  padding-inline: var(--client-space-lg);
+  min-height: 40px;
+  padding-inline: 18px;
   border-radius: var(--client-radius-md);
   border: 1px solid transparent;
   font-family: var(--client-font-body);
@@ -14,10 +14,15 @@
   transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, color 180ms ease, border-color 180ms ease;
 }
 
+.client-theme .ant-btn.client-button {
+  height: auto;
+  line-height: var(--client-type-label-line);
+}
+
 .client-theme .client-button-primary {
   background: var(--client-color-primary);
   color: var(--client-color-on-primary, #fff);
-  box-shadow: var(--client-shadow-elevated);
+  box-shadow: 0 10px 15px -3px rgba(0, 40, 142, 0.1);
 }
 
 .client-theme .client-button-secondary {
@@ -54,4 +59,10 @@
 
 .client-theme .client-button:active {
   transform: scale(0.98);
+}
+
+.client-theme .client-button[disabled],
+.client-theme .ant-btn.client-button:disabled {
+  opacity: 0.56;
+  transform: none;
 }

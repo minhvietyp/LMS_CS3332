@@ -275,10 +275,9 @@ describe('Client student and instructor sections', () => {
   it('renders the shared notifications page with summary cards and notification items', async () => {
     renderWithRole('STUDENT', <ClientNotificationsPage />, '/notifications');
 
-    expect(await screen.findByRole('heading', { name: 'Notifications Center' })).toBeInTheDocument();
-    expect(await screen.findByText('Priority Notifications')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Notifications' })).toBeInTheDocument();
+    expect(await screen.findByText('Course updates')).toBeInTheDocument();
     expect(await screen.findByText('Notification Feed')).toBeInTheDocument();
-    expect(await screen.findByText('Quick Actions')).toBeInTheDocument();
     expect((await screen.findAllByText('Course schedule updated for React Foundations.')).length).toBeGreaterThan(0);
     expect(await screen.findByText('Assignment feedback is available.')).toBeInTheDocument();
     expect(screen.getAllByText(/Unread|Read/).length).toBeGreaterThan(0);
@@ -288,9 +287,9 @@ describe('Client student and instructor sections', () => {
     renderWithRole('INSTRUCTOR', <InstructorCoursesPage />, '/instructor/courses');
 
     expect(screen.getAllByText('LMS Client').length).toBeGreaterThan(0);
-    expect(screen.getByRole('heading', { name: 'My Courses' })).toBeInTheDocument();
-    expect(screen.getByText('Active courses')).toBeInTheDocument();
-    expect(screen.getByText('Draft courses')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Courses' })).toBeInTheDocument();
+    expect(screen.getByText('Course table')).toBeInTheDocument();
+    expect(screen.getByText('Course forms')).toBeInTheDocument();
     expect(screen.getByText('Mock instructor courses management')).toBeInTheDocument();
     expect(screen.queryByText('LMS Admin')).not.toBeInTheDocument();
   });
@@ -299,9 +298,9 @@ describe('Client student and instructor sections', () => {
     renderWithRole('INSTRUCTOR', <InstructorLessonsPage />, '/instructor/lessons');
 
     expect(screen.getAllByText('LMS Client').length).toBeGreaterThan(0);
-    expect(screen.getByRole('heading', { name: 'Lesson Builder' })).toBeInTheDocument();
-    expect(screen.getByText('Modules in progress')).toBeInTheDocument();
-    expect(screen.getByText('Ready to publish')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Lessons and modules' })).toBeInTheDocument();
+    expect(screen.getByText('Course context')).toBeInTheDocument();
+    expect(screen.getByText('Lesson table')).toBeInTheDocument();
     expect(screen.getByText('Mock instructor lessons management')).toBeInTheDocument();
     expect(screen.queryByText('LMS Admin')).not.toBeInTheDocument();
   });

@@ -275,6 +275,10 @@
   white-space: nowrap;
 }
 
+.client-theme .client-shell-loading-state {
+  padding: var(--client-space-md);
+}
+
 @media (max-width: 767px) {
   .client-theme .client-ui-section-header {
     flex-direction: column;

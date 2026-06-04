@@ -1,42 +1,21 @@
 .instructor-progress-page {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 24px;
-}
-
-.instructor-progress-page__header {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: flex-start;
-  flex-wrap: wrap;
-}
-
-.instructor-progress-page__heading {
-  max-width: 720px;
+  display: grid;
+  gap: var(--client-space-lg);
 }
 
 .instructor-progress-page__eyebrow {
-  color: #7aa2ff;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  display: inline-flex;
+  margin-bottom: 4px;
+  color: var(--client-color-primary);
+  font-size: var(--client-type-small-size);
+  font-weight: 800;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-}
-
-.instructor-progress-page__title.ant-typography {
-  margin-bottom: 8px;
-}
-
-.instructor-progress-page__subtitle.ant-typography {
-  margin-bottom: 0;
-  max-width: 640px;
 }
 
 .instructor-progress-page__actions {
   display: flex;
-  gap: 12px;
+  gap: var(--client-space-sm);
   align-items: center;
   flex-wrap: wrap;
 }
@@ -45,27 +24,45 @@
   min-width: 280px;
 }
 
-.instructor-progress-page__course-card,
-.instructor-progress-page__summary-card,
-.instructor-progress-page__table-card,
-.instructor-progress-page__lesson-card {
-  background: rgba(10, 17, 31, 0.74);
-  border: 1px solid rgba(122, 162, 255, 0.16);
+.instructor-progress-page__course-card.ant-card,
+.instructor-progress-page__summary-card.ant-card,
+.instructor-progress-page__table-card.ant-card,
+.instructor-progress-page__lesson-card.ant-card {
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-lg);
+  background: var(--client-bg-surface);
+  box-shadow: var(--client-shadow-sm);
+}
+
+.instructor-progress-page__course-card .ant-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--client-space-md);
 }
 
 .instructor-progress-page__course-title.ant-typography {
-  margin-bottom: 4px;
+  margin: 0;
 }
 
 .instructor-progress-page__summary-grid {
   width: 100%;
 }
 
+.instructor-progress-page__summary-card .ant-card-body,
+.instructor-progress-page__table-card .ant-card-body {
+  padding: var(--client-space-md);
+}
+
 .instructor-progress-page__toolbar {
   display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: var(--client-space-sm);
+  margin-bottom: var(--client-space-md);
   flex-wrap: wrap;
+  padding: var(--client-space-sm);
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-md);
+  background: var(--client-bg-surface-low);
 }
 
 .instructor-progress-page__search {
@@ -93,10 +90,20 @@
   min-width: 180px;
 }
 
+.instructor-progress-page__table-card .ant-table-wrapper {
+  overflow-x: auto;
+}
+
+.instructor-progress-page__table-card .ant-table-thead > tr > th {
+  background: var(--client-bg-surface-low);
+  color: var(--client-text-secondary);
+  font-weight: 800;
+}
+
 .instructor-progress-page__detail {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--client-space-md);
 }
 
 .instructor-progress-page__detail-summary {
@@ -106,28 +113,27 @@
 .instructor-progress-page__detail-lessons {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--client-space-sm);
 }
 
 .instructor-progress-page__lesson-header {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--client-space-sm);
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: var(--client-space-sm);
 }
 
 @media (max-width: 767px) {
-  .instructor-progress-page {
-    padding: 16px;
-  }
-
   .instructor-progress-page__course-select,
   .instructor-progress-page__filter,
-  .instructor-progress-page__search {
+  .instructor-progress-page__search,
+  .instructor-progress-page__actions,
+  .instructor-progress-page__actions .ant-btn {
     width: 100%;
   }
 
+  .instructor-progress-page__course-card .ant-card-body,
   .instructor-progress-page__lesson-header {
     align-items: flex-start;
     flex-direction: column;

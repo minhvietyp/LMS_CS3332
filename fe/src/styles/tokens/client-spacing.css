@@ -7,6 +7,14 @@
   --client-space-2xl: 48px;
   --client-space-3xl: 64px;
 
+  --client-space-1: 4px;
+  --client-space-2: 8px;
+  --client-space-3: 12px;
+  --client-space-4: 16px;
+  --client-space-5: 20px;
+  --client-space-6: 24px;
+  --client-space-8: 32px;
+
   --client-page-padding: 32px;
   --client-page-padding-mobile: 16px;
   --client-section-gap: 64px;

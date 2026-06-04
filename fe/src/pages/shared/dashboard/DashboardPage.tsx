@@ -62,10 +62,7 @@ export function DashboardPage() {
   if (user?.role === 'STUDENT') {
     return (
       <ClientLayout>
-        <ClientPageContainer
-          title="Student Dashboard"
-          subtitle="Welcome back. Here is your academic overview for today."
-        >
+        <ClientPageContainer>
           <StudentDashboard studentName={user?.name ?? 'Student'} />
         </ClientPageContainer>
       </ClientLayout>

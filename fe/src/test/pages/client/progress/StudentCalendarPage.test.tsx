@@ -12,6 +12,7 @@ const getMyProgressHistory = vi.fn();
 const getMyCourseProgress = vi.fn();
 const listStudentCourseAssignmentsRequest = vi.fn();
 const listStudentCourseQuizzesRequest = vi.fn();
+const listMyQuizAttemptsRequest = vi.fn();
 
 vi.mock('../../../../services/api/progressService', () => ({
   progressService: {
@@ -26,6 +27,7 @@ vi.mock('../../../../services/api/assignmentApi', () => ({
 }));
 
 vi.mock('../../../../services/api/quizApi', () => ({
+  listMyQuizAttemptsRequest: (...args: unknown[]) => listMyQuizAttemptsRequest(...args),
   listStudentCourseQuizzesRequest: (...args: unknown[]) => listStudentCourseQuizzesRequest(...args),
 }));
 
@@ -65,6 +67,7 @@ describe('StudentCalendarPage', () => {
     getMyCourseProgress.mockReset();
     listStudentCourseAssignmentsRequest.mockReset();
     listStudentCourseQuizzesRequest.mockReset();
+    listMyQuizAttemptsRequest.mockReset();
 
     getOverview.mockResolvedValue({
       summary: {
@@ -152,19 +155,22 @@ describe('StudentCalendarPage', () => {
         attemptsRemaining: 2,
       },
     ]);
+
+    listMyQuizAttemptsRequest.mockResolvedValue([]);
   });
 
-  it('renders the learning planning workspace with real assignment, quiz, and milestone actions', async () => {
+  it('renders the deadline planner with real assignment and quiz data', async () => {
     renderPage();
 
-    expect(await screen.findByRole('heading', { name: 'Learning Calendar' }, { timeout: CALENDAR_UI_TEST_TIMEOUT })).toBeInTheDocument();
-    expect(await screen.findByRole('heading', { name: 'Today / This Week Focus' }, { timeout: CALENDAR_UI_TEST_TIMEOUT })).toBeInTheDocument();
-    expect(await screen.findByRole('heading', { name: 'Deadline Timeline' }, { timeout: CALENDAR_UI_TEST_TIMEOUT })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Calendar' }, { timeout: CALENDAR_UI_TEST_TIMEOUT })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Today' }, { timeout: CALENDAR_UI_TEST_TIMEOUT })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'This Week' }, { timeout: CALENDAR_UI_TEST_TIMEOUT })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Upcoming' }, { timeout: CALENDAR_UI_TEST_TIMEOUT })).toBeInTheDocument();
     expect((await screen.findAllByText('Build a landing page')).length).toBeGreaterThan(0);
     expect((await screen.findAllByText('React Quiz')).length).toBeGreaterThan(0);
-    expect((await screen.findAllByText('Intro to React')).length).toBeGreaterThan(0);
-    expect((await screen.findAllByText('Hooks Overview')).length).toBeGreaterThan(0);
-    expect((await screen.findAllByRole('button', { name: 'Continue Learning' })).length).toBeGreaterThan(0);
+    expect((await screen.findAllByText('No Due Date')).length).toBeGreaterThan(0);
+    expect((await screen.findAllByText('Open assignment')).length).toBeGreaterThan(0);
+    expect((await screen.findAllByText('Open quiz')).length).toBeGreaterThan(0);
     expect((await screen.findAllByText('React Foundations')).length).toBeGreaterThan(0);
   }, CALENDAR_UI_TEST_TIMEOUT);
 });

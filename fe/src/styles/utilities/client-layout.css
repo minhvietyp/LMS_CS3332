@@ -8,7 +8,7 @@
   width: min(100%, var(--client-layout-max-width));
   margin-inline: auto;
   display: grid;
-  gap: var(--client-space-lg);
+  gap: var(--client-space-xl);
   padding-inline: var(--client-page-padding);
 }
 
@@ -38,7 +38,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--client-space-lg);
-  margin-bottom: var(--client-space-sm);
+  margin-bottom: 0;
 }
 
 .client-theme .client-page-header-copy,
@@ -71,7 +71,7 @@
 
 .client-theme .client-section {
   display: grid;
-  gap: var(--client-space-lg);
+  gap: var(--client-content-gap);
 }
 
 .client-theme .client-grid {
@@ -93,7 +93,7 @@
 
 .client-theme .client-stack {
   display: grid;
-  gap: var(--client-space-md);
+  gap: var(--client-space-lg);
 }
 
 .client-theme .client-container {

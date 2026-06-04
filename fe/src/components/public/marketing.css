@@ -1,12 +1,35 @@
 .marketing-layout {
+  --client-color-primary: #00288e;
+  --client-color-primary-strong: #00175c;
+  --client-color-primary-soft: #dde1ff;
+  --client-color-on-primary: #ffffff;
+  --client-bg-page: #f8f9ff;
+  --client-bg-surface: #ffffff;
+  --client-bg-surface-low: #eff4ff;
+  --client-bg-surface-high: #dce9ff;
+  --client-border-soft: #d3e4fe;
+  --client-text-primary: #0b1c30;
+  --client-text-secondary: #444652;
+  --client-text-muted: #757684;
+  --client-space-xs: 4px;
+  --client-space-sm: 8px;
+  --client-space-md: 16px;
+  --client-space-lg: 24px;
+  --client-space-xl: 32px;
+  --client-space-2xl: 48px;
+  --client-space-3xl: 64px;
+  --client-radius-md: 8px;
+  --client-radius-lg: 16px;
+  --client-radius-pill: 999px;
+  --client-type-small-size: 12px;
+  --client-shadow-sm: 0 1px 2px rgba(11, 28, 48, 0.06), 0 8px 24px rgba(11, 28, 48, 0.04);
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(91, 152, 255, 0.18), transparent 32%),
-    linear-gradient(180deg, #f7f9ff 0%, #eef3ff 100%);
+  background: var(--client-bg-page);
+  color: var(--client-text-primary);
 }
 
 .marketing-shell {
-  width: min(1180px, calc(100% - 48px));
+  width: min(var(--client-container-max, 1180px), calc(100% - 48px));
   margin: 0 auto;
 }
 
@@ -14,229 +37,465 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  backdrop-filter: blur(18px);
-  background: rgba(247, 249, 255, 0.86);
-  border-bottom: 1px solid rgba(77, 96, 140, 0.12);
+  background: rgba(248, 249, 255, 0.92);
+  border-bottom: 1px solid var(--client-border-soft);
+  backdrop-filter: blur(8px);
 }
 
 .marketing-header__row {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  min-height: 78px;
+  gap: var(--client-space-lg);
+  min-height: 64px;
 }
 
 .marketing-brand {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  color: #14213d;
-  font-weight: 700;
-  font-size: 18px;
+  gap: 10px;
+  color: var(--client-text-primary);
+  text-decoration: none;
 }
 
 .marketing-brand__mark {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
-  color: #fff;
-  box-shadow: 0 18px 30px rgba(79, 70, 229, 0.22);
+  flex: 0 0 auto;
+  border-radius: var(--client-radius-md);
+  background: var(--client-color-primary);
+  color: var(--client-color-on-primary);
+  font-weight: 800;
+}
+
+.marketing-brand__text {
+  display: grid;
+  gap: 1px;
+  line-height: 1.1;
+}
+
+.marketing-brand__text strong {
+  font-size: 0.98rem;
+}
+
+.marketing-brand__text small {
+  color: var(--client-text-muted);
+  font-size: 0.72rem;
+}
+
+.marketing-nav,
+.marketing-nav__actions,
+.marketing-footer__links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--client-space-sm);
 }
 
 .marketing-nav {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.marketing-nav a {
-  color: #49566d;
-  font-weight: 500;
+.marketing-nav a,
+.marketing-footer__links a {
+  color: var(--client-text-secondary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.marketing-nav a:hover,
+.marketing-footer__links a:hover {
+  color: var(--client-color-primary);
 }
 
 .marketing-nav__actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  justify-content: flex-end;
+}
+
+.marketing-nav__actions .ant-btn,
+.marketing-hero__actions .ant-btn,
+.marketing-course-card__actions .ant-btn,
+.marketing-instructor-card__actions .ant-btn {
+  border-radius: var(--client-radius-md);
+  font-weight: 700;
+}
+
+.marketing-nav__actions .ant-btn-primary,
+.marketing-hero__actions .ant-btn-primary,
+.marketing-course-card__actions .ant-btn-primary,
+.marketing-instructor-card__actions .ant-btn-primary {
+  border-color: var(--client-color-primary);
+  background: var(--client-color-primary);
+  box-shadow: var(--client-shadow-sm);
 }
 
 .marketing-main {
-  padding: 56px 0 72px;
+  padding: var(--client-space-2xl) 0 var(--client-space-3xl);
 }
 
 .marketing-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
-  gap: 28px;
+  grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
+  gap: var(--client-space-lg);
   align-items: stretch;
 }
 
 .marketing-hero__panel,
 .marketing-surface,
 .marketing-course-card,
-.marketing-instructor-card {
-  border: 1px solid rgba(92, 111, 149, 0.14);
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 28px;
-  box-shadow: 0 24px 48px rgba(22, 34, 61, 0.08);
+.marketing-instructor-card,
+.marketing-product-card,
+.marketing-feature-grid article,
+.marketing-step-grid article {
+  border: 1px solid var(--client-border-soft);
+  background: var(--client-bg-surface);
+  border-radius: var(--client-radius-lg);
+  box-shadow: var(--client-shadow-sm);
 }
 
 .marketing-hero__panel {
-  padding: 36px;
+  display: grid;
+  align-content: center;
+  padding: clamp(28px, 5vw, 52px);
 }
 
 .marketing-hero__eyebrow {
   display: inline-flex;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: rgba(79, 70, 229, 0.12);
-  color: #4338ca;
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.04em;
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: var(--client-radius-pill);
+  background: var(--client-color-primary-soft);
+  color: var(--client-color-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
-.marketing-hero__title {
-  margin: 18px 0 12px !important;
-  color: #10223b !important;
+.marketing-hero__title.ant-typography {
+  max-width: 760px;
+  margin: var(--client-space-md) 0 var(--client-space-sm);
+  color: var(--client-text-primary);
+  font-size: clamp(2.1rem, 5vw, 3.7rem);
+  line-height: 1.05;
+  letter-spacing: 0;
 }
 
-.marketing-hero__copy {
-  color: #556277;
-  font-size: 16px;
+.marketing-hero__copy.ant-typography {
+  max-width: 660px;
+  margin: 0;
+  color: var(--client-text-secondary);
+  font-size: 1.04rem;
   line-height: 1.7;
 }
 
 .marketing-hero__actions {
   display: flex;
-  gap: 12px;
+  gap: var(--client-space-sm);
   flex-wrap: wrap;
-  margin-top: 24px;
+  margin-top: var(--client-space-lg);
 }
 
-.marketing-stat-grid,
+.marketing-product-card {
+  display: grid;
+  overflow: hidden;
+  min-height: 360px;
+}
+
+.marketing-product-card__topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--client-space-sm);
+  padding: var(--client-space-sm) var(--client-space-md);
+  border-bottom: 1px solid var(--client-border-soft);
+  background: var(--client-bg-surface-low);
+}
+
+.marketing-product-card__topbar span {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--client-radius-pill);
+  background: var(--client-color-primary);
+}
+
+.marketing-product-card__body {
+  display: grid;
+  gap: var(--client-space-md);
+  align-content: center;
+  padding: var(--client-space-lg);
+  background:
+    linear-gradient(var(--client-border-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--client-border-soft) 1px, transparent 1px),
+    var(--client-bg-surface);
+  background-size: 28px 28px;
+}
+
+.marketing-product-card__course,
+.marketing-product-card__grid div {
+  display: grid;
+  gap: 8px;
+  padding: var(--client-space-md);
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-md);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.marketing-product-card__course span,
+.marketing-product-card__grid span {
+  color: var(--client-text-muted);
+  font-size: var(--client-type-small-size);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.marketing-product-card__course strong,
+.marketing-product-card__grid strong {
+  color: var(--client-text-primary);
+}
+
+.marketing-product-card__progress {
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--client-radius-pill);
+  background: var(--client-bg-surface-high);
+}
+
+.marketing-product-card__progress-value {
+  display: block;
+  width: 68%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--client-color-primary);
+}
+
+.marketing-product-card__grid,
+.marketing-feature-grid,
+.marketing-step-grid,
 .marketing-card-grid {
   display: grid;
-  gap: 16px;
+  gap: var(--client-space-md);
 }
 
-.marketing-stat-grid {
+.marketing-product-card__grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.marketing-stat-card,
-.marketing-support-grid article {
-  padding: 20px;
-  border-radius: 22px;
-  background: linear-gradient(180deg, rgba(242, 246, 255, 0.96) 0%, #ffffff 100%);
-  border: 1px solid rgba(95, 117, 163, 0.12);
+.marketing-feature-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.marketing-feature-grid article,
+.marketing-step-grid article {
+  padding: var(--client-space-md);
+}
+
+.marketing-feature-grid article > span,
+.marketing-step-grid article > span {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--client-space-sm);
+  border-radius: var(--client-radius-md);
+  background: var(--client-color-primary-soft);
+  color: var(--client-color-primary);
+  font-size: var(--client-type-small-size);
+  font-weight: 800;
+}
+
+.marketing-feature-grid .ant-typography,
+.marketing-step-grid .ant-typography {
+  margin-top: 0;
 }
 
 .marketing-section {
-  margin-top: 48px;
+  margin-top: var(--client-space-2xl);
 }
 
 .marketing-section__header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: var(--client-space-md);
+  margin-bottom: var(--client-space-md);
+}
+
+.marketing-section__header .ant-typography {
+  margin-top: 0;
 }
 
 .marketing-course-card,
 .marketing-instructor-card {
-  padding: 22px;
   height: 100%;
 }
 
+.marketing-course-card .ant-card-body,
+.marketing-instructor-card .ant-card-body {
+  padding: var(--client-space-md);
+}
+
 .marketing-course-card__thumb {
-  height: 180px;
-  border-radius: 20px;
+  height: 160px;
+  border-radius: var(--client-radius-md);
   display: flex;
   align-items: flex-end;
-  padding: 18px;
-  background: linear-gradient(135deg, #dbe7ff 0%, #eef4ff 100%);
-  color: #1e3a8a;
-  font-weight: 700;
-  font-size: 32px;
+  padding: var(--client-space-md);
+  background: var(--client-bg-surface-high);
+  color: var(--client-color-primary);
+  font-weight: 800;
+  font-size: 2rem;
 }
 
 .marketing-course-card__meta,
-.marketing-instructor-card__meta {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 14px;
-}
-
+.marketing-instructor-card__meta,
 .marketing-course-card__actions,
 .marketing-instructor-card__actions {
   display: flex;
-  gap: 10px;
+  gap: var(--client-space-xs);
   flex-wrap: wrap;
-  margin-top: 18px;
+  margin-top: var(--client-space-sm);
 }
 
 .marketing-page-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.85fr);
-  gap: 28px;
+  gap: var(--client-space-lg);
 }
 
 .marketing-surface {
-  padding: 28px;
+  padding: var(--client-space-lg);
 }
 
 .marketing-list {
   display: grid;
-  gap: 14px;
+  gap: var(--client-space-sm);
 }
 
 .marketing-list__item {
-  border-radius: 20px;
-  border: 1px solid rgba(91, 111, 148, 0.12);
-  padding: 18px;
-  background: #fff;
+  border-radius: var(--client-radius-md);
+  border: 1px solid var(--client-border-soft);
+  padding: var(--client-space-md);
+  background: var(--client-bg-surface);
+}
+
+.marketing-step-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .marketing-support-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: var(--client-space-md);
+}
+
+.marketing-support-grid article {
+  padding: var(--client-space-md);
+  border-radius: var(--client-radius-lg);
+  background: var(--client-bg-surface);
+  border: 1px solid var(--client-border-soft);
 }
 
 .marketing-footer {
-  padding: 24px 0 40px;
-  color: #6b7280;
+  padding: var(--client-space-xl) 0;
+  border-top: 1px solid var(--client-border-soft);
+  background: var(--client-bg-surface-low);
 }
 
 .marketing-footer__row {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--client-space-lg);
+  align-items: start;
 }
 
-@media (max-width: 960px) {
+.marketing-footer__brand {
+  display: grid;
+  gap: var(--client-space-sm);
+  min-width: 0;
+}
+
+.marketing-footer__brand p {
+  max-width: 480px;
+  margin: 0;
+  color: var(--client-text-secondary);
+}
+
+.marketing-footer__links {
+  justify-content: flex-end;
+}
+
+.marketing-footer__copyright {
+  grid-column: 1 / -1;
+  color: var(--client-text-muted);
+  font-size: var(--client-type-small-size);
+}
+
+@media (max-width: 1024px) {
+  .marketing-header__row,
   .marketing-hero,
-  .marketing-page-grid,
-  .marketing-support-grid {
+  .marketing-page-grid {
     grid-template-columns: 1fr;
   }
 
+  .marketing-nav,
+  .marketing-nav__actions {
+    justify-content: flex-start;
+  }
+
+  .marketing-feature-grid,
+  .marketing-step-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
   .marketing-shell {
-    width: min(100% - 32px, 1180px);
+    width: min(100% - 32px, var(--client-container-max, 1180px));
   }
 
   .marketing-main {
-    padding-top: 36px;
+    padding: var(--client-space-lg) 0 var(--client-space-xl);
+  }
+
+  .marketing-header__row {
+    gap: var(--client-space-sm);
+    padding: var(--client-space-sm) 0;
+  }
+
+  .marketing-nav,
+  .marketing-nav__actions,
+  .marketing-nav__actions a,
+  .marketing-nav__actions .ant-btn,
+  .marketing-hero__actions,
+  .marketing-hero__actions a,
+  .marketing-hero__actions .ant-btn,
+  .marketing-footer__links {
+    width: 100%;
+  }
+
+  .marketing-nav__actions .ant-btn,
+  .marketing-hero__actions .ant-btn {
+    justify-content: center;
+  }
+
+  .marketing-product-card__grid,
+  .marketing-feature-grid,
+  .marketing-step-grid,
+  .marketing-support-grid,
+  .marketing-footer__row {
+    grid-template-columns: 1fr;
+  }
+
+  .marketing-section__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .marketing-footer__links {
+    justify-content: flex-start;
   }
 }

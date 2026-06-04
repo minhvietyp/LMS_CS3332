@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, Col, Empty, Row, Spin, Statistic, Table, Typography } from 'antd';
+import { Card, Col, Empty, Row, Spin, Statistic, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useParams } from 'react-router-dom';
 import { ClientLayout, ClientPageContainer } from '../../../../components/client-layout';
@@ -8,6 +8,7 @@ import { listCourseAssignmentsRequest, type AssignmentListItem } from '../../../
 import { getCourseByIdRequest } from '../../../../services/api/courseApi';
 import { progressService } from '../../../../services/api/progressService';
 import { listCourseQuizzesRequest, type QuizListItem } from '../../../../services/api/quizApi';
+import '../../../shared/reports/InstructorReports.css';
 
 type AssessmentRow = {
   key: string;
@@ -74,7 +75,7 @@ export function CourseAnalyticsPage() {
 
   const columns = useMemo<ColumnsType<AssessmentRow>>(
     () => [
-      { title: 'Type', dataIndex: 'type', key: 'type' },
+      { title: 'Type', dataIndex: 'type', key: 'type', render: (value: AssessmentRow['type']) => <Tag color={value === 'Quiz' ? 'blue' : 'green'}>{value}</Tag> },
       { title: 'Title', dataIndex: 'title', key: 'title' },
       { title: 'Volume', dataIndex: 'volume', key: 'volume' },
       { title: 'Signal', dataIndex: 'gradeSignal', key: 'gradeSignal' },
@@ -108,23 +109,25 @@ export function CourseAnalyticsPage() {
         title="Course Analytics"
         subtitle={`Review learner progress and assessment volume for ${courseQuery.data.title}.`}
       >
-        <Row gutter={[16, 16]}>
-          <Col xs={24} md={12} xl={6}><Card><Statistic title="Modules" value={courseQuery.data.modules.length} /></Card></Col>
-          <Col xs={24} md={12} xl={6}><Card><Statistic title="Lessons" value={courseQuery.data.modules.reduce((total, module) => total + module.lessons.length, 0)} /></Card></Col>
-          <Col xs={24} md={12} xl={6}><Card><Statistic title="Students" value={progressQuery.data.course.totalStudents} /></Card></Col>
-          <Col xs={24} md={12} xl={6}><Card><Statistic title="Avg Weighted Progress" value={progressQuery.data.course.averageWeightedProgress} suffix="%" /></Card></Col>
-        </Row>
+        <main className="instructor-report-page">
+          <Row gutter={[16, 16]} className="instructor-report-page__summary">
+            <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Modules" value={courseQuery.data.modules.length} /></Card></Col>
+            <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Lessons" value={courseQuery.data.modules.reduce((total, module) => total + module.lessons.length, 0)} /></Card></Col>
+            <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Students" value={progressQuery.data.course.totalStudents} /></Card></Col>
+            <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Avg Weighted Progress" value={progressQuery.data.course.averageWeightedProgress} suffix="%" /></Card></Col>
+          </Row>
 
-        <Card style={{ marginTop: 16 }}>
-          <Typography.Title level={4}>Assessment Mix</Typography.Title>
-          <Table
-            rowKey="key"
-            columns={columns}
-            dataSource={assessmentRows}
-            loading={assignmentsQuery.isLoading || quizzesQuery.isLoading}
-            pagination={false}
-          />
-        </Card>
+          <Card className="instructor-report-page__table-card">
+            <Typography.Title level={4}>Assessment Mix</Typography.Title>
+            <Table
+              rowKey="key"
+              columns={columns}
+              dataSource={assessmentRows}
+              loading={assignmentsQuery.isLoading || quizzesQuery.isLoading}
+              pagination={false}
+            />
+          </Card>
+        </main>
       </ClientPageContainer>
     </ClientLayout>
   );

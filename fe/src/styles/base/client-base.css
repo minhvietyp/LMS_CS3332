@@ -61,6 +61,7 @@
   font-size: var(--client-type-page-title-size);
   font-weight: var(--client-type-page-title-weight);
   line-height: var(--client-type-page-title-line);
+  letter-spacing: -0.02em;
 }
 
 .client-theme .client-section-title {
@@ -77,6 +78,14 @@
   font-size: var(--client-type-card-title-size);
   font-weight: var(--client-type-card-title-weight);
   line-height: var(--client-type-card-title-line);
+}
+
+.client-theme .ant-typography {
+  margin-bottom: 0;
+}
+
+.client-theme .ant-btn {
+  font-family: var(--client-font-body);
 }
 
 .client-theme .client-body {

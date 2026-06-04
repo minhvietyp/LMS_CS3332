@@ -5,6 +5,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
 import { progressService } from '../../../services/api/progressService';
 import type { ProgressHistoryItem } from '../../../types/progress';
+import './components/ProgressFoundation.css';
 
 export function StudentProgressReportPage() {
   const overviewQuery = useQuery({
@@ -59,14 +60,14 @@ export function StudentProgressReportPage() {
         {summary ? (
           <>
             <Row gutter={[16, 16]}>
-              <Col xs={24} md={12} xl={6}><Card><Statistic title="Enrolled Courses" value={summary.totalCourses} /></Card></Col>
-              <Col xs={24} md={12} xl={6}><Card><Statistic title="Completed Courses" value={summary.completedCourses} /></Card></Col>
-              <Col xs={24} md={12} xl={6}><Card><Statistic title="Active Courses" value={summary.activeCourses} /></Card></Col>
-              <Col xs={24} md={12} xl={6}><Card><Statistic title="Overall Progress" value={summary.overallProgress} suffix="%" /></Card></Col>
+              <Col xs={24} md={12} xl={6}><Card className="client-card"><Statistic title="Enrolled Courses" value={summary.totalCourses} /></Card></Col>
+              <Col xs={24} md={12} xl={6}><Card className="client-card"><Statistic title="Completed Courses" value={summary.completedCourses} /></Card></Col>
+              <Col xs={24} md={12} xl={6}><Card className="client-card"><Statistic title="Active Courses" value={summary.activeCourses} /></Card></Col>
+              <Col xs={24} md={12} xl={6}><Card className="client-card"><Statistic title="Overall Progress" value={summary.overallProgress} suffix="%" /></Card></Col>
             </Row>
 
-            <Card style={{ marginTop: 16 }}>
-              <Typography.Title level={4}>Recent Progress Activity</Typography.Title>
+            <Card className="client-card progress-report__activity-card">
+              <Typography.Title level={4} className="client-card-title">Recent Progress Activity</Typography.Title>
               <Table
                 rowKey="id"
                 columns={columns}

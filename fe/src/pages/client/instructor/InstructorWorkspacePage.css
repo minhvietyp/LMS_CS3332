@@ -1,15 +1,139 @@
+.instructor-workspace {
+  display: grid;
+  gap: var(--client-space-lg);
+}
+
 .instructor-workspace-summary {
-  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--client-space-md);
 }
 
 .instructor-workspace-card.ant-card {
-  border: 1px solid #e4edf7;
-  border-radius: 24px;
-  box-shadow: 0 20px 44px rgba(125, 151, 181, 0.12);
-  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  min-width: 0;
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-lg);
+  background: var(--client-bg-surface);
+  box-shadow: var(--client-shadow-sm);
 }
 
 .instructor-workspace-card .ant-card-body {
   display: grid;
-  gap: 10px;
+  gap: 6px;
+  padding: var(--client-space-md);
+}
+
+.instructor-workspace-card__label {
+  color: var(--client-color-primary);
+  font-size: var(--client-type-small-size);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.instructor-workspace__embedded {
+  min-width: 0;
+}
+
+.instructor-workspace__embedded .admin-courses-page,
+.instructor-workspace__embedded .lesson-management-page {
+  min-height: auto;
+  padding: 0;
+  background: transparent;
+}
+
+.instructor-workspace__embedded .lesson-management-page__panel {
+  max-width: none;
+}
+
+.instructor-workspace__embedded .lesson-management-page__hero {
+  display: none;
+}
+
+.instructor-workspace__embedded .course-management-card,
+.instructor-workspace__embedded .lesson-management-card,
+.instructor-workspace__embedded .lesson-management-grid__card.ant-card {
+  border: 1px solid var(--client-border-soft) !important;
+  border-radius: var(--client-radius-lg) !important;
+  background: var(--client-bg-surface) !important;
+  box-shadow: var(--client-shadow-sm);
+}
+
+.instructor-workspace__embedded .course-management-card .ant-card-body,
+.instructor-workspace__embedded .lesson-management-card .ant-card-body {
+  padding: var(--client-space-md);
+}
+
+.instructor-workspace__embedded .admin-courses-page__toolbar,
+.instructor-workspace__embedded .lesson-management-toolbar {
+  align-items: center;
+  padding: var(--client-space-sm);
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-md);
+  background: var(--client-bg-surface-low);
+}
+
+.instructor-workspace__embedded .admin-courses-page__filters,
+.instructor-workspace__embedded .lesson-management-toolbar > .ant-space,
+.instructor-workspace__embedded .lesson-management-toolbar .ant-space {
+  row-gap: var(--client-space-sm);
+}
+
+.instructor-workspace__embedded .admin-courses-page__search,
+.instructor-workspace__embedded .admin-courses-page__status-filter,
+.instructor-workspace__embedded .lesson-management-toolbar__course-select {
+  min-width: 220px;
+}
+
+.instructor-workspace__embedded .admin-courses-table .ant-table-thead > tr > th,
+.instructor-workspace__embedded .lesson-management-grid__card .ant-table-thead > tr > th {
+  background: var(--client-bg-surface-low) !important;
+  color: var(--client-text-secondary);
+  font-weight: 800;
+}
+
+.instructor-workspace__embedded .admin-courses-table .ant-table-tbody > tr > td,
+.instructor-workspace__embedded .lesson-management-grid__card .ant-table-tbody > tr > td {
+  vertical-align: middle;
+  border-bottom: 1px solid var(--client-border-soft) !important;
+}
+
+.instructor-workspace__embedded .admin-course-detail__header {
+  padding: var(--client-space-lg);
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-lg);
+  background: var(--client-bg-surface);
+  box-shadow: var(--client-shadow-sm);
+}
+
+.instructor-workspace__embedded .admin-course-detail__module,
+.instructor-workspace__embedded .admin-course-detail__lesson,
+.instructor-workspace__embedded .admin-course-form__thumbnail-panel {
+  border-color: var(--client-border-soft);
+  border-radius: var(--client-radius-md);
+  background: var(--client-bg-surface-low);
+}
+
+.instructor-workspace__embedded .ant-table-wrapper {
+  overflow-x: auto;
+}
+
+@media (max-width: 1024px) {
+  .instructor-workspace-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .instructor-workspace__embedded .admin-courses-page__toolbar,
+  .instructor-workspace__embedded .lesson-management-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .instructor-workspace__embedded .admin-courses-page__filters,
+  .instructor-workspace__embedded .admin-courses-page__search,
+  .instructor-workspace__embedded .admin-courses-page__status-filter,
+  .instructor-workspace__embedded .lesson-management-toolbar__course-select,
+  .instructor-workspace__embedded .lesson-management-toolbar .ant-btn {
+    width: 100%;
+  }
 }

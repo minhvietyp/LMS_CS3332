@@ -1,4 +1,4 @@
-import { Button, Layout, Space } from 'antd';
+import { Button, Layout } from 'antd';
 import type { PropsWithChildren, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import './marketing.css';
@@ -13,25 +13,26 @@ export function MarketingLayout({ children, hero }: MarketingLayoutProps) {
       <header className="marketing-header">
         <div className="marketing-shell marketing-header__row">
           <Link to="/" className="marketing-brand">
-            <span className="marketing-brand__mark">L</span>
-            <span>Learning Management System</span>
+            <span className="marketing-brand__mark">E</span>
+            <span className="marketing-brand__text">
+              <strong>EduFlow LMS</strong>
+              <small>Academic Portal</small>
+            </span>
           </Link>
           <nav className="marketing-nav" aria-label="Public navigation">
+            <Link to="/">Home</Link>
             <Link to="/catalog">Catalog</Link>
-            <Link to="/instructors">Instructors</Link>
             <Link to="/about">About</Link>
-            <Link to="/contact">Contact</Link>
-            <Link to="/faq">FAQ</Link>
-            <Link to="/community">Community</Link>
+            <Link to="/help-center">Help</Link>
           </nav>
-          <Space className="marketing-nav__actions">
+          <div className="marketing-nav__actions">
             <Link to="/login">
-              <Button>Login</Button>
+              <Button>Sign in</Button>
             </Link>
             <Link to="/register">
               <Button type="primary">Register</Button>
             </Link>
-          </Space>
+          </div>
         </div>
       </header>
       <main className="marketing-main">
@@ -42,12 +43,23 @@ export function MarketingLayout({ children, hero }: MarketingLayoutProps) {
       </main>
       <footer className="marketing-footer">
         <div className="marketing-shell marketing-footer__row">
-          <span>Academic discovery, enrollment, and learning support in one workspace.</span>
-          <Space wrap>
+          <div className="marketing-footer__brand">
+            <Link to="/" className="marketing-brand">
+              <span className="marketing-brand__mark">E</span>
+              <span className="marketing-brand__text">
+                <strong>EduFlow LMS</strong>
+                <small>Academic Portal</small>
+              </span>
+            </Link>
+            <p>Course discovery, learning work, progress tracking, and academic support in one workspace.</p>
+          </div>
+          <nav className="marketing-footer__links" aria-label="Footer navigation">
+            <Link to="/catalog">Catalog</Link>
             <Link to="/help-center">Help Center</Link>
             <Link to="/faq">FAQ</Link>
             <Link to="/contact">Contact</Link>
-          </Space>
+          </nav>
+          <span className="marketing-footer__copyright">(c) 2026 EduFlow LMS</span>
         </div>
       </footer>
     </Layout>

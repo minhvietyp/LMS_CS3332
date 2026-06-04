@@ -1,61 +1,132 @@
 import { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { Button, Input, Select, Typography } from 'antd';
-import { ArrowLeft, Search } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, CheckCircle2, ClipboardCheck, FileQuestion, RotateCcw, Search, Trophy } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '../../../components/client-ui';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
 import { getCourseByIdRequest } from '../../../services/api/courseApi';
-import { listStudentCourseQuizzesRequest, type StudentQuizCourseItem } from '../../../services/api/quizApi';
+import {
+  listMyQuizAttemptsRequest,
+  listStudentCourseQuizzesRequest,
+  type StudentQuizAttempt,
+  type StudentQuizCourseItem,
+} from '../../../services/api/quizApi';
 import './ClientQuizPages.css';
 
-type QuizQueueFilter = 'ALL' | 'AVAILABLE' | 'ATTEMPTED' | 'EXHAUSTED';
+type QuizStatus = 'AVAILABLE' | 'NOT_ATTEMPTED' | 'ATTEMPTED' | 'PASSED' | 'FAILED' | 'NOT_AVAILABLE';
+type QuizFilter = 'ALL' | 'AVAILABLE' | 'NOT_ATTEMPTED' | 'ATTEMPTED' | 'COMPLETED';
+type QuizSort = 'STATUS' | 'SCORE' | 'UPDATED';
 
-type QuizQueuePresentation = {
-  label: string;
-  badgeClassName: string;
-  primaryAction: 'Start Quiz' | 'Retake Quiz' | 'View Details';
-  summary: string;
+type QuizViewItem = {
+  quiz: StudentQuizCourseItem;
+  attempts: StudentQuizAttempt[];
+  latestAttempt: StudentQuizAttempt | null;
+  status: QuizStatus;
+  latestScore: number | null;
+  updatedTime: number;
 };
 
-function getQuizPresentation(quiz: StudentQuizCourseItem): QuizQueuePresentation {
-  if (quiz.attemptsRemaining <= 0) {
-    return {
-      label: 'No Attempts Left',
-      badgeClassName: 'client-badge client-badge-warning',
-      primaryAction: 'View Details',
-      summary: 'All available quiz attempts have been used. Review the latest result or quiz requirements.',
-    };
-  }
+const filterTabs: Array<{ value: QuizFilter; label: string }> = [
+  { value: 'ALL', label: 'All' },
+  { value: 'AVAILABLE', label: 'Available' },
+  { value: 'NOT_ATTEMPTED', label: 'Not Attempted' },
+  { value: 'ATTEMPTED', label: 'Attempted' },
+  { value: 'COMPLETED', label: 'Passed / Completed' },
+];
 
-  if (quiz.attemptsUsed > 0) {
-    return {
-      label: 'Attempts Remaining',
-      badgeClassName: 'client-badge client-badge-info',
-      primaryAction: 'Retake Quiz',
-      summary: 'You can start another attempt while attempts remain.',
-    };
-  }
+const statusRank: Record<QuizStatus, number> = {
+  AVAILABLE: 0,
+  NOT_ATTEMPTED: 1,
+  ATTEMPTED: 2,
+  FAILED: 3,
+  PASSED: 4,
+  NOT_AVAILABLE: 5,
+};
 
-  return {
-    label: 'Available',
-    badgeClassName: 'client-badge client-badge-info',
-    primaryAction: 'Start Quiz',
-    summary: 'Open this quiz to review requirements and begin your first attempt.',
-  };
+function getLatestAttempt(attempts: StudentQuizAttempt[] = []) {
+  return [...attempts].sort((left, right) => {
+    const leftTime = left.submittedAt || left.updatedAt || left.createdAt || '';
+    const rightTime = right.submittedAt || right.updatedAt || right.createdAt || '';
+    return (rightTime ? new Date(rightTime).getTime() : 0) - (leftTime ? new Date(leftTime).getTime() : 0);
+  })[0] ?? null;
 }
 
-function matchesFilter(quiz: StudentQuizCourseItem, filter: QuizQueueFilter) {
-  switch (filter) {
-    case 'AVAILABLE':
-      return quiz.attemptsRemaining > 0 && quiz.attemptsUsed === 0;
-    case 'ATTEMPTED':
-      return quiz.attemptsUsed > 0;
-    case 'EXHAUSTED':
-      return quiz.attemptsRemaining <= 0;
-    default:
-      return true;
+function getQuizStatus(quiz: StudentQuizCourseItem, attempts: StudentQuizAttempt[], latestAttempt: StudentQuizAttempt | null): QuizStatus {
+  if (!quiz.isPublished) return 'NOT_AVAILABLE';
+
+  const latestScore = latestAttempt?.score ?? null;
+  if (latestScore != null) {
+    return latestScore >= quiz.passingScore ? 'PASSED' : 'FAILED';
   }
+
+  if (latestAttempt?.status === 'PASSED') return 'PASSED';
+  if (latestAttempt?.status === 'FAILED') return 'FAILED';
+  if (attempts.length > 0 || quiz.attemptsUsed > 0) return 'ATTEMPTED';
+  if (quiz.attemptsRemaining > 0) return 'NOT_ATTEMPTED';
+
+  return 'NOT_AVAILABLE';
+}
+
+function getStatusLabel(status: QuizStatus) {
+  switch (status) {
+    case 'AVAILABLE':
+      return 'Available';
+    case 'NOT_ATTEMPTED':
+      return 'Not attempted';
+    case 'ATTEMPTED':
+      return 'Attempted';
+    case 'PASSED':
+      return 'Passed';
+    case 'FAILED':
+      return 'Failed';
+    case 'NOT_AVAILABLE':
+    default:
+      return 'Not available';
+  }
+}
+
+function getStatusBadgeClass(status: QuizStatus) {
+  switch (status) {
+    case 'PASSED':
+      return 'client-badge client-badge-success';
+    case 'FAILED':
+      return 'client-badge client-badge-danger';
+    case 'ATTEMPTED':
+      return 'client-badge client-badge-info';
+    case 'AVAILABLE':
+    case 'NOT_ATTEMPTED':
+      return 'client-badge client-badge-warning';
+    case 'NOT_AVAILABLE':
+    default:
+      return 'client-badge';
+  }
+}
+
+function getPrimaryAction(item: QuizViewItem) {
+  if (item.latestAttempt?.status === 'STARTED') return 'Continue attempt';
+  if ((item.status === 'PASSED' || item.status === 'FAILED') && item.latestAttempt?.id) return 'View result';
+  if (item.quiz.attemptsRemaining > 0 && item.quiz.attemptsUsed > 0) return 'Retake';
+  if (item.quiz.attemptsRemaining > 0) return 'Start quiz';
+  return 'View course';
+}
+
+function getPrimaryHref(item: QuizViewItem, courseId: string) {
+  if ((item.status === 'PASSED' || item.status === 'FAILED') && item.latestAttempt?.id) {
+    return `/courses/${courseId}/quizzes/${item.quiz.id}/results/${item.latestAttempt.id}`;
+  }
+
+  if (item.quiz.attemptsRemaining > 0 || item.latestAttempt?.status === 'STARTED') {
+    return `/courses/${courseId}/quizzes/${item.quiz.id}`;
+  }
+
+  return `/courses/${courseId}`;
+}
+
+function getEmptyTitle(filter: QuizFilter, hasQuizzes: boolean) {
+  if (!hasQuizzes) return 'No quizzes available yet.';
+  if (filter === 'ATTEMPTED' || filter === 'COMPLETED') return 'No quiz attempts yet.';
+  return 'No quizzes match your filters.';
 }
 
 function buildQuizListSkeleton() {
@@ -82,7 +153,8 @@ export function ClientCourseQuizzesPage() {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState('');
-  const [activeFilter, setActiveFilter] = useState<QuizQueueFilter>('ALL');
+  const [activeFilter, setActiveFilter] = useState<QuizFilter>('ALL');
+  const [sortBy, setSortBy] = useState<QuizSort>('STATUS');
 
   const courseQuery = useQuery({
     queryKey: ['quizzes', 'course-header', courseId],
@@ -100,87 +172,106 @@ export function ClientCourseQuizzesPage() {
   });
 
   const quizzes = quizzesQuery.data ?? [];
+  const courseTitle = courseQuery.data?.title ?? 'Current course';
+
+  const attemptQueries = useQueries({
+    queries: quizzes.map((quiz) => ({
+      queryKey: ['quizzes', 'student-attempts', quiz.id],
+      queryFn: () => listMyQuizAttemptsRequest(quiz.id),
+      staleTime: 60 * 1000,
+      retry: 1,
+    })),
+  });
+
+  const quizItems = useMemo<QuizViewItem[]>(() => {
+    return quizzes.map((quiz, index) => {
+      const attempts = attemptQueries[index]?.data ?? [];
+      const latestAttempt = getLatestAttempt(attempts);
+      const latestScore = latestAttempt?.score ?? null;
+
+      return {
+        quiz,
+        attempts,
+        latestAttempt,
+        status: getQuizStatus(quiz, attempts, latestAttempt),
+        latestScore,
+        updatedTime: new Date(quiz.updatedAt || quiz.createdAt).getTime(),
+      };
+    });
+  }, [attemptQueries, quizzes]);
 
   const metrics = useMemo(() => {
-    const total = quizzes.length;
-    const available = quizzes.filter((quiz) => quiz.attemptsRemaining > 0).length;
-    const attempted = quizzes.filter((quiz) => quiz.attemptsUsed > 0).length;
-    const exhausted = quizzes.filter((quiz) => quiz.attemptsRemaining <= 0).length;
-    const attemptsRemaining = quizzes.reduce((sum, quiz) => sum + quiz.attemptsRemaining, 0);
-
-    return { total, available, attempted, exhausted, attemptsRemaining };
-  }, [quizzes]);
+    return {
+      available: quizItems.filter((item) => item.quiz.isPublished && item.quiz.attemptsRemaining > 0).length,
+      pending: quizItems.filter((item) => item.status === 'NOT_ATTEMPTED').length,
+      attempted: quizItems.filter((item) => item.attempts.length > 0 || item.quiz.attemptsUsed > 0).length,
+      completed: quizItems.filter((item) => item.status === 'PASSED' || item.status === 'FAILED').length,
+    };
+  }, [quizItems]);
 
   const filteredQuizzes = useMemo(() => {
     const search = searchValue.trim().toLowerCase();
 
-    return quizzes.filter((quiz) => {
-      const matchesSearch =
-        !search ||
-        quiz.title.toLowerCase().includes(search) ||
-        (quiz.description ?? '').toLowerCase().includes(search);
+    return quizItems
+      .filter((item) => {
+        const matchesSearch =
+          !search ||
+          item.quiz.title.toLowerCase().includes(search) ||
+          (item.quiz.description ?? '').toLowerCase().includes(search) ||
+          courseTitle.toLowerCase().includes(search);
+        const matchesFilter =
+          activeFilter === 'ALL' ||
+          (activeFilter === 'AVAILABLE' && item.quiz.isPublished && item.quiz.attemptsRemaining > 0) ||
+          (activeFilter === 'NOT_ATTEMPTED' && item.status === 'NOT_ATTEMPTED') ||
+          (activeFilter === 'ATTEMPTED' && (item.attempts.length > 0 || item.quiz.attemptsUsed > 0)) ||
+          (activeFilter === 'COMPLETED' && (item.status === 'PASSED' || item.status === 'FAILED'));
 
-      return matchesSearch && matchesFilter(quiz, activeFilter);
-    });
-  }, [activeFilter, quizzes, searchValue]);
+        return matchesSearch && matchesFilter;
+      })
+      .sort((left, right) => {
+        if (sortBy === 'SCORE') return (right.latestScore ?? -1) - (left.latestScore ?? -1);
+        if (sortBy === 'UPDATED') return right.updatedTime - left.updatedTime;
+        return statusRank[left.status] - statusRank[right.status] || left.quiz.title.localeCompare(right.quiz.title);
+      });
+  }, [activeFilter, courseTitle, quizItems, searchValue, sortBy]);
 
-  const availableQuizzes = filteredQuizzes.filter((quiz) => quiz.attemptsRemaining > 0 && quiz.attemptsUsed === 0);
-  const attemptedQuizzes = filteredQuizzes.filter((quiz) => quiz.attemptsUsed > 0 && quiz.attemptsRemaining > 0);
-  const exhaustedQuizzes = filteredQuizzes.filter((quiz) => quiz.attemptsRemaining <= 0);
-  const firstActionableQuiz = availableQuizzes[0] ?? quizzes[0] ?? null;
+  const isLoading = quizzesQuery.isLoading || courseQuery.isLoading || attemptQueries.some((query) => query.isLoading);
+  const supportError = attemptQueries.find((query) => query.error)?.error;
 
-  const renderQuizRow = (quiz: StudentQuizCourseItem, accent = false) => {
-    const presentation = getQuizPresentation(quiz);
+  const renderQuizRow = (item: QuizViewItem) => {
+    const actionLabel = getPrimaryAction(item);
+    const actionHref = getPrimaryHref(item, courseId!);
+    const isPrimaryAction = actionLabel === 'Start quiz' || actionLabel === 'Continue attempt' || actionLabel === 'Retake';
 
     return (
-      <article
-        key={quiz.id}
-        className={`quiz-workspace__queue-card${accent ? ' quiz-workspace__queue-card--accent' : ''}`}
-      >
-        <div className="quiz-workspace__queue-header">
-          <div className="quiz-workspace__queue-heading">
-            <div className="quiz-workspace__queue-heading-copy">
-              <Typography.Text className="client-card-title">{quiz.title}</Typography.Text>
-              <Typography.Text className="client-meta">
-                {quiz.description || 'Quiz requirements are available inside the quiz workspace.'}
-              </Typography.Text>
-            </div>
-            <div className="quiz-workspace__queue-primary">
-              <span className={presentation.badgeClassName}>{presentation.label}</span>
-              <Button
-                className={
-                  presentation.primaryAction === 'View Details'
-                    ? 'client-button client-button-secondary'
-                    : 'client-button client-button-primary'
-                }
-                onClick={() => navigate(`/courses/${quiz.courseId}/quizzes/${quiz.id}`)}
-                disabled={presentation.primaryAction === 'View Details' && quiz.attemptsRemaining <= 0 && quiz.attemptsUsed === 0}
-              >
-                {presentation.primaryAction}
-              </Button>
-            </div>
+      <article key={item.quiz.id} className={`quiz-workspace__quiz-row quiz-workspace__quiz-row--${item.status.toLowerCase()}`}>
+        <div className="quiz-workspace__quiz-icon" aria-hidden="true">
+          <FileQuestion size={18} />
+        </div>
+        <div className="quiz-workspace__quiz-copy">
+          <div className="quiz-workspace__quiz-title-row">
+            <Typography.Text className="client-card-title">{item.quiz.title}</Typography.Text>
+            <span className={getStatusBadgeClass(item.status)}>{getStatusLabel(item.status)}</span>
           </div>
-          <div className="quiz-workspace__row-meta">
-            <Typography.Text className="client-meta">{quiz.questionCount} questions</Typography.Text>
-            <Typography.Text className="client-meta">Passing score {quiz.passingScore}%</Typography.Text>
-            <Typography.Text className="client-meta">Max attempts {quiz.maxAttempts}</Typography.Text>
-            <Typography.Text className="client-meta">{quiz.attemptsUsed} used</Typography.Text>
-            <Typography.Text className="client-meta">{quiz.attemptsRemaining} remaining</Typography.Text>
+          <Typography.Text className="client-meta">{courseTitle}</Typography.Text>
+          {item.quiz.description ? (
+            <Typography.Paragraph className="client-body quiz-workspace__quiz-description">
+              {item.quiz.description}
+            </Typography.Paragraph>
+          ) : (
+            <Typography.Text className="client-meta">Quiz requirements are available inside the quiz workspace.</Typography.Text>
+          )}
+          <div className="quiz-workspace__quiz-meta">
+            <span>{item.quiz.questionCount} questions</span>
+            <span>Passing score {item.quiz.passingScore}%</span>
+            <span>{item.quiz.attemptsUsed}/{item.quiz.maxAttempts} attempts used</span>
+            <span>{item.quiz.attemptsRemaining} remaining</span>
+            {item.latestScore != null ? <span>Latest score {item.latestScore}%</span> : null}
           </div>
         </div>
-        <Typography.Text className="client-body">{presentation.summary}</Typography.Text>
-        <div className="quiz-workspace__queue-footer">
-          <Typography.Text className="client-meta">
-            {quiz.attemptsUsed > 0
-              ? 'Review the latest attempt history and start a new attempt if attempts remain.'
-              : 'Open the quiz workspace to review the quiz instructions before starting.'}
-          </Typography.Text>
-          <div className="quiz-workspace__queue-row-actions">
-            <Button className="client-button client-button-ghost" onClick={() => navigate(`/courses/${quiz.courseId}/quizzes/${quiz.id}`)}>
-              View Details
-            </Button>
-          </div>
-        </div>
+        <Link className={isPrimaryAction ? 'client-button client-button-primary quiz-workspace__quiz-action' : 'client-button client-button-secondary quiz-workspace__quiz-action'} to={actionHref}>
+          {actionLabel}
+        </Link>
       </article>
     );
   };
@@ -189,24 +280,20 @@ export function ClientCourseQuizzesPage() {
     <ClientLayout>
       <ClientPageContainer
         title="Quizzes"
-        subtitle="Review quiz readiness, remaining attempts, and assessment work from one focused workspace."
+        subtitle="Review available quizzes, attempts, scores, and results."
         actions={
-          <Button
-            className="client-button client-button-secondary"
-            icon={<ArrowLeft size={16} />}
-            onClick={() => navigate(`/courses/${courseId}`)}
-          >
+          <Button className="client-button client-button-secondary" icon={<ArrowLeft size={16} />} onClick={() => navigate(`/courses/${courseId}`)}>
             Back to Course
           </Button>
         }
       >
-        {quizzesQuery.isLoading || courseQuery.isLoading ? buildQuizListSkeleton() : null}
+        {isLoading ? buildQuizListSkeleton() : null}
 
         {quizzesQuery.error ? (
           <section className="client-card quiz-workspace__state-card">
             <EmptyState
               title="Unable to load quizzes"
-              description={quizzesQuery.error instanceof Error ? quizzesQuery.error.message : 'The quiz workspace could not be loaded right now.'}
+              description={quizzesQuery.error instanceof Error ? quizzesQuery.error.message : 'The quiz list could not be loaded right now.'}
               action={
                 <Button className="client-button client-button-primary" onClick={() => quizzesQuery.refetch()}>
                   Retry
@@ -216,203 +303,103 @@ export function ClientCourseQuizzesPage() {
           </section>
         ) : null}
 
-        {!quizzesQuery.isLoading && !quizzes.length ? (
-          <section className="client-card quiz-workspace__state-card">
-            <EmptyState
-              title="No quizzes are available for this course yet."
-              description="Published quizzes will appear here when they are available in the course."
-            />
-          </section>
-        ) : null}
-
-        {!quizzesQuery.isLoading && quizzes.length ? (
-          <div className="quiz-workspace__stack">
-            <section className="client-card quiz-workspace__hero">
-              <div className="quiz-workspace__hero-copy">
-                <Typography.Text className="client-caption">
-                  {courseQuery.data?.title ?? 'Quiz workspace'}
-                </Typography.Text>
-                <Typography.Title level={1} className="client-page-title">
-                  Assessments & knowledge checks
+        {!isLoading && !quizzesQuery.error ? (
+          <div className="quiz-workspace quiz-workspace--management">
+            <section className="client-card quiz-workspace__summary-panel">
+              <div className="quiz-workspace__summary-heading">
+                <Typography.Text className="client-caption">{courseTitle}</Typography.Text>
+                <Typography.Title level={2} className="client-section-title">
+                  Quiz status
                 </Typography.Title>
-                <Typography.Paragraph className="client-body">
-                  Track available quizzes, remaining attempts, and the next assessment you should open.
-                </Typography.Paragraph>
-                <div className="quiz-workspace__hero-meta">
-                  <span className="client-badge">{metrics.total} total quizzes</span>
-                  <span className="client-badge client-badge-info">{metrics.available} available</span>
-                  <span className="client-badge">{metrics.attempted} attempted</span>
-                  {metrics.exhausted ? <span className="client-badge client-badge-warning">{metrics.exhausted} exhausted</span> : null}
-                </div>
               </div>
-              <div className="quiz-workspace__hero-summary">
-                <Typography.Text className="client-card-title">Quiz readiness</Typography.Text>
-                <div className="quiz-workspace__metric-grid">
-                  <div className="quiz-workspace__metric-card quiz-workspace__metric-card--focus">
-                    <Typography.Text className="client-meta">Available</Typography.Text>
-                    <strong>{metrics.available}</strong>
-                  </div>
-                  <div className="quiz-workspace__metric-card">
-                    <Typography.Text className="client-meta">Attempts Left</Typography.Text>
-                    <strong>{metrics.attemptsRemaining}</strong>
-                  </div>
-                  <div className="quiz-workspace__metric-card">
-                    <Typography.Text className="client-meta">Attempted</Typography.Text>
-                    <strong>{metrics.attempted}</strong>
-                  </div>
-                  <div className={`quiz-workspace__metric-card${metrics.exhausted ? ' quiz-workspace__metric-card--warning' : ''}`}>
-                    <Typography.Text className="client-meta">Exhausted</Typography.Text>
-                    <strong>{metrics.exhausted}</strong>
-                  </div>
+              <div className="quiz-workspace__summary-cards">
+                <div className="client-card quiz-workspace__summary-card">
+                  <FileQuestion size={18} aria-hidden="true" />
+                  <Typography.Text className="client-meta">Available</Typography.Text>
+                  <strong>{metrics.available}</strong>
                 </div>
-                {firstActionableQuiz ? (
-                  <Button
-                    className="client-button client-button-primary"
-                    onClick={() => navigate(`/courses/${courseId}/quizzes/${firstActionableQuiz.id}`)}
-                  >
-                    {firstActionableQuiz.attemptsUsed > 0 && firstActionableQuiz.attemptsRemaining > 0 ? 'Open next quiz' : 'Start next quiz'}
-                  </Button>
-                ) : null}
+                <div className="client-card quiz-workspace__summary-card">
+                  <ClipboardCheck size={18} aria-hidden="true" />
+                  <Typography.Text className="client-meta">Not attempted</Typography.Text>
+                  <strong>{metrics.pending}</strong>
+                </div>
+                <div className="client-card quiz-workspace__summary-card">
+                  <RotateCcw size={18} aria-hidden="true" />
+                  <Typography.Text className="client-meta">Attempted</Typography.Text>
+                  <strong>{metrics.attempted}</strong>
+                </div>
+                <div className="client-card quiz-workspace__summary-card">
+                  <Trophy size={18} aria-hidden="true" />
+                  <Typography.Text className="client-meta">Passed/completed</Typography.Text>
+                  <strong>{metrics.completed}</strong>
+                </div>
               </div>
             </section>
 
-            <div className="quiz-workspace__layout">
-              <main className="quiz-workspace__main">
-                <section className="client-card quiz-workspace__panel">
-                  <div className="quiz-workspace__section-header">
-                    <div className="quiz-workspace__section-header-copy">
-                      <Typography.Text className="client-caption">Quiz queue</Typography.Text>
-                      <Typography.Title level={3} className="client-section-title">
-                        Manage quiz work
-                      </Typography.Title>
-                    </div>
-                  </div>
-
-                  <div className="quiz-workspace__queue-controls">
-                    <Input
-                      value={searchValue}
-                      onChange={(event) => setSearchValue(event.target.value)}
-                      placeholder="Find assessments..."
-                      prefix={<Search size={16} />}
-                      className="quiz-workspace__search"
-                    />
-                    <Select<QuizQueueFilter>
-                      value={activeFilter}
-                      onChange={setActiveFilter}
-                      className="quiz-workspace__queue-filter"
-                      options={[
-                        { value: 'ALL', label: 'All assessments' },
-                        { value: 'AVAILABLE', label: 'Available' },
-                        { value: 'ATTEMPTED', label: 'Attempted' },
-                        { value: 'EXHAUSTED', label: 'No attempts left' },
-                      ]}
-                    />
-                  </div>
-
-                  {filteredQuizzes.length === 0 ? (
-                    <EmptyState
-                      title="No quizzes match this view."
-                      description="Try a different filter or clear the search query."
-                      compact
-                    />
-                  ) : (
-                    <div className="quiz-workspace__stack">
-                      {availableQuizzes.length ? (
-                        <section className="quiz-workspace__stack">
-                          <div className="quiz-workspace__section-header">
-                            <div className="quiz-workspace__section-header-copy">
-                              <Typography.Text className="client-caption">Available & due soon</Typography.Text>
-                              <Typography.Title level={4} className="client-card-title">
-                                Ready to take
-                              </Typography.Title>
-                            </div>
-                          </div>
-                          {availableQuizzes.map((quiz) => renderQuizRow(quiz, true))}
-                        </section>
-                      ) : null}
-
-                      {attemptedQuizzes.length ? (
-                        <section className="quiz-workspace__stack">
-                          <div className="quiz-workspace__section-header">
-                            <div className="quiz-workspace__section-header-copy">
-                              <Typography.Text className="client-caption">Attempt history</Typography.Text>
-                              <Typography.Title level={4} className="client-card-title">
-                                Review or retake
-                              </Typography.Title>
-                            </div>
-                          </div>
-                          {attemptedQuizzes.map((quiz) => renderQuizRow(quiz))}
-                        </section>
-                      ) : null}
-
-                      {exhaustedQuizzes.length ? (
-                        <section className="quiz-workspace__stack">
-                          <div className="quiz-workspace__section-header">
-                            <div className="quiz-workspace__section-header-copy">
-                              <Typography.Text className="client-caption">Attempts used</Typography.Text>
-                              <Typography.Title level={4} className="client-card-title">
-                                Review only
-                              </Typography.Title>
-                            </div>
-                          </div>
-                          {exhaustedQuizzes.map((quiz) => renderQuizRow(quiz))}
-                        </section>
-                      ) : null}
-                    </div>
-                  )}
-                </section>
-              </main>
-
-              <aside className="quiz-workspace__sidebar">
-                <section className="client-card quiz-workspace__sidebar-card">
-                  <Typography.Text className="client-caption">Assessment status</Typography.Text>
-                  <Typography.Title level={4} className="client-card-title">
-                    Quiz overview
+            <section className="client-card quiz-workspace__panel quiz-workspace__quiz-panel">
+              <div className="quiz-workspace__section-header">
+                <div className="quiz-workspace__section-header-copy">
+                  <Typography.Text className="client-caption">Course assessments</Typography.Text>
+                  <Typography.Title level={3} className="client-section-title">
+                    Manage quizzes
                   </Typography.Title>
-                  <div className="quiz-workspace__status-grid">
-                    <div className="quiz-workspace__status-tile">
-                      <Typography.Text className="client-meta">Available</Typography.Text>
-                      <strong>{metrics.available}</strong>
-                    </div>
-                    <div className="quiz-workspace__status-tile">
-                      <Typography.Text className="client-meta">Attempted</Typography.Text>
-                      <strong>{metrics.attempted}</strong>
-                    </div>
-                    <div className="quiz-workspace__status-tile">
-                      <Typography.Text className="client-meta">Attempts Left</Typography.Text>
-                      <strong>{metrics.attemptsRemaining}</strong>
-                    </div>
-                    <div className="quiz-workspace__status-tile">
-                      <Typography.Text className="client-meta">No Attempts Left</Typography.Text>
-                      <strong>{metrics.exhausted}</strong>
-                    </div>
-                  </div>
-                </section>
+                </div>
+              </div>
 
-                <section className="client-card quiz-workspace__sidebar-card">
-                  <Typography.Text className="client-caption">Navigation</Typography.Text>
-                  <Typography.Title level={4} className="client-card-title">
-                    Quiz actions
-                  </Typography.Title>
+              <div className="quiz-workspace__management-controls">
+                <Input
+                  value={searchValue}
+                  onChange={(event) => setSearchValue(event.target.value)}
+                  placeholder="Search quizzes..."
+                  prefix={<Search size={16} />}
+                  className="quiz-workspace__search"
+                />
+                <Select<QuizSort>
+                  value={sortBy}
+                  onChange={setSortBy}
+                  className="quiz-workspace__sort"
+                  options={[
+                    { value: 'STATUS', label: 'Sort by status' },
+                    { value: 'SCORE', label: 'Sort by score' },
+                    { value: 'UPDATED', label: 'Sort by recently updated' },
+                  ]}
+                />
+              </div>
+
+              <div className="quiz-workspace__filter-tabs" aria-label="Quiz status filters">
+                {filterTabs.map((filter) => (
+                  <button
+                    key={filter.value}
+                    type="button"
+                    className={`quiz-workspace__filter-tab${activeFilter === filter.value ? ' quiz-workspace__filter-tab--active' : ''}`}
+                    onClick={() => setActiveFilter(filter.value)}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+
+              {supportError ? (
+                <div className="quiz-workspace__warning-state">
+                  <Typography.Text className="client-card-title">Some attempt data is unavailable</Typography.Text>
                   <Typography.Text className="client-meta">
-                    Open the next available quiz or return to the course workspace if you need more preparation first.
+                    Quiz availability remains visible, but latest scores or result links may be incomplete until attempts load.
                   </Typography.Text>
-                  <div className="quiz-workspace__action-group">
-                    {firstActionableQuiz ? (
-                      <Button
-                        className="client-button client-button-primary"
-                        onClick={() => navigate(`/courses/${courseId}/quizzes/${firstActionableQuiz.id}`)}
-                      >
-                        Open next quiz
-                      </Button>
-                    ) : null}
-                    <Button className="client-button client-button-ghost" onClick={() => navigate(`/courses/${courseId}`)}>
-                      Back to Course
-                    </Button>
-                  </div>
-                </section>
-              </aside>
-            </div>
+                </div>
+              ) : null}
+
+              {!quizzes.length || !filteredQuizzes.length ? (
+                <EmptyState
+                  compact
+                  title={getEmptyTitle(activeFilter, quizzes.length > 0)}
+                  description={quizzes.length ? 'Try another status or search term.' : 'Published quizzes will appear here when they are available in the course.'}
+                />
+              ) : (
+                <div className="quiz-workspace__quiz-list">
+                  {filteredQuizzes.map((item) => renderQuizRow(item))}
+                </div>
+              )}
+            </section>
           </div>
         ) : null}
       </ClientPageContainer>

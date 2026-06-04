@@ -8,21 +8,11 @@ import { ClientNotificationsPage } from '../../../../pages/client/notifications/
 const listNotificationsRequest = vi.fn();
 const markNotificationAsReadRequest = vi.fn();
 const markAllNotificationsAsReadRequest = vi.fn();
-const listCoursesRequest = vi.fn();
-const useClientContinueLearningMock = vi.fn();
 
 vi.mock('../../../../services/api/notificationApi', () => ({
   listNotificationsRequest: (...args: unknown[]) => listNotificationsRequest(...args),
   markNotificationAsReadRequest: (...args: unknown[]) => markNotificationAsReadRequest(...args),
   markAllNotificationsAsReadRequest: (...args: unknown[]) => markAllNotificationsAsReadRequest(...args),
-}));
-
-vi.mock('../../../../services/api/courseApi', () => ({
-  listCoursesRequest: (...args: unknown[]) => listCoursesRequest(...args),
-}));
-
-vi.mock('../../../../hooks/useClientContinueLearning', () => ({
-  useClientContinueLearning: (...args: unknown[]) => useClientContinueLearningMock(...args),
 }));
 
 function buildToken() {
@@ -58,8 +48,7 @@ describe('ClientNotificationsPage', () => {
   beforeEach(() => {
     listNotificationsRequest.mockReset();
     markNotificationAsReadRequest.mockReset();
-    listCoursesRequest.mockReset();
-    useClientContinueLearningMock.mockReset();
+    markAllNotificationsAsReadRequest.mockReset();
 
     listNotificationsRequest.mockResolvedValue([
       {
@@ -87,48 +76,36 @@ describe('ClientNotificationsPage', () => {
     ]);
 
     markNotificationAsReadRequest.mockResolvedValue(undefined);
-    listCoursesRequest.mockResolvedValue({
-      data: [
-        {
-          id: '11111111-1111-1111-1111-111111111111',
-          title: 'React Foundations',
-          description: 'Course description',
-          status: 'PUBLISHED',
-          instructorId: 'instructor-1',
-          createdAt: '2026-01-01T00:00:00.000Z',
-          updatedAt: '2026-01-02T00:00:00.000Z',
-        },
-      ],
-    });
-    useClientContinueLearningMock.mockReturnValue({
-      streak: 0,
-      courseId: null,
-      courseTitle: null,
-      currentLesson: null,
-      nextLesson: null,
-      percentage: 0,
-      totalLessons: 0,
-      completedLessons: 0,
-      lastActivityAt: null,
-      isLoading: false,
-    });
+    markAllNotificationsAsReadRequest.mockResolvedValue(1);
   });
 
   it('renders notifications from the API and marks one as read', async () => {
     renderPage();
 
-    expect(await screen.findByRole('heading', { name: 'Notifications Center' })).toBeInTheDocument();
-    expect(await screen.findByText('Priority Notifications')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Notifications' })).toBeInTheDocument();
+    expect(await screen.findByText('Review unread updates, course activity, assignments, grades, and system messages.')).toBeInTheDocument();
+    expect(await screen.findByText('Course updates')).toBeInTheDocument();
+    expect(await screen.findByText('Assignment/quiz updates')).toBeInTheDocument();
     expect(await screen.findByText('Notification Feed')).toBeInTheDocument();
     expect(await screen.findByRole('tab', { name: /All/i })).toBeInTheDocument();
     expect((await screen.findAllByText('Course schedule updated for React Foundations.', {}, { timeout: 20000 })).length).toBeGreaterThan(0);
     expect((await screen.findAllByText('Assignment feedback is available.', {}, { timeout: 20000 })).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Unread|Read/).length).toBeGreaterThan(0);
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Mark Read' })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: /Mark as read/i })[0]);
 
     await waitFor(() => {
       expect(markNotificationAsReadRequest.mock.calls[0]?.[0]).toBe('notification-1');
+    });
+  }, 30000);
+
+  it('marks every unread notification as read', async () => {
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Mark all read/i }));
+
+    await waitFor(() => {
+      expect(markAllNotificationsAsReadRequest).toHaveBeenCalledTimes(1);
     });
   }, 30000);
 });

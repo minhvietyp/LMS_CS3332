@@ -120,6 +120,8 @@ describe('Client quiz pages', () => {
         },
       ],
     });
+
+    listMyQuizAttemptsRequest.mockResolvedValue([]);
   });
 
   it('renders published course quizzes with attempt availability', async () => {
@@ -161,8 +163,8 @@ describe('Client quiz pages', () => {
       expect(listStudentCourseQuizzesRequest).toHaveBeenCalledWith('course-1');
     }, { timeout: HEAVY_UI_TEST_TIMEOUT });
     expect(screen.getByText('Confirm your understanding of the basics.')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Retake Quiz' })).toBeEnabled();
-    expect(screen.getAllByRole('button', { name: 'View Details' }).length).toBeGreaterThan(0);
+    expect(screen.getByRole('link', { name: 'Retake' })).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: 'View course' }).length).toBeGreaterThan(0);
   }, 60000);
 
   it('starts and submits a quiz attempt, then navigates to the result page', async () => {
