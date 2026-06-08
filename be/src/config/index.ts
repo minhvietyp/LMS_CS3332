@@ -23,6 +23,9 @@ export const config = {
     isDevelopment: optionalEnv('NODE_ENV', 'development') === 'development',
     jsonBodyLimit: optionalEnv('JSON_BODY_LIMIT', '100kb'),
     trustProxy: optionalEnv('TRUST_PROXY', 'false') === 'true',
+    logLevel: optionalEnv('LOG_LEVEL', optionalEnv('NODE_ENV', 'development') === 'development' ? 'debug' : 'info'),
+    slowRequestThresholdMs: parseInt(optionalEnv('SLOW_REQUEST_THRESHOLD_MS', '1000'), 10),
+    version: optionalEnv('APP_VERSION', process.env.npm_package_version ?? '0.0.0'),
   },
 
   db: {
@@ -51,6 +54,13 @@ export const config = {
     max: parseInt(optionalEnv('RATE_LIMIT_MAX', '300'), 10),
     authWindowMs: parseInt(optionalEnv('AUTH_STRICT_WINDOW_MS', '900000'), 10),
     authMax: parseInt(optionalEnv('AUTH_STRICT_MAX', '10'), 10),
+    publicWindowMs: parseInt(optionalEnv('PUBLIC_RATE_LIMIT_WINDOW_MS', '900000'), 10),
+    publicMax: parseInt(optionalEnv('PUBLIC_RATE_LIMIT_MAX', '120'), 10),
+  },
+
+  cache: {
+    enabled: optionalEnv('CACHE_ENABLED', 'true') === 'true',
+    publicTtlMs: parseInt(optionalEnv('PUBLIC_CACHE_TTL_MS', '60000'), 10),
   },
 
   cloudinary: {

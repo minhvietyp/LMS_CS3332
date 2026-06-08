@@ -5,6 +5,8 @@ import { parsePagination, pickDefined } from '@shared/utils/helpers';
 import { PaginatedResult } from '@types';
 import { COURSE_STATUS, ENROLLMENT_STATUS, USER_ROLES } from '@shared/constants';
 import { uploadImageBuffer } from '@shared/utils/cloudinary';
+import { config } from '@config/index';
+import { appCache } from '@shared/utils/cache';
 
 type Viewer = {
   sub: string;
@@ -56,7 +58,17 @@ type UpdateCourseData = {
 type CourseFile = Express.Multer.File;
 
 export class CourseService {
+  private publicCachePrefix = 'public:courses:';
+
+  private clearPublicCourseCache(): void {
+    appCache.deleteByPrefix(this.publicCachePrefix);
+  }
+
   async listPublic(query: any): Promise<PaginatedResult<any>> {
+    const cacheKey = `${this.publicCachePrefix}list:${JSON.stringify(query ?? {})}`;
+    const cached = config.cache.enabled ? appCache.get<PaginatedResult<any>>(cacheKey) : null;
+    if (cached) return cached;
+
     const { page, limit, skip } = parsePagination(query);
     const { search } = query;
 
@@ -80,7 +92,15 @@ export class CourseService {
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        include: {
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          thumbnailUrl: true,
+          status: true,
+          instructorId: true,
+          createdAt: true,
+          updatedAt: true,
           instructor: {
             select: {
               id: true,
@@ -91,9 +111,11 @@ export class CourseService {
             },
           },
           modules: {
-            include: {
+            select: {
+              id: true,
               lessons: {
                 where: { deletedAt: null, isPublished: true },
+                select: { id: true },
               },
             },
           },
@@ -105,7 +127,7 @@ export class CourseService {
       }),
     ]);
 
-    return {
+    const result = {
       data: courses.map((course) => ({
         ...course,
         moduleCount: course.modules.length,
@@ -119,9 +141,19 @@ export class CourseService {
         totalPages: Math.ceil(total / limit),
       },
     };
+
+    if (config.cache.enabled) {
+      appCache.set(cacheKey, result, config.cache.publicTtlMs);
+    }
+
+    return result;
   }
 
   async getPublicById(id: string): Promise<any> {
+    const cacheKey = `${this.publicCachePrefix}detail:${id}`;
+    const cached = config.cache.enabled ? appCache.get<any>(cacheKey) : null;
+    if (cached) return cached;
+
     const course = await prisma.course.findFirst({
       where: {
         id,
@@ -161,12 +193,18 @@ export class CourseService {
       throw NotFoundError('Course not found');
     }
 
-    return {
+    const result = {
       ...course,
       moduleCount: course.modules.length,
       lessonCount: course.modules.reduce((count, module) => count + module.lessons.length, 0),
       enrollmentCount: course.enrollments.length,
     };
+
+    if (config.cache.enabled) {
+      appCache.set(cacheKey, result, config.cache.publicTtlMs);
+    }
+
+    return result;
   }
 
   /**
@@ -425,7 +463,7 @@ export class CourseService {
         status: COURSE_STATUS.DRAFT,
         ...(thumbnailUrl ? { thumbnailUrl } : {}),
       },
-    });
+    }).finally(() => this.clearPublicCourseCache());
   }
 
   /**
@@ -437,7 +475,7 @@ export class CourseService {
     return prisma.course.update({
       where: { id },
       data: pickDefined(data),
-    });
+    }).finally(() => this.clearPublicCourseCache());
   }
 
   async publish(id: string, userId: string, userRole: string): Promise<Course> {
@@ -450,7 +488,7 @@ export class CourseService {
     return prisma.course.update({
       where: { id },
       data: { status: COURSE_STATUS.PUBLISHED },
-    });
+    }).finally(() => this.clearPublicCourseCache());
   }
 
   async archive(id: string, userId: string, userRole: string): Promise<Course> {
@@ -463,7 +501,7 @@ export class CourseService {
     return prisma.course.update({
       where: { id },
       data: { status: COURSE_STATUS.ARCHIVED },
-    });
+    }).finally(() => this.clearPublicCourseCache());
   }
 
   async updateThumbnail(id: string, userId: string, userRole: string, file: CourseFile): Promise<Course> {
@@ -476,7 +514,7 @@ export class CourseService {
       data: {
         thumbnailUrl: uploaded.secureUrl,
       },
-    });
+    }).finally(() => this.clearPublicCourseCache());
   }
 
   /**
@@ -492,6 +530,7 @@ export class CourseService {
         deletedBy: userId,
       },
     });
+    this.clearPublicCourseCache();
   }
 
   async restore(id: string, userId: string, userRole: string): Promise<Course> {
@@ -513,7 +552,7 @@ export class CourseService {
         deletedAt: null,
         deletedBy: null,
       },
-    });
+    }).finally(() => this.clearPublicCourseCache());
   }
 
   /**
