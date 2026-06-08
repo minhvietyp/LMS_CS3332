@@ -81,7 +81,7 @@ export function PublicCourseDetailPage() {
                   <Typography.Paragraph type="secondary">
                     Review the curriculum, then register to access assignments, quizzes, progress tracking, and the full learning workspace.
                   </Typography.Paragraph>
-                  <Link to="/help-center">Visit the Help Center</Link>
+                  <Link to="/help">Visit the Help Center</Link>
                   <Link to="/faq">Read learner FAQs</Link>
                   <Link to="/catalog">Back to catalog</Link>
                 </Space>

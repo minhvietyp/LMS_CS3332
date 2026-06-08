@@ -1,6 +1,6 @@
 import { Button, Layout } from 'antd';
 import type { PropsWithChildren, ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import './marketing.css';
 
 interface MarketingLayoutProps extends PropsWithChildren {
@@ -20,10 +20,11 @@ export function MarketingLayout({ children, hero }: MarketingLayoutProps) {
             </span>
           </Link>
           <nav className="marketing-nav" aria-label="Public navigation">
-            <Link to="/">Home</Link>
-            <Link to="/catalog">Catalog</Link>
-            <Link to="/about">About</Link>
-            <Link to="/help-center">Help</Link>
+            <NavLink to="/" end>Home</NavLink>
+            <NavLink to="/catalog">Catalog</NavLink>
+            <NavLink to="/help">Help</NavLink>
+            <NavLink to="/faq">FAQ</NavLink>
+            <NavLink to="/contact">Contact</NavLink>
           </nav>
           <div className="marketing-nav__actions">
             <Link to="/login">
@@ -42,7 +43,7 @@ export function MarketingLayout({ children, hero }: MarketingLayoutProps) {
         </div>
       </main>
       <footer className="marketing-footer">
-        <div className="marketing-shell marketing-footer__row">
+        <div className="marketing-shell marketing-footer__grid">
           <div className="marketing-footer__brand">
             <Link to="/" className="marketing-brand">
               <span className="marketing-brand__mark">E</span>
@@ -52,12 +53,23 @@ export function MarketingLayout({ children, hero }: MarketingLayoutProps) {
               </span>
             </Link>
             <p>Course discovery, learning work, progress tracking, and academic support in one workspace.</p>
+            <p className="marketing-footer__contact">Support: support@eduflow.local</p>
           </div>
-          <nav className="marketing-footer__links" aria-label="Footer navigation">
+          <nav className="marketing-footer__links" aria-label="Product links">
+            <strong>Product</strong>
+            <Link to="/">Home</Link>
             <Link to="/catalog">Catalog</Link>
-            <Link to="/help-center">Help Center</Link>
+          </nav>
+          <nav className="marketing-footer__links" aria-label="Support links">
+            <strong>Support</strong>
+            <Link to="/help">Help Center</Link>
             <Link to="/faq">FAQ</Link>
             <Link to="/contact">Contact</Link>
+          </nav>
+          <nav className="marketing-footer__links" aria-label="Account links">
+            <strong>Account</strong>
+            <Link to="/login">Sign in</Link>
+            <Link to="/register">Register</Link>
           </nav>
           <span className="marketing-footer__copyright">(c) 2026 EduFlow LMS</span>
         </div>

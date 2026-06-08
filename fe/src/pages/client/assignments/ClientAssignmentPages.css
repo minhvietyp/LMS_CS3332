@@ -20,13 +20,13 @@
 .assignment-workspace__submission-shell,
 .assignment-workspace__sidebar-card {
   display: grid;
-  gap: var(--client-space-lg);
+  gap: var(--client-space-md);
   min-width: 0;
   border-radius: var(--client-radius-xl);
   border: 1px solid var(--client-border-soft);
   background: linear-gradient(180deg, var(--client-bg-surface) 0%, var(--client-bg-surface-low) 100%);
   box-shadow: var(--client-shadow-card);
-  padding: var(--client-card-padding);
+  padding: var(--client-space-lg);
 }
 
 .assignment-workspace__hero {
@@ -98,8 +98,8 @@
 .assignment-workspace__metric-card,
 .assignment-workspace__status-tile {
   display: grid;
-  gap: 8px;
-  padding: var(--client-card-padding);
+  gap: 6px;
+  padding: var(--client-space-md);
   border-radius: var(--client-radius-lg);
   border: 1px solid var(--client-border-soft);
   background: var(--client-bg-surface);
@@ -108,9 +108,10 @@
 .assignment-workspace__metric-card strong,
 .assignment-workspace__status-tile strong {
   color: var(--client-text-primary);
-  font-size: clamp(1.45rem, 2.5vw, 1.95rem);
-  line-height: 1.1;
+  font-size: clamp(1rem, 1.45vw, 1.2rem);
+  line-height: 1.25;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .assignment-workspace__metric-card .ant-typography,
@@ -132,8 +133,8 @@
 
 .assignment-workspace__hero-summary {
   display: grid;
-  gap: var(--client-space-md);
-  padding: var(--client-card-padding);
+  gap: var(--client-space-sm);
+  padding: var(--client-space-md);
   border-radius: var(--client-radius-xl);
   background: linear-gradient(180deg, color-mix(in srgb, var(--client-color-primary) 10%, var(--client-bg-surface)) 0%, var(--client-bg-surface) 100%);
   border: 1px solid color-mix(in srgb, var(--client-color-primary) 16%, var(--client-border-soft));
@@ -317,13 +318,13 @@
 }
 
 .assignment-workspace__sidebar-card {
-  padding: var(--client-card-padding);
+  padding: var(--client-space-lg);
 }
 
 .assignment-workspace__status-value {
-  font-size: clamp(1.75rem, 3vw, 2.4rem);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.25;
   color: var(--client-text-primary);
 }
 

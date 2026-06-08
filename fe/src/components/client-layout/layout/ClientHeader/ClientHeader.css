@@ -3,11 +3,11 @@
   top: 0;
   z-index: var(--client-z-sticky);
   display: grid;
-  grid-template-columns: auto minmax(220px, 520px) auto;
+  grid-template-columns: auto minmax(180px, 360px) auto;
   align-items: center;
-  gap: var(--client-space-md);
-  min-height: 72px;
-  padding: var(--client-space-sm) var(--client-space-xl);
+  gap: var(--client-space-sm);
+  min-height: 60px;
+  padding: 8px var(--client-space-lg);
   background: var(--client-shell-surface);
   border-bottom: 1px solid var(--client-shell-border);
   backdrop-filter: blur(14px);
@@ -43,7 +43,7 @@
 .client-header__search--command {
   justify-self: center;
   width: 100%;
-  max-width: 520px;
+  max-width: 360px;
 }
 
 .client-header__right {
@@ -57,14 +57,14 @@
   justify-content: space-between;
   gap: 12px;
   width: 100%;
-  min-height: 42px;
-  padding: 0 14px;
+  min-height: 36px;
+  padding: 0 12px;
   border: 1px solid var(--client-shell-border-strong);
   border-radius: var(--client-radius-pill);
   background: color-mix(in srgb, var(--client-bg-surface) 94%, transparent);
   color: var(--client-shell-text-muted);
   box-shadow: var(--client-shell-shadow-soft);
-  cursor: help;
+  cursor: pointer;
 }
 
 .client-header__search-trigger:hover {
@@ -88,8 +88,8 @@
 .client-header__search-kbd {
   display: inline-flex;
   align-items: center;
-  height: 24px;
-  padding: 0 8px;
+  height: 22px;
+  padding: 0 7px;
   border: 1px solid var(--client-shell-border);
   border-radius: 999px;
   background: var(--client-bg-surface-low);
@@ -111,9 +111,9 @@
 }
 
 .client-header__notification-button.ant-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
   color: var(--client-shell-text);
 }
 
@@ -121,7 +121,7 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 8px 6px 6px;
+  padding: 4px 8px 4px 4px;
   border-radius: var(--client-radius-pill);
   border: 1px solid var(--client-shell-border);
   background: color-mix(in srgb, var(--client-bg-surface) 88%, transparent);
@@ -157,22 +157,22 @@
 }
 
 .client-header__dropdown-overlay {
-  z-index: var(--client-z-dropdown);
+  z-index: 1300;
 }
 
 .client-header__dropdown-overlay--notifications {
-  width: min(360px, calc(100vw - 24px));
+  width: min(370px, calc(100vw - 24px));
 }
 
 .client-header__dropdown-overlay--profile {
-  width: min(280px, calc(100vw - 24px));
+  width: min(290px, calc(100vw - 24px));
 }
 
 .client-header__dropdown-card {
   display: grid;
-  gap: var(--client-space-md);
+  gap: var(--client-space-sm);
   width: 100%;
-  max-height: min(480px, calc(100vh - 96px));
+  max-height: min(460px, calc(100vh - 84px));
   padding: var(--client-space-md);
   border: 1px solid var(--client-border-soft);
   border-radius: var(--client-radius-xl);
@@ -204,9 +204,10 @@
 .client-header__notification-preview-list {
   display: grid;
   gap: var(--client-space-xs);
-  max-height: min(330px, calc(100vh - 230px));
+  max-height: min(314px, calc(100vh - 214px));
   padding-right: 4px;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .client-header__dropdown-copy strong,
@@ -230,7 +231,7 @@
 .client-header__notification-preview {
   display: grid;
   gap: 8px;
-  padding: 10px;
+  padding: 9px;
   border: 1px solid var(--client-border-soft);
   border-radius: var(--client-radius-lg);
   background: var(--client-bg-surface-low);
@@ -302,6 +303,7 @@
 
 .client-header__view-all.ant-btn {
   width: 100%;
+  flex-shrink: 0;
 }
 
 .client-header__profile-panel,
@@ -326,7 +328,7 @@
 
 .client-header__dropdown-card--profile .ant-dropdown-menu-item,
 .client-header__dropdown-card--profile .ant-dropdown-menu-submenu-title {
-  min-height: 36px;
+  min-height: 34px;
   padding: 8px 10px;
   border-radius: 10px;
 }
@@ -369,8 +371,8 @@
 
 @media (max-width: 1279px) {
   .client-header {
-    grid-template-columns: auto minmax(220px, 420px) auto;
-    padding: 12px var(--client-space-md);
+    grid-template-columns: auto minmax(180px, 320px) auto;
+    padding: 8px var(--client-space-md);
   }
 
   .client-header__profile-copy .ant-typography {

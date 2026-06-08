@@ -8,7 +8,7 @@
 .client-dashboard-card .ant-card-body {
   display: flex;
   flex-direction: column;
-  gap: var(--client-space-md);
+  gap: var(--client-space-sm);
   height: 100%;
 }
 
@@ -30,10 +30,10 @@
 }
 
 .client-dashboard-list__item {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: flex-start;
-  gap: var(--client-space-md);
+  gap: var(--client-space-sm);
   padding: var(--client-space-md);
   border-radius: var(--client-radius-lg);
   background: var(--client-bg-surface-low);
@@ -42,17 +42,30 @@
 
 .client-dashboard-list__item strong {
   display: block;
-  margin-bottom: var(--client-space-xs);
+  margin-bottom: 4px;
   color: var(--client-text-primary);
+  line-height: 1.25;
 }
 
 .client-dashboard-list__item span {
   color: var(--client-text-muted);
+  line-height: 1.45;
 }
 
 .client-dashboard-list__meta {
+  align-self: start;
   color: var(--client-color-primary);
   font-size: var(--client-type-small-size);
   font-weight: 700;
   white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .client-dashboard-list__item {
+    grid-template-columns: 1fr;
+  }
+
+  .client-dashboard-list__meta {
+    white-space: normal;
+  }
 }

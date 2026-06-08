@@ -82,13 +82,6 @@ const clientMenuSections: ClientMenuSection[] = [
         icon: ClipboardList,
         roles: ['STUDENT'],
       },
-      {
-        key: 'student-certificates',
-        label: 'Certificates',
-        path: '/certificates',
-        icon: GraduationCap,
-        roles: ['STUDENT'],
-      },
     ],
   },
   {

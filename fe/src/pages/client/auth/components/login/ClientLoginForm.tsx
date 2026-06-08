@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MailOutlined, LockOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Checkbox, Form, Input, Typography } from 'antd';
+import { ClipboardCheck, GraduationCap, TrendingUp } from 'lucide-react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { loginRequest } from '../../../../../services/api/authApi';
 import { useAuth } from '../../../../../context/AuthContext';
@@ -58,22 +59,30 @@ export function ClientLoginForm() {
           <Link to="/" className="client-auth-page__brand">
             <span>E</span>
             <strong>EduFlow LMS</strong>
+            <small>Academic Portal</small>
           </Link>
           <p className="client-auth-page__eyebrow">Academic Portal</p>
           <Typography.Title level={1} className="client-auth-page__title">
-            Learn with a clearer workspace.
+            Return to a calmer academic workspace.
           </Typography.Title>
           <Typography.Paragraph className="client-auth-page__subtitle">
             Continue courses, review progress, submit assignments, and stay connected with your instructors.
           </Typography.Paragraph>
           <div className="client-auth-page__highlights">
             <div className="client-auth-page__highlight">
-              <strong>Course work</strong>
-              Resume lessons, assignments, quizzes, and course discussions.
+              <TrendingUp size={18} />
+              <strong>Track progress</strong>
+              Review completion, deadlines, and learning movement across enrolled courses.
             </div>
             <div className="client-auth-page__highlight">
-              <strong>Progress and updates</strong>
-              Track grades, deadlines, unread notifications, and completion history.
+              <ClipboardCheck size={18} />
+              <strong>Manage assignments</strong>
+              Resume submissions, quizzes, and instructor feedback from the course context.
+            </div>
+            <div className="client-auth-page__highlight client-auth-page__highlight--wide">
+              <GraduationCap size={18} />
+              <strong>Review grades</strong>
+              Keep grades, unread notifications, and academic updates visible after sign-in.
             </div>
           </div>
         </div>

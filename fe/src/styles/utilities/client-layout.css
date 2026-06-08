@@ -1,19 +1,26 @@
 .client-theme .client-page {
   display: grid;
-  gap: var(--client-space-xl);
-  padding: var(--client-page-padding) var(--client-page-padding-mobile);
+  gap: var(--client-space-lg);
+  padding: var(--client-space-lg) var(--client-page-padding-mobile) var(--client-page-padding);
 }
 
 .client-theme .client-page-container {
   width: min(100%, var(--client-layout-max-width));
   margin-inline: auto;
   display: grid;
-  gap: var(--client-space-xl);
+  gap: var(--client-space-lg);
   padding-inline: var(--client-page-padding);
 }
 
 .client-theme .client-page-breadcrumbs {
-  margin-top: var(--client-space-xs);
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 0;
+  padding: 7px 10px;
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-pill);
+  background: color-mix(in srgb, var(--client-bg-surface) 88%, transparent);
+  box-shadow: var(--client-shadow-sm);
 }
 
 .client-theme .client-page-breadcrumbs .ant-breadcrumb-link,
@@ -21,16 +28,24 @@
 .client-theme .client-page-breadcrumbs .ant-breadcrumb-separator,
 .client-theme .client-page-breadcrumbs .ant-breadcrumb-link > span {
   color: var(--client-text-secondary);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .client-theme .client-page-breadcrumbs .ant-breadcrumb-link > a:hover {
   color: var(--client-color-primary);
 }
 
+.client-theme .client-page-breadcrumbs .ant-breadcrumb-link > a:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--client-color-primary) 35%, transparent);
+  outline-offset: 2px;
+  border-radius: var(--client-radius-sm);
+}
+
 .client-theme .client-page-content {
   display: grid;
-  gap: var(--client-space-xl);
+  gap: var(--client-space-lg);
 }
 
 .client-theme .client-page-header {

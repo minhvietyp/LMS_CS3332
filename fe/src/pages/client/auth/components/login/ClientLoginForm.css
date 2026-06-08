@@ -1,9 +1,11 @@
 .client-auth-page {
   --client-color-primary: #00288e;
   --client-color-primary-strong: #00175c;
+  --client-color-primary-soft: #dde1ff;
   --client-color-on-primary: #ffffff;
   --client-bg-page: #f8f9ff;
   --client-bg-surface: #ffffff;
+  --client-bg-surface-low: #eff4ff;
   --client-border-soft: #d3e4fe;
   --client-text-primary: #0b1c30;
   --client-text-secondary: #444652;
@@ -24,47 +26,73 @@
   align-items: center;
   justify-content: center;
   padding: var(--client-space-2xl) var(--client-space-md);
-  background: var(--client-bg-page);
+  background:
+    linear-gradient(90deg, rgba(211, 228, 254, 0.45), transparent 46%),
+    var(--client-bg-page);
 }
 
 .client-auth-page__shell {
-  width: min(100%, 1040px);
+  width: min(100%, 1120px);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 460px);
-  gap: var(--client-space-2xl);
-  align-items: center;
+  grid-template-columns: minmax(0, 1.05fr) minmax(380px, 0.95fr);
+  gap: var(--client-space-xl);
+  align-items: stretch;
 }
 
 .client-auth-page__hero {
   display: grid;
-  gap: var(--client-space-sm);
-  color: var(--client-text-primary);
+  align-content: center;
+  gap: var(--client-space-md);
+  min-height: 640px;
+  padding: clamp(28px, 5vw, 52px);
+  border: 1px solid rgba(184, 196, 255, 0.38);
+  border-radius: 24px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    var(--client-color-primary-strong);
+  background-size: 32px 32px;
+  color: var(--client-color-on-primary);
+  box-shadow: var(--client-shadow-lg);
 }
 
 .client-auth-page__brand {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: 36px auto;
   width: fit-content;
   align-items: center;
-  gap: 10px;
-  color: var(--client-text-primary);
+  column-gap: 10px;
+  color: inherit;
   font-weight: 800;
   text-decoration: none;
 }
 
 .client-auth-page__brand span {
   display: inline-flex;
+  grid-row: 1 / 3;
   width: 36px;
   height: 36px;
   align-items: center;
   justify-content: center;
   border-radius: var(--client-radius-md);
-  background: var(--client-color-primary);
-  color: var(--client-color-on-primary);
+  background: var(--client-color-on-primary);
+  color: var(--client-color-primary);
+}
+
+.client-auth-page__brand strong,
+.client-auth-page__brand small {
+  grid-column: 2;
+}
+
+.client-auth-page__brand small {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.74rem;
+  font-weight: 600;
 }
 
 .client-auth-page__eyebrow {
   margin: var(--client-space-sm) 0 0;
-  color: var(--client-color-primary);
+  color: var(--client-color-primary-soft);
   font-size: var(--client-type-small-size);
   font-weight: 800;
   letter-spacing: 0.05em;
@@ -74,7 +102,7 @@
 .client-auth-page__title.ant-typography {
   max-width: 620px;
   margin: 0;
-  color: var(--client-text-primary);
+  color: inherit;
   font-size: clamp(2rem, 4.6vw, 3.35rem);
   line-height: 1.06;
   letter-spacing: 0;
@@ -83,7 +111,7 @@
 .client-auth-page__subtitle.ant-typography {
   max-width: 560px;
   margin: 0 0 var(--client-space-sm);
-  color: var(--client-text-secondary);
+  color: rgba(255, 255, 255, 0.78);
   font-size: 1rem;
   line-height: 1.7;
 }
@@ -96,22 +124,32 @@
 }
 
 .client-auth-page__highlight {
+  display: grid;
+  gap: 7px;
   padding: var(--client-space-md);
   border-radius: var(--client-radius-lg);
-  background: var(--client-bg-surface);
-  border: 1px solid var(--client-border-soft);
-  color: var(--client-text-secondary);
-  box-shadow: var(--client-shadow-sm);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.74);
+  backdrop-filter: blur(8px);
+}
+
+.client-auth-page__highlight--wide {
+  grid-column: 1 / -1;
 }
 
 .client-auth-page__highlight strong {
   display: block;
-  margin-bottom: 4px;
-  color: var(--client-text-primary);
+  color: var(--client-color-on-primary);
   font-size: 0.96rem;
 }
 
+.client-auth-page__highlight svg {
+  color: var(--client-color-primary-soft);
+}
+
 .client-auth-page__card.ant-card {
+  align-self: center;
   border-radius: var(--client-radius-lg);
   border: 1px solid var(--client-border-soft);
   background: var(--client-bg-surface);
@@ -240,8 +278,16 @@
     gap: var(--client-space-lg);
   }
 
+  .client-auth-page__hero {
+    min-height: auto;
+  }
+
   .client-auth-page__highlights {
     grid-template-columns: 1fr;
+  }
+
+  .client-auth-page__highlight--wide {
+    grid-column: auto;
   }
 }
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Alert, Button, Card, Form, Input, Typography } from 'antd';
+import { ClipboardCheck, GraduationCap, TrendingUp } from 'lucide-react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { registerRequest } from '../../../../../services/api/authApi';
 import { useAuth } from '../../../../../context/AuthContext';
@@ -63,22 +64,30 @@ export function ClientRegisterForm() {
           <Link to="/" className="client-auth-page__brand">
             <span>E</span>
             <strong>EduFlow LMS</strong>
+            <small>Academic Portal</small>
           </Link>
           <p className="client-auth-page__eyebrow">Student registration</p>
           <Typography.Title level={1} className="client-auth-page__title">
-            Create your account.
+            Build your student workspace.
           </Typography.Title>
           <Typography.Paragraph className="client-auth-page__subtitle">
             Register to start learning, track lesson completion, and follow your progress across enrolled courses.
           </Typography.Paragraph>
           <div className="client-auth-page__highlights">
             <div className="client-auth-page__highlight">
-              <strong>One place for learning</strong>
-              Access lessons, quizzes, assignments, and progress history from one dashboard.
+              <TrendingUp size={18} />
+              <strong>Track progress</strong>
+              Follow lessons, completion status, calendar deadlines, and course movement.
             </div>
             <div className="client-auth-page__highlight">
-              <strong>Instructor-managed access</strong>
-              Instructor accounts stay protected and are created by administrators only.
+              <ClipboardCheck size={18} />
+              <strong>Manage assignments</strong>
+              Access quizzes, submissions, and feedback after your course access is available.
+            </div>
+            <div className="client-auth-page__highlight client-auth-page__highlight--wide">
+              <GraduationCap size={18} />
+              <strong>Review grades</strong>
+              Public registration creates student access only; instructor accounts remain administrator-managed.
             </div>
           </div>
         </div>

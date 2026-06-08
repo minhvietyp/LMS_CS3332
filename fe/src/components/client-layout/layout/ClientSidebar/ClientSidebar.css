@@ -4,6 +4,8 @@
 
   background: transparent;
   border-inline-end: 0;
+  height: 100vh;
+  max-height: 100vh;
   overflow: hidden;
   transition:
     width var(--client-sidebar-motion-duration) var(--client-sidebar-motion-ease),
@@ -18,8 +20,10 @@
   top: 0;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  padding: var(--client-space-lg) var(--client-space-sm);
+  height: 100vh;
+  min-height: 0;
+  max-height: 100vh;
+  padding: var(--client-space-md) var(--client-space-sm);
   background: var(--client-shell-surface-strong);
   border-right: 1px solid var(--client-shell-border);
   overflow: hidden;
@@ -36,7 +40,7 @@
   gap: var(--client-space-sm);
   min-height: 40px;
   padding: 0 var(--client-space-sm);
-  margin-bottom: var(--client-space-xl);
+  margin-bottom: var(--client-space-lg);
   overflow: hidden;
   transition:
     gap var(--client-sidebar-motion-duration) var(--client-sidebar-motion-ease),
@@ -101,6 +105,11 @@
   flex: 1;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+  overscroll-behavior: contain;
 }
 
 .client-sidebar__group {
@@ -348,9 +357,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--client-space-sm);
-  padding-top: var(--client-space-lg);
-  margin-top: var(--client-space-lg);
+  padding-top: var(--client-space-md);
+  margin-top: var(--client-space-md);
   border-top: 1px solid var(--client-shell-border);
+  flex-shrink: 0;
   min-width: 0;
   transition:
     padding var(--client-sidebar-motion-duration) var(--client-sidebar-motion-ease),

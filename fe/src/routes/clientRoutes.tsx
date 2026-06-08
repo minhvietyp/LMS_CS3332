@@ -12,7 +12,6 @@ import { ClientNotificationsPage } from '../pages/client/notifications/ClientNot
 import { CourseAnnouncementsPage } from '../pages/client/notifications/CourseAnnouncementsPage';
 import { InstructorProgressPage } from '../pages/client/progress/InstructorProgressPage';
 import { StudentCalendarPage } from '../pages/client/progress/StudentCalendarPage';
-import { StudentCertificatesPage } from '../pages/client/progress/StudentCertificatesPage';
 import { StudentGradesPage } from '../pages/client/progress/StudentGradesPage';
 import { StudentProgressReportPage } from '../pages/client/progress/StudentProgressReportPage';
 import { StudentProgressPage } from '../pages/client/progress/StudentProgressPage';
@@ -103,7 +102,7 @@ export function ClientRoutes() {
         path="/certificates"
         element={
           <ProtectedRoute allowedRoles={['STUDENT']}>
-            <StudentCertificatesPage />
+            <Navigate to="/progress" replace />
           </ProtectedRoute>
         }
       />
@@ -111,7 +110,7 @@ export function ClientRoutes() {
         path="/student/certificates"
         element={
           <ProtectedRoute allowedRoles={['STUDENT']}>
-            <Navigate to="/certificates" replace />
+            <Navigate to="/progress" replace />
           </ProtectedRoute>
         }
       />

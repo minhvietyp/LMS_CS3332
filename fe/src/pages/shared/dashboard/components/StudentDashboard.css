@@ -1,6 +1,6 @@
 .student-dashboard {
   display: grid;
-  gap: var(--client-space-xl);
+  gap: var(--client-space-lg);
   min-width: 0;
 }
 
@@ -10,7 +10,7 @@
 
 .student-dashboard__intro {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: var(--client-space-lg);
   min-width: 0;
@@ -30,7 +30,7 @@
 .student-dashboard__layout {
   display: grid;
   grid-template-columns: minmax(0, 1.85fr) minmax(300px, 0.92fr);
-  gap: var(--client-space-lg);
+  gap: var(--client-space-md);
   align-items: start;
   min-width: 0;
 }
@@ -38,13 +38,13 @@
 .student-dashboard__main,
 .student-dashboard__aside {
   display: grid;
-  gap: var(--client-space-lg);
+  gap: var(--client-space-md);
   min-width: 0;
 }
 
 .student-dashboard__panel {
   display: grid;
-  gap: var(--client-space-lg);
+  gap: var(--client-space-md);
   align-content: start;
   min-width: 0;
 }
@@ -56,7 +56,7 @@
 .student-dashboard__continue {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 118px;
-  gap: var(--client-space-lg);
+  gap: var(--client-space-md);
   align-items: center;
   min-width: 0;
 }
@@ -133,7 +133,7 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--client-space-md);
-  padding: var(--client-space-md);
+  padding: 14px;
   border: 1px solid var(--client-border-soft);
   border-radius: var(--client-radius-lg);
   background: var(--client-bg-surface-low);

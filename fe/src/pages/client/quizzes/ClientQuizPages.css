@@ -24,7 +24,7 @@
 
 .quiz-workspace__hero {
   display: grid;
-  gap: var(--client-space-6);
+  gap: var(--client-space-5);
   grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.95fr);
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.12), transparent 32%),
@@ -38,7 +38,12 @@
 .quiz-workspace__hero .client-meta,
 .quiz-workspace__hero .client-caption,
 .quiz-workspace__hero .client-card-title {
-  color: inherit;
+  color: #ffffff;
+}
+
+.quiz-workspace__hero .client-body,
+.quiz-workspace__hero .client-meta {
+  opacity: 0.92;
 }
 
 .quiz-workspace__hero-copy,
@@ -65,9 +70,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--client-space-4);
-  padding: var(--client-space-5);
+  padding: var(--client-space-4);
   border-radius: var(--client-radius-2xl);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   backdrop-filter: blur(12px);
 }
 
@@ -165,7 +171,7 @@
   flex-direction: column;
   gap: var(--client-space-sm);
   min-width: 0;
-  padding: var(--client-card-padding);
+  padding: var(--client-space-4);
   border-radius: var(--client-radius-lg);
   border: 1px solid var(--client-color-border-subtle);
   background: var(--client-color-surface-muted);
@@ -174,10 +180,11 @@
 .quiz-workspace__metric-card strong,
 .quiz-workspace__status-tile strong,
 .quiz-workspace__progress-stat strong {
-  font-size: 1.65rem;
-  line-height: 1.1;
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  line-height: 1.25;
   color: var(--client-color-text-strong);
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .quiz-workspace__metric-card .ant-typography,

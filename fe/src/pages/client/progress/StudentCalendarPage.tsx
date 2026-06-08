@@ -59,6 +59,10 @@ function startOfDay(value: Date) {
   return new Date(value.getFullYear(), value.getMonth(), value.getDate());
 }
 
+function getDayKey(value: Date) {
+  return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
+}
+
 function dayDifference(value: string, baseDate: Date) {
   return Math.floor((startOfDay(new Date(value)).getTime() - startOfDay(baseDate).getTime()) / MS_PER_DAY);
 }
@@ -298,6 +302,7 @@ function DeadlineSection({
 export function StudentCalendarPage() {
   const navigate = useNavigate();
   const now = useMemo(() => new Date(), []);
+  const [selectedDate, setSelectedDate] = useState(() => startOfDay(new Date()));
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [courseFilter, setCourseFilter] = useState('all');
@@ -420,11 +425,18 @@ export function StudentCalendarPage() {
     const counts = new Map<string, number>();
     deadlines.forEach((deadline) => {
       if (!deadline.dueDate) return;
-      const key = startOfDay(new Date(deadline.dueDate)).toISOString();
+      const key = getDayKey(new Date(deadline.dueDate));
       counts.set(key, (counts.get(key) ?? 0) + 1);
     });
     return counts;
   }, [deadlines]);
+  const selectedDateDeadlines = useMemo(
+    () =>
+      filteredDeadlines.filter(
+        (deadline) => deadline.dueDate && getDayKey(new Date(deadline.dueDate)) === getDayKey(selectedDate),
+      ),
+    [filteredDeadlines, selectedDate],
+  );
 
   if (isLoading) {
     return (
@@ -540,6 +552,12 @@ export function StudentCalendarPage() {
                 </section>
               ) : (
                 <>
+                  <DeadlineSection
+                    title={startOfDay(selectedDate).getTime() === startOfDay(now).getTime() ? 'Selected Day: Today' : `Selected Day: ${new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(selectedDate)}`}
+                    description="Assignments and real quiz due dates scheduled for the selected calendar day."
+                    deadlines={selectedDateDeadlines}
+                    now={now}
+                  />
                   <DeadlineSection title="Today" description="Deadlines due before the end of today." deadlines={groupedDeadlines.today} now={now} />
                   <DeadlineSection title="This Week" description="Upcoming dated work within the next six days." deadlines={groupedDeadlines.week} now={now} />
                   <DeadlineSection title="Upcoming" description="Later due dates and overdue dated work that still needs review." deadlines={groupedDeadlines.upcoming} now={now} />
@@ -612,17 +630,24 @@ export function StudentCalendarPage() {
                 </div>
                 <div className="calendar-page__mini-month" aria-label="Current month deadline markers">
                   {monthDays.map((day) => {
-                    const count = datedDeadlineCounts.get(startOfDay(day).toISOString()) ?? 0;
+                    const count = datedDeadlineCounts.get(getDayKey(day)) ?? 0;
                     const isToday = startOfDay(day).getTime() === startOfDay(now).getTime();
+                    const isSelected = startOfDay(day).getTime() === startOfDay(selectedDate).getTime();
                     return (
-                      <div key={day.toISOString()} className={`calendar-page__mini-day${isToday ? ' calendar-page__mini-day--today' : ''}${count ? ' calendar-page__mini-day--marked' : ''}`}>
+                      <button
+                        key={day.toISOString()}
+                        type="button"
+                        className={`calendar-page__mini-day${isToday ? ' calendar-page__mini-day--today' : ''}${isSelected ? ' calendar-page__mini-day--selected' : ''}${count ? ' calendar-page__mini-day--marked' : ''}`}
+                        onClick={() => setSelectedDate(startOfDay(day))}
+                        aria-pressed={isSelected}
+                      >
                         <span>{day.getDate()}</span>
                         {count ? <strong>{count}</strong> : null}
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
-                <Typography.Text className="client-meta">Marked dates only reflect real due dates returned by the assignment or quiz data.</Typography.Text>
+                <Typography.Text className="client-meta">Click a date to review real assignment due dates. Quizzes only appear here when the API provides a due date.</Typography.Text>
               </section>
 
               {supportError ? (

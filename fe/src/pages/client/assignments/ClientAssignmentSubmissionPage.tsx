@@ -13,10 +13,18 @@ import {
   type AssignmentSubmissionPayload,
   type AssignmentSubmissionRecord,
 } from '../../../services/api/assignmentApi';
-import { getCourseByIdRequest, listCourseResourcesRequest } from '../../../services/api/courseApi';
+import { getCourseByIdRequest } from '../../../services/api/courseApi';
 import './ClientAssignmentPages.css';
 
 const { TextArea } = Input;
+
+type AssignmentResourcePlaceholder = {
+  id: string;
+  title: string;
+  moduleTitle: string;
+  lessonTitle: string;
+  url: string;
+};
 
 function getSubmissionStatusPresentation(submission: AssignmentSubmissionRecord | null, isClosed: boolean) {
   if (!submission && isClosed) {
@@ -109,14 +117,6 @@ export function ClientAssignmentSubmissionPage() {
     retry: 1,
   });
 
-  const resourcesQuery = useQuery({
-    queryKey: ['assignments', 'resources', courseId],
-    queryFn: () => listCourseResourcesRequest(courseId!),
-    enabled: Boolean(courseId),
-    staleTime: 60 * 1000,
-    retry: 1,
-  });
-
   const latestSubmission = assignmentQuery.data?.submissions[0] ?? null;
   const historyItems = assignmentQuery.data?.submissions ?? historyQuery.data?.filter((submission) => submission.assignmentId === assignmentId) ?? [];
 
@@ -143,6 +143,7 @@ export function ClientAssignmentSubmissionPage() {
   });
 
   const canSubmit = Boolean(textContent.trim() || selectedFileUrl) && !isClosed && !submitMutation.isPending && !isUploadingFile;
+  const assignmentResources: AssignmentResourcePlaceholder[] = [];
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -174,8 +175,6 @@ export function ClientAssignmentSubmissionPage() {
 
     void submitMutation.mutate(payload);
   };
-
-  const assignmentResources = (resourcesQuery.data?.materials ?? []).slice(0, 4);
 
   return (
     <ClientLayout>
@@ -441,8 +440,7 @@ export function ClientAssignmentSubmissionPage() {
                   </div>
                 </section>
 
-                {(assignmentResources.length > 0 || (!resourcesQuery.isLoading && !resourcesQuery.error)) ? (
-                  <section className="client-card assignment-workspace__panel">
+                <section className="client-card assignment-workspace__panel">
                     <div className="assignment-workspace__section-header">
                       <div className="assignment-workspace__section-header-copy">
                         <Typography.Text className="client-caption">Resources</Typography.Text>
@@ -470,13 +468,12 @@ export function ClientAssignmentSubmissionPage() {
                       </div>
                     ) : (
                       <EmptyState
-                        title="No additional resources attached."
-                        description="This assignment currently does not include extra downloadable course materials."
+                        title="No related materials for this assignment yet."
+                        description="Assignment-specific resources are not available from the current API. Lesson materials remain available inside lesson pages."
                         compact
                       />
                     )}
-                  </section>
-                ) : null}
+                </section>
               </main>
 
               <aside className="assignment-workspace__sidebar">

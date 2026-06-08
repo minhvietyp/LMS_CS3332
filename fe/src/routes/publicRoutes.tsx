@@ -22,6 +22,7 @@ export function PublicRoutes({ fallbackElement }: { fallbackElement: ReactElemen
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/faq" element={<FaqPage />} />
+      <Route path="/help" element={<HelpCenterPage />} />
       <Route path="/help-center" element={<HelpCenterPage />} />
       <Route path="/community" element={<CommunityPage />} />
       <Route path="*" element={fallbackElement ?? <Navigate to="/" replace />} />

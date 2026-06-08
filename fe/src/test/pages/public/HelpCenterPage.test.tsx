@@ -9,7 +9,8 @@ describe('HelpCenterPage', () => {
 
     expect(screen.getByRole('heading', { name: 'Help Center' })).toBeInTheDocument();
     expect(screen.getByText('Getting started')).toBeInTheDocument();
-    expect(screen.getByText('Course delivery')).toBeInTheDocument();
-    expect(screen.getByText('Communication')).toBeInTheDocument();
+    expect(screen.getByText('Account and login')).toBeInTheDocument();
+    expect(screen.getByText('Assignments and quizzes')).toBeInTheDocument();
+    expect(screen.getByText('Grades and progress')).toBeInTheDocument();
   });
 });

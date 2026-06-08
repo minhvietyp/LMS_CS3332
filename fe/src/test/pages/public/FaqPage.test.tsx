@@ -7,8 +7,8 @@ describe('FaqPage', () => {
   it('renders grouped learner FAQs', () => {
     renderPublicPage(<FaqPage />, '/faq');
 
-    expect(screen.getByText('Frequently asked questions')).toBeInTheDocument();
-    expect(screen.getByText('How do learners access a course?')).toBeInTheDocument();
-    expect(screen.getByText('What learning materials are shown publicly?')).toBeInTheDocument();
+    expect(screen.getByText('Frequently Asked Questions')).toBeInTheDocument();
+    expect(screen.getByText('How do I create an account?')).toBeInTheDocument();
+    expect(screen.getByText('Where can I see assignments?')).toBeInTheDocument();
   });
 });
