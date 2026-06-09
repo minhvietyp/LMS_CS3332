@@ -22,6 +22,8 @@ export function MarketingLayout({ children, hero }: MarketingLayoutProps) {
           <nav className="marketing-nav" aria-label="Public navigation">
             <NavLink to="/" end>Home</NavLink>
             <NavLink to="/catalog">Catalog</NavLink>
+            <a href="/#learning-paths">Learning Paths</a>
+            <NavLink to="/community">Community</NavLink>
             <NavLink to="/help">Help</NavLink>
             <NavLink to="/faq">FAQ</NavLink>
             <NavLink to="/contact">Contact</NavLink>
@@ -59,6 +61,8 @@ export function MarketingLayout({ children, hero }: MarketingLayoutProps) {
             <strong>Product</strong>
             <Link to="/">Home</Link>
             <Link to="/catalog">Catalog</Link>
+            <Link to="/catalog">Courses</Link>
+            <Link to="/community">Community</Link>
           </nav>
           <nav className="marketing-footer__links" aria-label="Support links">
             <strong>Support</strong>
@@ -70,8 +74,15 @@ export function MarketingLayout({ children, hero }: MarketingLayoutProps) {
             <strong>Account</strong>
             <Link to="/login">Sign in</Link>
             <Link to="/register">Register</Link>
+            <Link to="/dashboard">Dashboard</Link>
           </nav>
-          <span className="marketing-footer__copyright">(c) 2026 EduFlow LMS</span>
+          <nav className="marketing-footer__links" aria-label="Legal links">
+            <strong>Legal</strong>
+            <span>Privacy Policy</span>
+            <span>Terms</span>
+            <span>Cookies</span>
+          </nav>
+          <span className="marketing-footer__copyright">Copyright © 2026 EduFlow LMS</span>
         </div>
       </footer>
     </Layout>
