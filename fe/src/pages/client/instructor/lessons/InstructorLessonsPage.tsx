@@ -18,15 +18,15 @@ export function InstructorLessonsPage() {
             </Card>
             <Card className="instructor-workspace-card">
               <Typography.Text className="instructor-workspace-card__label">Module table</Typography.Text>
-              <Typography.Text strong>Review module order, edit titles, or remove unused modules.</Typography.Text>
+              <Typography.Text strong>Open expandable module cards instead of scanning separate admin tables.</Typography.Text>
             </Card>
             <Card className="instructor-workspace-card">
               <Typography.Text className="instructor-workspace-card__label">Lesson table</Typography.Text>
-              <Typography.Text strong>Create lessons, manage order, and attach materials.</Typography.Text>
+              <Typography.Text strong>Create lessons, manage order, and attach materials from one teaching flow.</Typography.Text>
             </Card>
           </div>
           <div className="instructor-workspace__embedded">
-            <LessonManagement />
+            <LessonManagement variant="workspace" />
           </div>
         </section>
       </ClientPageContainer>

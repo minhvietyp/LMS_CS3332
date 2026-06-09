@@ -15,6 +15,132 @@
   width: 100%;
 }
 
+.quiz-management-workspace {
+  display: grid;
+  gap: var(--client-space-md);
+}
+
+.quiz-management-tab-head,
+.quiz-management-overview-card,
+.quiz-management-work-card__header,
+.quiz-management-feed-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--client-space-md);
+}
+
+.quiz-management-overview-card {
+  padding: var(--client-space-lg);
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-lg);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--client-color-primary) 8%, white), transparent 52%),
+    var(--client-bg-surface-low);
+}
+
+.quiz-management-overview-card__copy,
+.quiz-management-feed-card__body {
+  display: grid;
+  gap: var(--client-space-sm);
+  min-width: 0;
+}
+
+.quiz-management-overview-card__metrics,
+.quiz-management-work-card__meta,
+.quiz-management-feed-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  color: var(--client-text-secondary);
+  font-size: var(--client-type-small-size);
+}
+
+.quiz-management-overview-card__metrics > div,
+.quiz-management-work-card__stats > div,
+.quiz-management-analytics-card,
+.quiz-management-analytics-card__bar {
+  display: grid;
+  gap: 4px;
+}
+
+.quiz-management-overview-card__metrics strong,
+.quiz-management-work-card__stats strong,
+.quiz-management-analytics-card strong {
+  color: var(--client-text-primary);
+}
+
+.quiz-management-card-grid,
+.quiz-management-analytics-grid {
+  display: grid;
+  gap: var(--client-space-md);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.quiz-management-analytics-grid--details {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.quiz-management-work-card,
+.quiz-management-feed-card,
+.quiz-management-analytics-card {
+  display: grid;
+  gap: var(--client-space-sm);
+  min-width: 0;
+  padding: var(--client-space-md);
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-lg);
+  background: var(--client-bg-surface-low);
+}
+
+.quiz-management-work-card__header,
+.quiz-management-feed-card__header,
+.quiz-management-work-card__actions {
+  min-width: 0;
+}
+
+.quiz-management-work-card__header .ant-typography,
+.quiz-management-feed-card__header .ant-typography {
+  margin-bottom: 0;
+}
+
+.quiz-management-work-card__stats {
+  display: grid;
+  gap: var(--client-space-sm);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-top: var(--client-space-sm);
+  border-top: 1px solid var(--client-border-soft);
+}
+
+.quiz-management-work-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--client-space-sm);
+}
+
+.quiz-management-feed {
+  display: grid;
+  gap: var(--client-space-md);
+}
+
+.quiz-management-feed-card {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+}
+
+.quiz-management-feed-card__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--client-color-primary) 12%, white);
+  color: var(--client-color-primary);
+  font-weight: 800;
+}
+
 .quiz-management-toolbar {
   align-items: center;
   display: flex;
@@ -158,7 +284,9 @@
 }
 
 @media (max-width: 1180px) {
-  .quiz-management-summary {
+  .quiz-management-summary,
+  .quiz-management-card-grid,
+  .quiz-management-analytics-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -174,17 +302,31 @@
     min-width: 0;
     width: 100%;
   }
+
+  .quiz-management-tab-head,
+  .quiz-management-overview-card,
+  .quiz-management-work-card__header,
+  .quiz-management-feed-card__header {
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 767px) {
   .quiz-management-summary,
   .quiz-management-question-grid,
-  .quiz-management-options__row {
+  .quiz-management-options__row,
+  .quiz-management-card-grid,
+  .quiz-management-analytics-grid,
+  .quiz-management-work-card__stats,
+  .quiz-management-feed-card {
     grid-template-columns: 1fr;
   }
 
   .quiz-management-actions,
-  .quiz-management-actions .ant-btn {
+  .quiz-management-actions .ant-btn,
+  .quiz-management-work-card__actions,
+  .quiz-management-work-card__actions .ant-btn,
+  .quiz-management-tab-head .ant-btn {
     width: 100%;
   }
 }

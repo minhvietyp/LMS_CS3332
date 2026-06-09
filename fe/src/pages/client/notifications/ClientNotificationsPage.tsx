@@ -118,7 +118,8 @@ function getPreviewMessage(notification: NotificationItem) {
   const message = notification.message.trim();
 
   if (message === title || message.startsWith(`${title}.`) || message.startsWith(`${title}!`) || message.startsWith(`${title}?`)) {
-    return message.length > title.length ? message.slice(title.length + 1).trim() : message;
+    const remainder = message.length > title.length ? message.slice(title.length + 1).trim() : '';
+    return remainder || message;
   }
 
   return message;

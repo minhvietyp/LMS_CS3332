@@ -46,6 +46,9 @@
 }
 
 .instructor-progress-page__summary-grid {
+  display: grid;
+  gap: var(--client-space-md);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   width: 100%;
 }
 
@@ -54,19 +57,49 @@
   padding: var(--client-space-md);
 }
 
+.instructor-progress-page__summary-card--soft {
+  background: linear-gradient(180deg, var(--client-bg-surface) 0%, var(--client-bg-surface-low) 100%);
+}
+
+.instructor-progress-page__summary-card .ant-card-body {
+  display: grid;
+  gap: 8px;
+}
+
+.instructor-progress-page__workspace-grid {
+  display: grid;
+  gap: var(--client-space-md);
+  grid-template-columns: minmax(0, 1.8fr) minmax(300px, 0.8fr);
+  align-items: start;
+}
+
+.instructor-progress-page__table-card--primary .ant-card-body {
+  display: grid;
+  gap: var(--client-space-md);
+}
+
 .instructor-progress-page__toolbar {
-  display: flex;
+  display: grid;
   gap: var(--client-space-sm);
-  margin-bottom: var(--client-space-md);
-  flex-wrap: wrap;
   padding: var(--client-space-sm);
   border: 1px solid var(--client-border-soft);
   border-radius: var(--client-radius-md);
   background: var(--client-bg-surface-low);
+  grid-template-columns: minmax(0, 1fr) repeat(3, minmax(180px, 220px));
+  align-items: end;
+}
+
+.instructor-progress-page__toolbar-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.instructor-progress-page__toolbar-copy .ant-typography {
+  margin: 0;
 }
 
 .instructor-progress-page__search {
-  flex: 1 1 280px;
+  min-width: 0;
 }
 
 .instructor-progress-page__filter {
@@ -84,26 +117,93 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
-.instructor-progress-page__progress-cell {
-  min-width: 180px;
-}
-
-.instructor-progress-page__table-card .ant-table-wrapper {
-  overflow-x: auto;
-}
-
-.instructor-progress-page__table-card .ant-table-thead > tr > th {
-  background: var(--client-bg-surface-low);
-  color: var(--client-text-secondary);
-  font-weight: 800;
-}
-
-.instructor-progress-page__detail {
-  display: flex;
-  flex-direction: column;
+.instructor-progress-page__student-grid {
+  display: grid;
   gap: var(--client-space-md);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.instructor-progress-page__student-card {
+  display: grid;
+  gap: var(--client-space-md);
+  padding: var(--client-space-md);
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-lg);
+  background:
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 32%),
+    var(--client-bg-surface);
+}
+
+.instructor-progress-page__student-head,
+.instructor-progress-page__student-identity,
+.instructor-progress-page__progress-copy,
+.instructor-progress-page__pagination,
+.instructor-progress-page__spotlight-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--client-space-sm);
+}
+
+.instructor-progress-page__student-identity {
+  justify-content: flex-start;
+}
+
+.instructor-progress-page__student-avatar {
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--client-color-primary);
+  font-weight: 700;
+}
+
+.instructor-progress-page__student-progress {
+  display: grid;
+  gap: 10px;
+}
+
+.instructor-progress-page__student-meta {
+  display: grid;
+  gap: var(--client-space-sm);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.instructor-progress-page__student-meta > div,
+.instructor-progress-page__spotlight-list,
+.instructor-progress-page__detail {
+  display: grid;
+  gap: 4px;
+}
+
+.instructor-progress-page__student-actions {
+  display: flex;
+  gap: var(--client-space-sm);
+  flex-wrap: wrap;
+}
+
+.instructor-progress-page__spotlight-card.ant-card {
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-lg);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: var(--client-shadow-sm);
+}
+
+.instructor-progress-page__spotlight-card .ant-card-body {
+  display: grid;
+  gap: var(--client-space-md);
+  padding: var(--client-space-md);
+}
+
+.instructor-progress-page__spotlight-list {
+  gap: var(--client-space-sm);
+}
+
+.instructor-progress-page__spotlight-item {
+  padding: 12px 14px;
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-md);
+  background: var(--client-bg-surface);
 }
 
 .instructor-progress-page__detail-summary {
@@ -125,17 +225,44 @@
 }
 
 @media (max-width: 767px) {
+  .instructor-progress-page__summary-grid,
+  .instructor-progress-page__workspace-grid,
+  .instructor-progress-page__student-grid,
+  .instructor-progress-page__student-meta,
+  .instructor-progress-page__toolbar {
+    grid-template-columns: 1fr;
+  }
+
   .instructor-progress-page__course-select,
   .instructor-progress-page__filter,
   .instructor-progress-page__search,
   .instructor-progress-page__actions,
-  .instructor-progress-page__actions .ant-btn {
+  .instructor-progress-page__actions .ant-btn,
+  .instructor-progress-page__student-actions,
+  .instructor-progress-page__student-actions .ant-btn {
     width: 100%;
   }
 
   .instructor-progress-page__course-card .ant-card-body,
-  .instructor-progress-page__lesson-header {
+  .instructor-progress-page__lesson-header,
+  .instructor-progress-page__student-head,
+  .instructor-progress-page__student-identity,
+  .instructor-progress-page__progress-copy,
+  .instructor-progress-page__pagination,
+  .instructor-progress-page__spotlight-item {
     align-items: flex-start;
     flex-direction: column;
+  }
+}
+
+@media (max-width: 1180px) {
+  .instructor-progress-page__summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .instructor-progress-page__workspace-grid,
+  .instructor-progress-page__student-grid,
+  .instructor-progress-page__toolbar {
+    grid-template-columns: 1fr;
   }
 }

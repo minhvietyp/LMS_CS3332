@@ -63,6 +63,153 @@
   padding: 0;
 }
 
+.lesson-management-workspace {
+  display: grid;
+  gap: 16px;
+}
+
+.lesson-management-workspace__summary {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.lesson-management-workspace__summary-item {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+  border: 1px solid #e7edf6;
+  border-radius: 18px;
+  background: #f8fbff;
+}
+
+.lesson-management-workspace__summary-item span {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lesson-management-workspace__summary-item strong {
+  color: #0f172a;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.lesson-management-workspace__card .ant-collapse {
+  display: grid;
+  gap: 14px;
+}
+
+.lesson-management-workspace__card .ant-collapse-item {
+  border: 1px solid #e7edf6 !important;
+  border-radius: 22px !important;
+  background: #fbfdff;
+  overflow: hidden;
+}
+
+.lesson-management-workspace__card .ant-collapse-header {
+  align-items: center !important;
+  padding: 18px 20px !important;
+}
+
+.lesson-management-workspace__card .ant-collapse-content-box {
+  padding: 0 20px 20px !important;
+}
+
+.lesson-management-workspace__module-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  min-width: 0;
+}
+
+.lesson-management-workspace__module-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.lesson-management-workspace__module-eyebrow {
+  color: #2563eb;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lesson-management-workspace__module-stats {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
+.lesson-management-workspace__lesson-list {
+  display: grid;
+  gap: 12px;
+}
+
+.lesson-management-workspace__lesson-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 1px solid #e7edf6;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.lesson-management-workspace__lesson-main,
+.lesson-management-workspace__lesson-side {
+  display: flex;
+  gap: 14px;
+}
+
+.lesson-management-workspace__lesson-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.lesson-management-workspace__lesson-side {
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.lesson-management-workspace__lesson-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: #eff5ff;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.lesson-management-workspace__lesson-copy {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.lesson-management-workspace__lesson-meta {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  color: #64748b;
+}
+
+.lesson-management-workspace__lesson-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 @media (max-width: 992px) {
   .lesson-management-page {
     padding: 20px;
@@ -75,5 +222,16 @@
 
   .lesson-management-grid {
     grid-template-columns: 1fr;
+  }
+
+  .lesson-management-workspace__summary {
+    grid-template-columns: 1fr;
+  }
+
+  .lesson-management-workspace__module-header,
+  .lesson-management-workspace__lesson-card,
+  .lesson-management-workspace__lesson-side {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

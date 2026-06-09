@@ -102,7 +102,14 @@ describe('ClientNotificationsPage', () => {
   it('marks every unread notification as read', async () => {
     renderPage();
 
-    fireEvent.click(await screen.findByRole('button', { name: /Mark all read/i }));
+    const markAllButtons = await screen.findAllByRole('button', { name: /Mark all read/i });
+    const pageButton = markAllButtons.find((button) => !button.hasAttribute('disabled'));
+
+    if (!pageButton) {
+      throw new Error('Enabled mark all read button not found');
+    }
+
+    fireEvent.click(pageButton);
 
     await waitFor(() => {
       expect(markAllNotificationsAsReadRequest).toHaveBeenCalledTimes(1);

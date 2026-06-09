@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Card, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag, Typography, Upload } from 'antd';
+import { Alert, Button, Card, Collapse, Empty, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag, Typography, Upload } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { Navigate } from 'react-router-dom';
-import { BookOpenCheck, Link2, Plus, RefreshCw, Trash2, Upload as UploadIcon } from 'lucide-react';
+import { BookOpenCheck, FileText, GripVertical, Link2, PlayCircle, Plus, RefreshCw, Trash2, Upload as UploadIcon } from 'lucide-react';
 import { useAuth } from '../../../../context/AuthContext';
 import { canAccess, PERMISSIONS } from '../../../../utils/rbac';
 import { listCoursesRequest, type CourseListItem } from '../../../../services/api/courseApi';
@@ -74,7 +74,7 @@ function flattenLessons(modules: ModuleWithLessons[]): LessonRow[] {
     });
 }
 
-export function LessonManagement() {
+export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'workspace' }) {
   const { user } = useAuth();
   const [courses, setCourses] = useState<CourseListItem[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
@@ -119,6 +119,7 @@ export function LessonManagement() {
   );
 
   const lessonRows = useMemo(() => flattenLessons(modules), [modules]);
+  const [expandedModuleKeys, setExpandedModuleKeys] = useState<string[]>([]);
 
   const loadCourses = async () => {
     setIsLoadingCourses(true);
@@ -171,6 +172,27 @@ export function LessonManagement() {
       setModules([]);
     }
   }, [selectedCourseId, canManageLessons]);
+
+  useEffect(() => {
+    if (variant !== 'workspace') {
+      return;
+    }
+
+    const validExpandedKeys = expandedModuleKeys.filter((key) => modules.some((module) => module.id === key));
+    if (validExpandedKeys.length !== expandedModuleKeys.length) {
+      setExpandedModuleKeys(validExpandedKeys);
+      return;
+    }
+
+    if (validExpandedKeys.length > 0) {
+      return;
+    }
+
+    const firstNonEmptyModule = modules.find((module) => module.lessons.length > 0) ?? modules[0];
+    if (firstNonEmptyModule) {
+      setExpandedModuleKeys([firstNonEmptyModule.id]);
+    }
+  }, [expandedModuleKeys, modules, variant]);
 
   const openCreateModuleModal = () => {
     setEditingModule(null);
@@ -570,29 +592,161 @@ export function LessonManagement() {
 
           {errorMessage ? <Alert type="error" showIcon message={errorMessage} /> : null}
 
-          <div className="lesson-management-grid">
-            <Card title="Modules" bordered={false} className="lesson-management-grid__card">
-              <Table<ModuleWithLessons>
-                rowKey="id"
-                columns={moduleColumns}
-                dataSource={modules}
-                loading={isLoadingModules}
-                pagination={false}
-                locale={{ emptyText: selectedCourseId ? 'No modules yet.' : 'Select a course to view modules.' }}
-              />
-            </Card>
+          {variant === 'workspace' ? (
+            <div className="lesson-management-workspace">
+              <div className="lesson-management-workspace__summary">
+                <div className="lesson-management-workspace__summary-item">
+                  <span>Modules</span>
+                  <strong>{modules.length}</strong>
+                </div>
+                <div className="lesson-management-workspace__summary-item">
+                  <span>Lessons</span>
+                  <strong>{lessonRows.length}</strong>
+                </div>
+                <div className="lesson-management-workspace__summary-item">
+                  <span>Published</span>
+                  <strong>{lessonRows.filter((lesson) => lesson.isPublished).length}</strong>
+                </div>
+              </div>
 
-            <Card title="Lessons" bordered={false} className="lesson-management-grid__card">
-              <Table<LessonRow>
-                rowKey="id"
-                columns={lessonColumns}
-                dataSource={lessonRows}
-                loading={isLoadingModules}
-                pagination={false}
-                locale={{ emptyText: selectedCourseId ? 'No lessons yet.' : 'Select a course to view lessons.' }}
-              />
-            </Card>
-          </div>
+              <Card bordered={false} className="lesson-management-grid__card lesson-management-workspace__card">
+                {modules.length ? (
+                  <Collapse
+                    ghost
+                    activeKey={expandedModuleKeys}
+                    onChange={(keys) => setExpandedModuleKeys(Array.isArray(keys) ? keys.map(String) : [String(keys)])}
+                    items={modules.map((module) => {
+                      const publishedLessons = module.lessons.filter((lesson) => lesson.isPublished).length;
+                      return {
+                        key: module.id,
+                        label: (
+                          <div className="lesson-management-workspace__module-header">
+                            <div className="lesson-management-workspace__module-copy">
+                              <Typography.Text className="lesson-management-workspace__module-eyebrow">
+                                Module {module.orderIndex + 1}
+                              </Typography.Text>
+                              <Typography.Text strong>{module.title}</Typography.Text>
+                            </div>
+                            <div className="lesson-management-workspace__module-stats">
+                              <span>Lessons: {module.lessons.length}</span>
+                              <span>Published: {publishedLessons}</span>
+                            </div>
+                          </div>
+                        ),
+                        extra: (
+                          <Space onClick={(event) => event.stopPropagation()}>
+                            <Button size="small" onClick={() => openEditModuleModal(module)}>
+                              Edit
+                            </Button>
+                            <Popconfirm
+                              title="Delete this module?"
+                              description="All lessons in this module will also be removed."
+                              okText="Delete"
+                              cancelText="Cancel"
+                              onConfirm={() => void handleDeleteModule(module.id)}
+                            >
+                              <Button danger size="small" loading={isMutating === module.id}>
+                                Delete
+                              </Button>
+                            </Popconfirm>
+                          </Space>
+                        ),
+                        children: module.lessons.length ? (
+                          <div className="lesson-management-workspace__lesson-list">
+                            {module.lessons
+                              .slice()
+                              .sort((a, b) => a.orderIndex - b.orderIndex)
+                              .map((lesson) => {
+                                const lessonRecord = lessonRows.find((row) => row.id === lesson.id);
+                                const hasMaterials = (lessonRecord?.materials.length ?? 0) > 0;
+                                return (
+                                  <article key={lesson.id} className="lesson-management-workspace__lesson-card">
+                                    <div className="lesson-management-workspace__lesson-main">
+                                      <div className="lesson-management-workspace__lesson-icon">
+                                        <GripVertical size={14} />
+                                      </div>
+                                      <div className="lesson-management-workspace__lesson-copy">
+                                        <Typography.Text strong>{lesson.title}</Typography.Text>
+                                        <div className="lesson-management-workspace__lesson-meta">
+                                          <span>
+                                            <PlayCircle size={14} />
+                                            {lesson.videoUrl ? 'Video lesson' : 'No video'}
+                                          </span>
+                                          <span>
+                                            <FileText size={14} />
+                                            {hasMaterials ? `${lessonRecord?.materials.length ?? 0} materials` : 'No materials'}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="lesson-management-workspace__lesson-side">
+                                      <Tag color={lesson.isPublished ? 'green' : 'default'}>
+                                        {lesson.isPublished ? 'Published' : 'Draft'}
+                                      </Tag>
+                                      <Space wrap>
+                                        <Button size="small" onClick={() => lessonRecord && openEditLessonModal(lessonRecord)}>
+                                          Edit
+                                        </Button>
+                                        <Button
+                                          size="small"
+                                          icon={<UploadIcon size={14} />}
+                                          onClick={() => lessonRecord && void openMaterialModal(lessonRecord)}
+                                        >
+                                          Materials
+                                        </Button>
+                                        <Popconfirm
+                                          title="Delete this lesson?"
+                                          description="The lesson will be soft deleted and hidden from lists."
+                                          okText="Delete"
+                                          cancelText="Cancel"
+                                          onConfirm={() => void handleDeleteLesson(lesson.id)}
+                                        >
+                                          <Button danger size="small" loading={isMutating === lesson.id}>
+                                            Delete
+                                          </Button>
+                                        </Popconfirm>
+                                      </Space>
+                                    </div>
+                                  </article>
+                                );
+                              })}
+                          </div>
+                        ) : (
+                          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No lessons in this module yet." />
+                        ),
+                      };
+                    })}
+                  />
+                ) : (
+                  <Empty description={selectedCourseId ? 'No modules yet.' : 'Select a course to view modules.'} />
+                )}
+              </Card>
+            </div>
+          ) : (
+            <div className="lesson-management-grid">
+              <Card title="Modules" bordered={false} className="lesson-management-grid__card">
+                <Table<ModuleWithLessons>
+                  rowKey="id"
+                  columns={moduleColumns}
+                  dataSource={modules}
+                  loading={isLoadingModules}
+                  pagination={false}
+                  locale={{ emptyText: selectedCourseId ? 'No modules yet.' : 'Select a course to view modules.' }}
+                />
+              </Card>
+
+              <Card title="Lessons" bordered={false} className="lesson-management-grid__card">
+                <Table<LessonRow>
+                  rowKey="id"
+                  columns={lessonColumns}
+                  dataSource={lessonRows}
+                  loading={isLoadingModules}
+                  pagination={false}
+                  locale={{ emptyText: selectedCourseId ? 'No lessons yet.' : 'Select a course to view lessons.' }}
+                />
+              </Card>
+            </div>
+          )}
         </Space>
       </Card>
 

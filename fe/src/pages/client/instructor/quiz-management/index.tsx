@@ -3,6 +3,7 @@ import {
   Alert,
   Button,
   Card,
+  Collapse,
   Descriptions,
   Empty,
   Form,
@@ -79,6 +80,11 @@ type AssignmentGradeFormValues = {
   feedback?: string;
 };
 
+type AssignmentSubmissionFeedItem = {
+  assignment: AssignmentListItem;
+  submission: AssignmentSubmissionListItem;
+};
+
 export function QuizManagement() {
   const defaultQuestionOptions = (type: QuizQuestionType = 'MULTIPLE_CHOICE') =>
     type === 'TRUE_FALSE'
@@ -90,6 +96,17 @@ export function QuizManagement() {
           { text: '', isCorrect: true },
           { text: '', isCorrect: false },
         ];
+
+  const formatDateTime = (value?: string | null) => {
+    if (!value) return 'No schedule set';
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(new Date(value));
+  };
 
   const { user } = useAuth();
   const [courses, setCourses] = useState<CourseListItem[]>([]);
@@ -119,6 +136,9 @@ export function QuizManagement() {
   const [assignmentSubmissions, setAssignmentSubmissions] = useState<AssignmentSubmissionListItem[]>([]);
   const [selectedSubmission, setSelectedSubmission] = useState<AssignmentSubmissionListItem | null>(null);
   const [isLoadingSubmissionList, setIsLoadingSubmissionList] = useState(false);
+  const [gradingFeed, setGradingFeed] = useState<AssignmentSubmissionFeedItem[]>([]);
+  const [isLoadingGradingFeed, setIsLoadingGradingFeed] = useState(false);
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState('quizzes');
   const [assignmentGradeForm] = Form.useForm<AssignmentGradeFormValues>();
 
   const courseOptions = useMemo(
@@ -143,6 +163,10 @@ export function QuizManagement() {
     (sum, quiz) => sum + (quiz.attempts?.filter((attempt) => attempt.submittedAt && attempt.isPassed === false).length ?? 0),
     0,
   );
+  const totalNeedsGrading = gradingFeed.filter(
+    ({ submission }) => submission.status === 'ON_TIME' || submission.status === 'LATE',
+  ).length;
+  const selectedCourseTitle = courses.find((course) => course.id === selectedCourseId)?.title ?? 'Selected course';
 
   const loadCourses = async () => {
     setIsLoadingCourses(true);
@@ -191,8 +215,35 @@ export function QuizManagement() {
     try {
       const result = await listCourseAssignmentsRequest(courseId);
       setAssignments(result);
+      setIsLoadingGradingFeed(true);
+      try {
+        const submissionsByAssignment = await Promise.all(
+          result.map(async (assignment) => ({
+            assignment,
+            submissions: await listAssignmentSubmissionsRequest(assignment.id).catch(() => []),
+          })),
+        );
+
+        const feed = submissionsByAssignment
+          .flatMap(({ assignment, submissions }) =>
+            submissions.map((submission) => ({
+              assignment,
+              submission,
+            })),
+          )
+          .sort(
+            (left, right) =>
+              new Date(right.submission.submittedAt).getTime() - new Date(left.submission.submittedAt).getTime(),
+          );
+
+        setGradingFeed(feed);
+      } finally {
+        setIsLoadingGradingFeed(false);
+      }
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Failed to load assignments.');
+      setGradingFeed([]);
+      setIsLoadingGradingFeed(false);
     } finally {
       setIsLoadingAssignments(false);
     }
@@ -209,6 +260,7 @@ export function QuizManagement() {
     } else {
       setQuizzes([]);
       setAssignments([]);
+      setGradingFeed([]);
     }
   }, [selectedCourseId]);
 
@@ -581,6 +633,30 @@ export function QuizManagement() {
     }
   };
 
+  const getAssignmentSubmissionStats = (assignmentId: string) => {
+    const records = gradingFeed.filter((entry) => entry.assignment.id === assignmentId);
+    return {
+      total: records.length,
+      late: records.filter((entry) => entry.submission.isLate || entry.submission.status === 'LATE').length,
+      graded: records.filter((entry) => entry.submission.status === 'GRADED' || entry.submission.status === 'RETURNED').length,
+      pending: records.filter((entry) => entry.submission.status === 'ON_TIME' || entry.submission.status === 'LATE').length,
+    };
+  };
+
+  const getQuizAttemptStats = (quiz: QuizListItem) => {
+    const submittedAttempts = quiz.attempts?.filter((attempt) => attempt.submittedAt) ?? [];
+    const scores = submittedAttempts
+      .map((attempt) => attempt.score)
+      .filter((score): score is number => typeof score === 'number');
+
+    return {
+      totalAttempts: submittedAttempts.length,
+      passedAttempts: submittedAttempts.filter((attempt) => attempt.isPassed).length,
+      failedAttempts: submittedAttempts.filter((attempt) => attempt.isPassed === false).length,
+      averageScore: scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : 0,
+    };
+  };
+
   const quizColumns: ColumnsType<QuizListItem> = [
     {
       title: 'Quiz',
@@ -864,12 +940,21 @@ export function QuizManagement() {
                 Refresh courses
               </Button>
             </Space>
-            <Button type="primary" icon={<Plus size={16} />} onClick={openCreateQuizModal} disabled={!selectedCourseId}>
-              New quiz
-            </Button>
+            <Space wrap>
+              <Button type="primary" icon={<Plus size={16} />} onClick={openCreateAssignmentModal} disabled={!selectedCourseId}>
+                Create assignment
+              </Button>
+              <Button icon={<Plus size={16} />} onClick={openCreateQuizModal} disabled={!selectedCourseId}>
+                Create quiz
+              </Button>
+            </Space>
           </div>
 
           <div className="quiz-management-summary">
+            <div className="quiz-management-summary__item">
+              <span className="quiz-management-summary__label">Assignments</span>
+              <strong>{assignments.length}</strong>
+            </div>
             <div className="quiz-management-summary__item">
               <span className="quiz-management-summary__label">Quizzes</span>
               <strong>{quizzes.length}</strong>
@@ -879,8 +964,8 @@ export function QuizManagement() {
               <strong>{publishedQuizzes}</strong>
             </div>
             <div className="quiz-management-summary__item">
-              <span className="quiz-management-summary__label">Questions</span>
-              <strong>{totalQuestions}</strong>
+              <span className="quiz-management-summary__label">Need grading</span>
+              <strong>{totalNeedsGrading}</strong>
             </div>
             <div className="quiz-management-summary__item">
               <span className="quiz-management-summary__label">Passed attempts</span>
@@ -890,59 +975,380 @@ export function QuizManagement() {
               <span className="quiz-management-summary__label">Failed attempts</span>
               <strong>{totalFailedAttempts}</strong>
             </div>
-            <div className="quiz-management-summary__item">
-              <span className="quiz-management-summary__label">Assignments</span>
-              <strong>{assignments.length}</strong>
-            </div>
-            <div className="quiz-management-summary__item">
-              <span className="quiz-management-summary__label">With due date</span>
-              <strong>{assignmentsWithDueDate}</strong>
-            </div>
           </div>
+
+          {selectedCourseId ? (
+            <section className="quiz-management-overview-card">
+              <div className="quiz-management-overview-card__copy">
+                <Typography.Text className="quiz-management-summary__label">Selected course</Typography.Text>
+                <Typography.Title level={4}>{selectedCourseTitle}</Typography.Title>
+                <Typography.Paragraph>
+                  Move between assignment planning, quiz publishing, grading review, and lightweight analytics without falling back to an admin table as the default workspace.
+                </Typography.Paragraph>
+              </div>
+              <div className="quiz-management-overview-card__metrics">
+                <div>
+                  <span>Questions</span>
+                  <strong>{totalQuestions}</strong>
+                </div>
+                <div>
+                  <span>Due-dated work</span>
+                  <strong>{assignmentsWithDueDate}</strong>
+                </div>
+                <div>
+                  <span>Returned</span>
+                  <strong>{totalReturnedSubmissions}</strong>
+                </div>
+              </div>
+            </section>
+          ) : null}
 
           {errorMessage ? <Alert type="error" showIcon message={errorMessage} /> : null}
 
           <Tabs
             className="quiz-management-tabs"
+            activeKey={activeWorkspaceTab}
+            onChange={setActiveWorkspaceTab}
             items={[
-              {
-                key: 'quizzes',
-                label: 'Quizzes',
-                children: (
-                  <Table<QuizListItem>
-                    rowKey="id"
-                    columns={quizColumns}
-                    dataSource={quizzes}
-                    loading={isLoadingQuizzes}
-                    pagination={false}
-                    scroll={{ x: 980 }}
-                    locale={{ emptyText: selectedCourseId ? 'No quizzes yet.' : 'Select a course to manage quizzes.' }}
-                  />
-                ),
-              },
               {
                 key: 'assignments',
                 label: 'Assignments',
-                children: (
-                  <Space direction="vertical" size={16} style={{ width: '100%' }}>
-                    <div className="quiz-management-toolbar">
-                      <Typography.Text type="secondary">
-                        Create, update, and remove assignment briefs for the selected course.
-                      </Typography.Text>
-                      <Button type="primary" icon={<Plus size={16} />} onClick={openCreateAssignmentModal} disabled={!selectedCourseId}>
+                children: selectedCourseId ? (
+                  <div className="quiz-management-workspace">
+                    <div className="quiz-management-tab-head">
+                      <div>
+                        <Typography.Title level={4}>Assignment workspace</Typography.Title>
+                        <Typography.Paragraph>
+                          Review due-date work, submission pressure, and late risk with card-based teaching views.
+                        </Typography.Paragraph>
+                      </div>
+                      <Button type="primary" icon={<Plus size={16} />} onClick={openCreateAssignmentModal}>
                         New assignment
                       </Button>
                     </div>
-                    <Table<AssignmentListItem>
-                      rowKey="id"
-                      columns={assignmentColumns}
-                      dataSource={assignments}
-                      loading={isLoadingAssignments}
-                      pagination={false}
-                      scroll={{ x: 880 }}
-                      locale={{ emptyText: selectedCourseId ? 'No assignments yet.' : 'Select a course to manage assignments.' }}
-                    />
-                  </Space>
+
+                    {isLoadingAssignments ? (
+                      <div className="quiz-management-placeholder">
+                        <RefreshCw size={18} />
+                        <Typography.Text>Loading assignment workspace...</Typography.Text>
+                      </div>
+                    ) : assignments.length ? (
+                      <>
+                        <div className="quiz-management-card-grid">
+                          {assignments.map((assignment) => {
+                            const stats = getAssignmentSubmissionStats(assignment.id);
+                            return (
+                              <article key={assignment.id} className="quiz-management-work-card">
+                                <div className="quiz-management-work-card__header">
+                                  <div>
+                                    <Typography.Title level={5}>{assignment.title}</Typography.Title>
+                                    <Typography.Paragraph>
+                                      {assignment.description || 'No assignment summary yet.'}
+                                    </Typography.Paragraph>
+                                  </div>
+                                  <Tag color={assignment.allowLateSubmission ? 'green' : 'red'}>
+                                    {assignment.allowLateSubmission ? 'Late allowed' : 'Strict due date'}
+                                  </Tag>
+                                </div>
+
+                                <div className="quiz-management-work-card__meta">
+                                  <span>Course: {selectedCourseTitle}</span>
+                                  <span>Due: {formatDateTime(assignment.dueDate)}</span>
+                                  <span>Submissions: {stats.total}</span>
+                                  <span>Late: {stats.late}</span>
+                                </div>
+
+                                <div className="quiz-management-work-card__stats">
+                                  <div>
+                                    <span>Pending</span>
+                                    <strong>{stats.pending}</strong>
+                                  </div>
+                                  <div>
+                                    <span>Graded</span>
+                                    <strong>{stats.graded}</strong>
+                                  </div>
+                                </div>
+
+                                <div className="quiz-management-work-card__actions">
+                                  <Button type="primary" onClick={() => void openAssignmentSubmissionsModal(assignment)}>
+                                    Review submissions
+                                  </Button>
+                                  <Button onClick={() => openEditAssignmentModal(assignment)}>Edit</Button>
+                                  <Popconfirm
+                                    title="Delete this assignment?"
+                                    description="This removes the assignment definition from the course."
+                                    okText="Delete"
+                                    cancelText="Cancel"
+                                    onConfirm={() => void handleDeleteAssignment(assignment.id)}
+                                  >
+                                    <Button danger loading={isMutating === assignment.id}>
+                                      Close assignment
+                                    </Button>
+                                  </Popconfirm>
+                                </div>
+                              </article>
+                            );
+                          })}
+                        </div>
+
+                        <Collapse
+                          items={[
+                            {
+                              key: 'assignment-table',
+                              label: 'Advanced assignment table',
+                              children: (
+                                <Table<AssignmentListItem>
+                                  rowKey="id"
+                                  columns={assignmentColumns}
+                                  dataSource={assignments}
+                                  loading={isLoadingAssignments}
+                                  pagination={false}
+                                  scroll={{ x: 880 }}
+                                />
+                              ),
+                            },
+                          ]}
+                        />
+                      </>
+                    ) : (
+                      <Empty description="No assignments yet for this course." />
+                    )}
+                  </div>
+                ) : (
+                  <Empty description="Select a course to manage assignments." />
+                ),
+              },
+              {
+                key: 'quizzes',
+                label: 'Quizzes',
+                children: selectedCourseId ? (
+                  <div className="quiz-management-workspace">
+                    <div className="quiz-management-tab-head">
+                      <div>
+                        <Typography.Title level={4}>Quiz workspace</Typography.Title>
+                        <Typography.Paragraph>
+                          Publish knowledge checks, inspect attempt quality, and open question editing without switching back to an ERP-style table.
+                        </Typography.Paragraph>
+                      </div>
+                      <Button type="primary" icon={<Plus size={16} />} onClick={openCreateQuizModal}>
+                        New quiz
+                      </Button>
+                    </div>
+
+                    {isLoadingQuizzes ? (
+                      <div className="quiz-management-placeholder">
+                        <RefreshCw size={18} />
+                        <Typography.Text>Loading quiz workspace...</Typography.Text>
+                      </div>
+                    ) : quizzes.length ? (
+                      <>
+                        <div className="quiz-management-card-grid">
+                          {quizzes.map((quiz) => {
+                            const stats = getQuizAttemptStats(quiz);
+                            return (
+                              <article key={quiz.id} className="quiz-management-work-card">
+                                <div className="quiz-management-work-card__header">
+                                  <div>
+                                    <Typography.Title level={5}>{quiz.title}</Typography.Title>
+                                    <Typography.Paragraph>{quiz.description || 'No quiz summary yet.'}</Typography.Paragraph>
+                                  </div>
+                                  <Tag color={quiz.isPublished ? 'green' : 'default'}>
+                                    {quiz.isPublished ? 'Published' : 'Draft'}
+                                  </Tag>
+                                </div>
+
+                                <div className="quiz-management-work-card__meta">
+                                  <span>Questions: {quiz.questions.length}</span>
+                                  <span>Passing score: {quiz.passingScore}%</span>
+                                  <span>Attempts: {stats.totalAttempts}</span>
+                                  <span>Average score: {stats.averageScore}%</span>
+                                  <span>{stats.passedAttempts} passed</span>
+                                  <span>{stats.failedAttempts} failed</span>
+                                </div>
+
+                                <div className="quiz-management-work-card__stats">
+                                  <div>
+                                    <span>Passed</span>
+                                    <strong>{stats.passedAttempts}</strong>
+                                  </div>
+                                  <div>
+                                    <span>Failed</span>
+                                    <strong>{stats.failedAttempts}</strong>
+                                  </div>
+                                </div>
+
+                                {!quiz.isPublished ? (
+                                  <Typography.Text type="secondary" className="quiz-management-readiness">
+                                    {getQuizPublishReadiness(quiz).issues[0] ?? 'Ready to publish'}
+                                  </Typography.Text>
+                                ) : null}
+
+                                <div className="quiz-management-work-card__actions">
+                                  <Button type="primary" onClick={() => openQuestionModal(quiz)}>
+                                    Open quiz
+                                  </Button>
+                                  <Button onClick={() => openEditQuizModal(quiz)}>Edit</Button>
+                                  <Button onClick={() => setActiveWorkspaceTab('analytics')}>Analytics</Button>
+                                  <Button onClick={() => openPublishWorkflow(quiz)} loading={isMutating === quiz.id}>
+                                    {quiz.isPublished ? 'Unpublish' : 'Publish'}
+                                  </Button>
+                                </div>
+                              </article>
+                            );
+                          })}
+                        </div>
+
+                        <Collapse
+                          items={[
+                            {
+                              key: 'quiz-table',
+                              label: 'Advanced quiz table',
+                              children: (
+                                <Table<QuizListItem>
+                                  rowKey="id"
+                                  columns={quizColumns}
+                                  dataSource={quizzes}
+                                  loading={isLoadingQuizzes}
+                                  pagination={false}
+                                  scroll={{ x: 980 }}
+                                />
+                              ),
+                            },
+                          ]}
+                        />
+                      </>
+                    ) : (
+                      <Empty description="No quizzes yet for this course." />
+                    )}
+                  </div>
+                ) : (
+                  <Empty description="Select a course to manage quizzes." />
+                ),
+              },
+              {
+                key: 'grading',
+                label: 'Grading',
+                children: selectedCourseId ? (
+                  <div className="quiz-management-workspace">
+                    <div className="quiz-management-tab-head">
+                      <div>
+                        <Typography.Title level={4}>Grading feed</Typography.Title>
+                        <Typography.Paragraph>
+                          Work through the latest submissions in a feed ordered by submitted time instead of hunting through nested tables.
+                        </Typography.Paragraph>
+                      </div>
+                    </div>
+
+                    {isLoadingGradingFeed ? (
+                      <div className="quiz-management-placeholder">
+                        <RefreshCw size={18} />
+                        <Typography.Text>Loading grading activity...</Typography.Text>
+                      </div>
+                    ) : gradingFeed.length ? (
+                      <div className="quiz-management-feed">
+                        {gradingFeed.map(({ assignment, submission }) => (
+                          <article key={submission.id} className="quiz-management-feed-card">
+                            <div className="quiz-management-feed-card__avatar" aria-hidden="true">
+                              {(submission.student?.name || submission.student?.email || 'S').slice(0, 1).toUpperCase()}
+                            </div>
+                            <div className="quiz-management-feed-card__body">
+                              <div className="quiz-management-feed-card__header">
+                                <div>
+                                  <Typography.Text strong>
+                                    {submission.student?.name || submission.student?.email || submission.studentId}
+                                  </Typography.Text>
+                                  <Typography.Paragraph>
+                                    {assignment.title}
+                                  </Typography.Paragraph>
+                                </div>
+                                <Tag color={getSubmissionStatusPresentation(submission).color}>
+                                  {getSubmissionStatusPresentation(submission).label}
+                                </Tag>
+                              </div>
+                              <div className="quiz-management-feed-card__meta">
+                                <span>Submitted {formatDateTime(submission.submittedAt)}</span>
+                                <span>{submission.isLate ? 'Late submission' : 'On time'}</span>
+                                <span>{typeof submission.grade === 'number' ? `Score ${submission.grade}%` : 'Not graded yet'}</span>
+                              </div>
+                              <Typography.Text type="secondary">
+                                {submission.feedback?.trim() || submission.textContent?.trim() || 'Open the submission to review the full response and feedback context.'}
+                              </Typography.Text>
+                              <div className="quiz-management-work-card__actions">
+                                <Button type="primary" onClick={() => void openAssignmentSubmissionsModal(assignment)}>
+                                  Review submission
+                                </Button>
+                              </div>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    ) : (
+                      <Empty description="No submission activity yet for this course." />
+                    )}
+                  </div>
+                ) : (
+                  <Empty description="Select a course to review grading activity." />
+                ),
+              },
+              {
+                key: 'analytics',
+                label: 'Analytics',
+                children: selectedCourseId ? (
+                  <div className="quiz-management-workspace">
+                    <div className="quiz-management-tab-head">
+                      <div>
+                        <Typography.Title level={4}>Assessment analytics</Typography.Title>
+                        <Typography.Paragraph>
+                          Lightweight teaching widgets for assignment pressure, quiz quality, and grading throughput.
+                        </Typography.Paragraph>
+                      </div>
+                    </div>
+
+                    <div className="quiz-management-analytics-grid">
+                      <article className="quiz-management-analytics-card">
+                        <Typography.Text className="quiz-management-summary__label">Assignment coverage</Typography.Text>
+                        <strong>{assignments.length}</strong>
+                        <span>{assignmentsWithDueDate} scheduled with due dates</span>
+                      </article>
+                      <article className="quiz-management-analytics-card">
+                        <Typography.Text className="quiz-management-summary__label">Quiz publishing</Typography.Text>
+                        <strong>{publishedQuizzes}/{quizzes.length}</strong>
+                        <span>Published quizzes across the selected course</span>
+                      </article>
+                      <article className="quiz-management-analytics-card">
+                        <Typography.Text className="quiz-management-summary__label">Grading throughput</Typography.Text>
+                        <strong>{totalGradedSubmissions}</strong>
+                        <span>{totalReturnedSubmissions} returned to students</span>
+                      </article>
+                      <article className="quiz-management-analytics-card">
+                        <Typography.Text className="quiz-management-summary__label">Attempt outcomes</Typography.Text>
+                        <strong>{totalPassedAttempts}</strong>
+                        <span>{totalFailedAttempts} failed attempts recorded</span>
+                      </article>
+                    </div>
+
+                    <div className="quiz-management-analytics-grid quiz-management-analytics-grid--details">
+                      {quizzes.map((quiz) => {
+                        const stats = getQuizAttemptStats(quiz);
+                        return (
+                          <article key={quiz.id} className="quiz-management-analytics-card">
+                            <Typography.Text strong>{quiz.title}</Typography.Text>
+                            <span>{quiz.questions.length} questions · passing score {quiz.passingScore}%</span>
+                            <div className="quiz-management-analytics-card__bar">
+                              <span>Average score</span>
+                              <strong>{stats.averageScore}%</strong>
+                            </div>
+                            <div className="quiz-management-analytics-card__bar">
+                              <span>Attempts</span>
+                              <strong>{stats.totalAttempts}</strong>
+                            </div>
+                          </article>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <Empty description="Select a course to inspect assessment analytics." />
                 ),
               },
             ]}

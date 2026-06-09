@@ -367,6 +367,11 @@
     margin var(--client-sidebar-motion-duration) var(--client-sidebar-motion-ease);
 }
 
+.client-sidebar__footer-label {
+  padding-inline: var(--client-space-sm);
+  margin-bottom: 2px;
+}
+
 .client-sidebar__resume-card,
 .client-sidebar__recent-item,
 .client-sidebar__collapsed-resume {
