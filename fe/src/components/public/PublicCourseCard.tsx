@@ -7,6 +7,7 @@ interface PublicCourseCardProps {
     id: string;
     title: string;
     description?: string | null;
+    thumbnailUrl?: string | null;
     status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
     instructor?: PublicCourseInstructorSummary;
     moduleCount?: number;
@@ -16,9 +17,16 @@ interface PublicCourseCardProps {
 }
 
 export function PublicCourseCard({ course }: PublicCourseCardProps) {
+  const hasLearnerCount = typeof course.enrollmentCount === 'number';
+
   return (
     <Card className="marketing-course-card">
-      <div className="marketing-course-card__thumb">{course.title.slice(0, 1).toUpperCase()}</div>
+      <div
+        className="marketing-course-card__thumb"
+        style={course.thumbnailUrl ? { backgroundImage: `linear-gradient(180deg, rgba(0, 23, 92, 0.08), rgba(0, 23, 92, 0.62)), url(${course.thumbnailUrl})` } : undefined}
+      >
+        <span>{course.title.slice(0, 1).toUpperCase()}</span>
+      </div>
       <Typography.Title level={4} style={{ marginTop: 18 }}>
         {course.title}
       </Typography.Title>
@@ -28,7 +36,7 @@ export function PublicCourseCard({ course }: PublicCourseCardProps) {
       <div className="marketing-course-card__meta">
         <Tag color="blue">{course.moduleCount ?? 0} modules</Tag>
         <Tag color="purple">{course.lessonCount ?? 0} lessons</Tag>
-        <Tag color="green">{course.enrollmentCount ?? 0} learners</Tag>
+        {hasLearnerCount ? <Tag color="green">{course.enrollmentCount} learners</Tag> : null}
       </div>
       <div className="marketing-course-card__actions">
         <Link to={`/catalog/${course.id}`}>

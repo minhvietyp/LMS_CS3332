@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { Button, Input, Select, Typography } from 'antd';
-import { ArrowLeft, CheckCircle2, ClipboardCheck, FileQuestion, RotateCcw, Search, Trophy } from 'lucide-react';
+import { ArrowLeft, ClipboardCheck, FileQuestion, RotateCcw, Search, Trophy } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '../../../components/client-ui';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';

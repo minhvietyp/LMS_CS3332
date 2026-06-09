@@ -4,6 +4,14 @@ export const chatRoomIdParamsSchema = z.object({
   roomId: z.string().uuid(),
 });
 
+export const listChatMessagesQuerySchema = z.object({
+  limit: z
+    .string()
+    .regex(/^\d+$/)
+    .optional(),
+  before: z.string().datetime().optional(),
+});
+
 export const createDirectRoomSchema = z.object({
   userId: z.string().uuid(),
 });

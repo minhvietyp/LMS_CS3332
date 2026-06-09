@@ -6,6 +6,7 @@ import { ChatController } from '../controllers/chat.controller';
 import {
   chatRoomIdParamsSchema,
   createDirectRoomSchema,
+  listChatMessagesQuerySchema,
   sendChatMessageSchema,
 } from '../validators/chat.validator';
 
@@ -17,6 +18,7 @@ router.get(
   '/rooms/:roomId/messages',
   authenticate,
   validate(chatRoomIdParamsSchema, 'params'),
+  validate(listChatMessagesQuerySchema, 'query'),
   asyncHandler(chatController.getMessages),
 );
 router.post(

@@ -3,12 +3,15 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
 
 import { config } from '@config/index';
 import logger from '@config/logger';
+import prisma from '@config/prisma';
 import { notFoundHandler } from '@shared/middlewares/notFoundHandler';
 import { errorHandler } from '@shared/middlewares/errorHandler';
+import { requestTiming } from '@shared/middlewares/requestTiming';
+import { sanitizeInput } from '@shared/middlewares/sanitizeInput';
+import { globalRateLimiter, publicRateLimiter } from '@shared/middlewares/rateLimiters';
 
 // ─── Module routers (will be imported progressively as modules are built) ──
 import { authRouter } from '@routes/auth.routes';
@@ -44,6 +47,7 @@ export function createApp(): Application {
   app.use(express.json({ limit: config.app.jsonBodyLimit }));
   app.use(express.urlencoded({ extended: true, limit: config.app.jsonBodyLimit }));
   app.use(cookieParser());
+  app.use(sanitizeInput);
 
   // ── HTTP request logging ──────────────────────────────────────────────────
   if (config.app.isDevelopment) {
@@ -55,32 +59,59 @@ export function createApp(): Application {
       }),
     );
   }
+  app.use(requestTiming);
 
   // ── Global rate limiter ───────────────────────────────────────────────────
-  app.use(
-    rateLimit({
-      windowMs: config.rateLimit.windowMs,
-      max: config.rateLimit.max,
-      standardHeaders: true,
-      legacyHeaders: false,
-      message: { success: false, message: 'Too many requests, please slow down.' },
-    }),
-  );
+  app.use(globalRateLimiter);
 
   // ── Health check (no auth required) ───────────────────────────────────────
   app.get('/health', (_req: Request, res: Response) => {
     res.json({
       success: true,
       message: 'LMS API is running',
-      timestamp: new Date().toISOString(),
-      environment: config.app.env,
+      data: {
+        status: 'ok',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+        environment: config.app.env,
+        version: config.app.version,
+      },
     });
+  });
+
+  app.get('/ready', async (_req: Request, res: Response) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      res.json({
+        success: true,
+        message: 'LMS API is ready',
+        data: {
+          status: 'ready',
+          database: 'ok',
+          timestamp: new Date().toISOString(),
+          environment: config.app.env,
+          version: config.app.version,
+        },
+      });
+    } catch (err) {
+      logger.error('Readiness check failed', { err });
+      res.status(503).json({
+        success: false,
+        message: 'LMS API is not ready',
+        data: {
+          status: 'not_ready',
+          database: 'unavailable',
+          timestamp: new Date().toISOString(),
+        },
+      });
+    }
   });
 
   // ── API v1 routes ─────────────────────────────────────────────────────────
   const apiRouter = express.Router();
 
   // Mount module routers here as they are implemented:
+  apiRouter.use('/courses/public', publicRateLimiter);
   apiRouter.use('/auth', authRouter);
   apiRouter.use('/users', usersRouter);
   apiRouter.use('/courses', coursesRouter);

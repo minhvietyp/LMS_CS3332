@@ -24,13 +24,19 @@ export class ChatService {
     return message;
   }
 
-  async getMessages(roomId: string, query: any): Promise<ChatMessage[]> {
-    return prisma.chatMessage.findMany({
-      where: { roomId },
-      orderBy: { createdAt: 'asc' },
-      take: 50,
+  async getMessages(roomId: string, query: { limit?: string; before?: string } = {}): Promise<ChatMessage[]> {
+    const limit = Math.min(100, Math.max(1, parseInt(String(query.limit ?? '50'), 10)));
+    const messages = await prisma.chatMessage.findMany({
+      where: {
+        roomId,
+        ...(query.before ? { createdAt: { lt: new Date(query.before) } } : {}),
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
       include: { sender: { select: { id: true, name: true, avatarUrl: true } } },
     });
+
+    return messages.reverse();
   }
 
   async getRooms(userId: string): Promise<ChatRoom[]> {

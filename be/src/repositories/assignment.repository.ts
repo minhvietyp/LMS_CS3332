@@ -84,16 +84,17 @@ export class AssignmentRepository {
   }
 
   async getStatistics(assignmentId: string) {
-    const submissions = await prisma.submission.findMany({
-      where: { assignmentId },
-    });
-
-    const totalSubmissions = submissions.length;
-    const onTimeSubmissions = submissions.filter(s => !s.isLate).length;
-    const lateSubmissions = submissions.filter(s => s.isLate).length;
-    const gradedSubmissions = submissions.filter(s => s.grade !== null).length;
-    const grades = submissions.filter(s => s.grade !== null).map(s => s.grade!);
-    const averageGrade = grades.length > 0 ? grades.reduce((a, b) => a + b, 0) / grades.length : 0;
+    const [totalSubmissions, onTimeSubmissions, lateSubmissions, gradedSubmissions, gradeStats] = await Promise.all([
+      prisma.submission.count({ where: { assignmentId } }),
+      prisma.submission.count({ where: { assignmentId, isLate: false } }),
+      prisma.submission.count({ where: { assignmentId, isLate: true } }),
+      prisma.submission.count({ where: { assignmentId, grade: { not: null } } }),
+      prisma.submission.aggregate({
+        where: { assignmentId, grade: { not: null } },
+        _avg: { grade: true },
+      }),
+    ]);
+    const averageGrade = gradeStats._avg.grade ?? 0;
 
     return {
       totalSubmissions,

@@ -6,7 +6,7 @@ const notificationService = new NotificationService();
 
 export class NotificationController {
   async list(req: Request, res: Response) {
-    const result = await notificationService.list(req.user!.sub);
+    const result = await notificationService.list(req.user!.sub, req.query as { limit?: string; cursor?: string; unreadOnly?: boolean });
     return ApiResponse.success(res, result, 'Notifications retrieved successfully');
   }
 
