@@ -167,12 +167,17 @@ export class ProgressService {
           toState: nextEnrollmentStatus,
           isCompleted: nextEnrollmentStatus === ENROLLMENT_STATUS.COMPLETED,
           actionType:
-            nextEnrollmentStatus === ENROLLMENT_STATUS.COMPLETED ? 'COURSE_COMPLETED' : 'COURSE_REOPENED',
+            nextEnrollmentStatus === ENROLLMENT_STATUS.COMPLETED
+              ? 'COURSE_COMPLETED'
+              : 'COURSE_REOPENED',
           changedById: studentId,
         });
       }
 
-      if (enrollment.status !== ENROLLMENT_STATUS.COMPLETED && nextEnrollmentStatus === ENROLLMENT_STATUS.COMPLETED) {
+      if (
+        enrollment.status !== ENROLLMENT_STATUS.COMPLETED &&
+        nextEnrollmentStatus === ENROLLMENT_STATUS.COMPLETED
+      ) {
         await this.emailService.sendCourseCompletedEmail({
           userId: enrollment.student.id,
           recipient: enrollment.student.email,
@@ -247,13 +252,15 @@ export class ProgressService {
         completedAt: lessonProgress?.completedAt ?? null,
       };
     });
-    const percentage = totalLessons > 0 ? Math.round((completedLessonCount / totalLessons) * 100) : 0;
+    const percentage =
+      totalLessons > 0 ? Math.round((completedLessonCount / totalLessons) * 100) : 0;
     const totalWeight = lessons.reduce((sum, l: any) => sum + ((l.weight as number) ?? 1), 0);
     const completedWeight = lessons.reduce((sum: number, l: any) => {
       const p = progressMap.get(l.id);
-      return sum + ((p && p.isCompleted) ? ((l.weight as number) ?? 1) : 0);
+      return sum + (p && p.isCompleted ? ((l.weight as number) ?? 1) : 0);
     }, 0);
-    const weightedPercentage = totalWeight > 0 ? Math.round((completedWeight / totalWeight) * 100) : 0;
+    const weightedPercentage =
+      totalWeight > 0 ? Math.round((completedWeight / totalWeight) * 100) : 0;
 
     return {
       courseId,
@@ -299,7 +306,11 @@ export class ProgressService {
     }));
   }
 
-  async getInstructorCourseProgress(courseId: string, actor: JwtPayload, query: InstructorProgressQuery = {}) {
+  async getInstructorCourseProgress(
+    courseId: string,
+    actor: JwtPayload,
+    query: InstructorProgressQuery = {},
+  ) {
     const course = await this.assertCanViewCourseProgress(courseId, actor);
     const lessons = await this.getCourseLessons(courseId);
     const enrollments = await prisma.enrollment.findMany({
@@ -361,14 +372,25 @@ export class ProgressService {
         title: course.title,
         totalLessons: lessons.length,
         totalStudents: summaries.length,
-        activeStudents: summaries.filter((student) => student.enrollmentStatus === ENROLLMENT_STATUS.ACTIVE).length,
-        completedStudents: summaries.filter((student) => student.enrollmentStatus === ENROLLMENT_STATUS.COMPLETED).length,
-        droppedStudents: summaries.filter((student) => student.enrollmentStatus === ENROLLMENT_STATUS.DROPPED).length,
+        activeStudents: summaries.filter(
+          (student) => student.enrollmentStatus === ENROLLMENT_STATUS.ACTIVE,
+        ).length,
+        completedStudents: summaries.filter(
+          (student) => student.enrollmentStatus === ENROLLMENT_STATUS.COMPLETED,
+        ).length,
+        droppedStudents: summaries.filter(
+          (student) => student.enrollmentStatus === ENROLLMENT_STATUS.DROPPED,
+        ).length,
         averageProgress: summaries.length
-          ? Math.round(summaries.reduce((sum, student) => sum + student.percentage, 0) / summaries.length)
+          ? Math.round(
+              summaries.reduce((sum, student) => sum + student.percentage, 0) / summaries.length,
+            )
           : 0,
         averageWeightedProgress: summaries.length
-          ? Math.round(summaries.reduce((sum, student) => sum + student.weightedPercentage, 0) / summaries.length)
+          ? Math.round(
+              summaries.reduce((sum, student) => sum + student.weightedPercentage, 0) /
+                summaries.length,
+            )
           : 0,
       },
       students: pagedStudents,
@@ -454,7 +476,11 @@ export class ProgressService {
     return this.getProgressHistory({ studentId }, query);
   }
 
-  async getCourseProgressHistory(courseId: string, actor: JwtPayload, query: ProgressHistoryQuery = {}) {
+  async getCourseProgressHistory(
+    courseId: string,
+    actor: JwtPayload,
+    query: ProgressHistoryQuery = {},
+  ) {
     await this.assertCanViewCourseProgress(courseId, actor);
     return this.getProgressHistory({ courseId }, query);
   }
@@ -490,13 +516,20 @@ export class ProgressService {
     const completedStudents = aggregates.reduce((sum, course) => sum + course.completedStudents, 0);
     const droppedStudents = aggregates.reduce((sum, course) => sum + course.droppedStudents, 0);
     const averageProgress = totalCourses
-      ? Math.round(aggregates.reduce((sum, course) => sum + course.averageProgress, 0) / totalCourses)
+      ? Math.round(
+          aggregates.reduce((sum, course) => sum + course.averageProgress, 0) / totalCourses,
+        )
       : 0;
     const averageWeightedProgress = totalCourses
-      ? Math.round(aggregates.reduce((sum, course) => sum + course.averageWeightedProgress, 0) / totalCourses)
+      ? Math.round(
+          aggregates.reduce((sum, course) => sum + course.averageWeightedProgress, 0) /
+            totalCourses,
+        )
       : 0;
     const averageCompletionRate = totalCourses
-      ? Math.round(aggregates.reduce((sum, course) => sum + course.completionRate, 0) / totalCourses)
+      ? Math.round(
+          aggregates.reduce((sum, course) => sum + course.completionRate, 0) / totalCourses,
+        )
       : 0;
     const lastActivityAt = aggregates.reduce<Date | null>((latest, course) => {
       if (!course.lastActivityAt) {
@@ -575,7 +608,13 @@ export class ProgressService {
    * Set lesson progress state (NOT_STARTED, IN_PROGRESS, COMPLETED)
    */
   async setLessonState(lessonId: string, studentId: string, state: string): Promise<Progress> {
-    const lesson = await prisma.lesson.findFirst({ where: { id: lessonId, deletedAt: null }, select: { id: true, module: { select: { courseId: true, course: { select: { title: true } } } } } });
+    const lesson = await prisma.lesson.findFirst({
+      where: { id: lessonId, deletedAt: null },
+      select: {
+        id: true,
+        module: { select: { courseId: true, course: { select: { title: true } } } },
+      },
+    });
     if (!lesson) throw NotFoundError('Lesson not found');
 
     const enrollment = await prisma.enrollment.findUnique({
@@ -610,13 +649,27 @@ export class ProgressService {
       });
 
       const [totalLessons, completedLessons] = await Promise.all([
-        tx.lesson.count({ where: { module: { courseId: lesson.module.courseId }, deletedAt: null } }),
-        tx.progress.count({ where: { studentId, isCompleted: true, lesson: { module: { courseId: lesson.module.courseId } } } }),
+        tx.lesson.count({
+          where: { module: { courseId: lesson.module.courseId }, deletedAt: null },
+        }),
+        tx.progress.count({
+          where: {
+            studentId,
+            isCompleted: true,
+            lesson: { module: { courseId: lesson.module.courseId } },
+          },
+        }),
       ]);
 
-      const nextEnrollmentStatus = totalLessons > 0 && completedLessons === totalLessons ? ENROLLMENT_STATUS.COMPLETED : ENROLLMENT_STATUS.ACTIVE;
+      const nextEnrollmentStatus =
+        totalLessons > 0 && completedLessons === totalLessons
+          ? ENROLLMENT_STATUS.COMPLETED
+          : ENROLLMENT_STATUS.ACTIVE;
 
-      await tx.enrollment.update({ where: { id: enrollment.id }, data: { status: nextEnrollmentStatus } });
+      await tx.enrollment.update({
+        where: { id: enrollment.id },
+        data: { status: nextEnrollmentStatus },
+      });
 
       await this.createProgressHistoryRecord(tx, {
         studentId,
@@ -638,12 +691,17 @@ export class ProgressService {
           toState: nextEnrollmentStatus,
           isCompleted: nextEnrollmentStatus === ENROLLMENT_STATUS.COMPLETED,
           actionType:
-            nextEnrollmentStatus === ENROLLMENT_STATUS.COMPLETED ? 'COURSE_COMPLETED' : 'COURSE_REOPENED',
+            nextEnrollmentStatus === ENROLLMENT_STATUS.COMPLETED
+              ? 'COURSE_COMPLETED'
+              : 'COURSE_REOPENED',
           changedById: studentId,
         });
       }
 
-      if (enrollment.status !== ENROLLMENT_STATUS.COMPLETED && nextEnrollmentStatus === ENROLLMENT_STATUS.COMPLETED) {
+      if (
+        enrollment.status !== ENROLLMENT_STATUS.COMPLETED &&
+        nextEnrollmentStatus === ENROLLMENT_STATUS.COMPLETED
+      ) {
         await this.emailService.sendCourseCompletedEmail({
           userId: enrollment.student.id,
           recipient: enrollment.student.email,
@@ -702,9 +760,15 @@ export class ProgressService {
     );
 
     // Calculate summary stats
-    const activeCourses = courseProgressList.filter((c) => c.enrollmentStatus === ENROLLMENT_STATUS.ACTIVE).length;
-    const completedCourses = courseProgressList.filter((c) => c.enrollmentStatus === ENROLLMENT_STATUS.COMPLETED).length;
-    const droppedCourses = courseProgressList.filter((c) => c.enrollmentStatus === ENROLLMENT_STATUS.DROPPED).length;
+    const activeCourses = courseProgressList.filter(
+      (c) => c.enrollmentStatus === ENROLLMENT_STATUS.ACTIVE,
+    ).length;
+    const completedCourses = courseProgressList.filter(
+      (c) => c.enrollmentStatus === ENROLLMENT_STATUS.COMPLETED,
+    ).length;
+    const droppedCourses = courseProgressList.filter(
+      (c) => c.enrollmentStatus === ENROLLMENT_STATUS.DROPPED,
+    ).length;
     const totalCourses = courseProgressList.length;
 
     // Calculate overall weighted progress
@@ -716,7 +780,10 @@ export class ProgressService {
       totalCompletedOverallWeight += course.completedWeight;
     });
 
-    const overallProgress = totalOverallWeight > 0 ? Math.round((totalCompletedOverallWeight / totalOverallWeight) * 100) : 0;
+    const overallProgress =
+      totalOverallWeight > 0
+        ? Math.round((totalCompletedOverallWeight / totalOverallWeight) * 100)
+        : 0;
 
     // Get last activity timestamp
     const lastActivity = await prisma.progress.findFirst({
@@ -789,7 +856,10 @@ export class ProgressService {
       });
     }
 
-    const overallProgress = totalOverallWeight > 0 ? Math.round((totalCompletedOverallWeight / totalOverallWeight) * 100) : 0;
+    const overallProgress =
+      totalOverallWeight > 0
+        ? Math.round((totalCompletedOverallWeight / totalOverallWeight) * 100)
+        : 0;
 
     // Get last activity
     const lastActivity = await prisma.progress.findFirst({
@@ -813,7 +883,11 @@ export class ProgressService {
   /**
    * Get student activity timeline
    */
-  async getActivityTimeline(studentId: string, limit: number = 10, offset: number = 0): Promise<any> {
+  async getActivityTimeline(
+    studentId: string,
+    limit: number = 10,
+    offset: number = 0,
+  ): Promise<any> {
     // Get recent progress updates
     const progressActivities = await prisma.progress.findMany({
       where: { studentId, isCompleted: true },
@@ -939,7 +1013,12 @@ export class ProgressService {
 
   private buildProgressMetrics(
     lessons: ProgressLesson[],
-    progressRows: Array<{ lessonId: string; isCompleted: boolean; completedAt: Date | null; updatedAt: Date }>,
+    progressRows: Array<{
+      lessonId: string;
+      isCompleted: boolean;
+      completedAt: Date | null;
+      updatedAt: Date;
+    }>,
   ) {
     const progressMap = new Map(progressRows.map((row) => [row.lessonId, row]));
     const totalLessons = lessons.length;
@@ -953,7 +1032,8 @@ export class ProgressService {
       return sum + (progress?.isCompleted ? lesson.weight : 0);
     }, 0);
     const percentage = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
-    const weightedPercentage = totalWeight > 0 ? Math.round((completedWeight / totalWeight) * 100) : 0;
+    const weightedPercentage =
+      totalWeight > 0 ? Math.round((completedWeight / totalWeight) * 100) : 0;
     const lastProgressAt = progressRows.reduce<Date | null>((latest, row) => {
       const current = row.completedAt ?? row.updatedAt;
 
@@ -975,7 +1055,10 @@ export class ProgressService {
     };
   }
 
-  private applyInstructorProgressFilters(students: StudentProgressSummary[], query: InstructorProgressQuery) {
+  private applyInstructorProgressFilters(
+    students: StudentProgressSummary[],
+    query: InstructorProgressQuery,
+  ) {
     const search = query.search?.trim().toLowerCase();
     const sortBy = query.sortBy ?? 'progress';
     const sortOrder = query.sortOrder ?? 'desc';
@@ -1001,8 +1084,7 @@ export class ProgressService {
       if (sortBy === 'name') {
         comparison = left.studentName.localeCompare(right.studentName);
       } else if (sortBy === 'lastActivity') {
-        comparison =
-          (left.lastProgressAt?.getTime() ?? 0) - (right.lastProgressAt?.getTime() ?? 0);
+        comparison = (left.lastProgressAt?.getTime() ?? 0) - (right.lastProgressAt?.getTime() ?? 0);
       } else if (sortBy === 'enrolledAt') {
         comparison = left.enrolledAt.getTime() - right.enrolledAt.getTime();
       } else {
@@ -1087,7 +1169,10 @@ export class ProgressService {
       enrollmentsByCourse.set(enrollment.courseId, courseEnrollments);
     });
 
-    const progressByCourseStudent = new Map<string, Array<{ lessonId: string; isCompleted: boolean; completedAt: Date | null; updatedAt: Date }>>();
+    const progressByCourseStudent = new Map<
+      string,
+      Array<{ lessonId: string; isCompleted: boolean; completedAt: Date | null; updatedAt: Date }>
+    >();
     progressRows.forEach((row) => {
       const key = `${row.lesson.module.courseId}:${row.studentId}`;
       const studentProgress = progressByCourseStudent.get(key) ?? [];
@@ -1104,19 +1189,35 @@ export class ProgressService {
       const courseLessons = lessonsByCourse.get(course.id) ?? [];
       const courseEnrollments = enrollmentsByCourse.get(course.id) ?? [];
       const studentSummaries = courseEnrollments.map((enrollment) =>
-        this.buildProgressMetrics(courseLessons, progressByCourseStudent.get(`${course.id}:${enrollment.studentId}`) ?? []),
+        this.buildProgressMetrics(
+          courseLessons,
+          progressByCourseStudent.get(`${course.id}:${enrollment.studentId}`) ?? [],
+        ),
       );
       const totalStudents = courseEnrollments.length;
-      const activeStudents = courseEnrollments.filter((enrollment) => enrollment.status === ENROLLMENT_STATUS.ACTIVE).length;
-      const completedStudents = courseEnrollments.filter((enrollment) => enrollment.status === ENROLLMENT_STATUS.COMPLETED).length;
-      const droppedStudents = courseEnrollments.filter((enrollment) => enrollment.status === ENROLLMENT_STATUS.DROPPED).length;
+      const activeStudents = courseEnrollments.filter(
+        (enrollment) => enrollment.status === ENROLLMENT_STATUS.ACTIVE,
+      ).length;
+      const completedStudents = courseEnrollments.filter(
+        (enrollment) => enrollment.status === ENROLLMENT_STATUS.COMPLETED,
+      ).length;
+      const droppedStudents = courseEnrollments.filter(
+        (enrollment) => enrollment.status === ENROLLMENT_STATUS.DROPPED,
+      ).length;
       const averageProgress = totalStudents
-        ? Math.round(studentSummaries.reduce((sum, student) => sum + student.percentage, 0) / totalStudents)
+        ? Math.round(
+            studentSummaries.reduce((sum, student) => sum + student.percentage, 0) / totalStudents,
+          )
         : 0;
       const averageWeightedProgress = totalStudents
-        ? Math.round(studentSummaries.reduce((sum, student) => sum + student.weightedPercentage, 0) / totalStudents)
+        ? Math.round(
+            studentSummaries.reduce((sum, student) => sum + student.weightedPercentage, 0) /
+              totalStudents,
+          )
         : 0;
-      const completionRate = totalStudents ? Math.round((completedStudents / totalStudents) * 100) : 0;
+      const completionRate = totalStudents
+        ? Math.round((completedStudents / totalStudents) * 100)
+        : 0;
       const lastActivityAt = studentSummaries.reduce<Date | null>((latest, student) => {
         if (!student.lastProgressAt) {
           return latest;
@@ -1148,7 +1249,10 @@ export class ProgressService {
     });
   }
 
-  private applyAdminCourseSort(courses: CourseProgressAggregate[], query: AdminCourseProgressQuery) {
+  private applyAdminCourseSort(
+    courses: CourseProgressAggregate[],
+    query: AdminCourseProgressQuery,
+  ) {
     const sortBy = query.sortBy ?? 'progress';
     const sortOrder = query.sortOrder ?? 'desc';
     const sorted = [...courses];

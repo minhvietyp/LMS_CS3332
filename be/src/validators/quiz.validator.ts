@@ -53,7 +53,10 @@ const questionBaseSchema = z.object({
   options: z.array(answerOptionSchema).min(2),
 });
 
-function validateQuestionShape<T extends { type: string; options: Array<{ isCorrect: boolean }> }>(value: T, ctx: z.RefinementCtx) {
+function validateQuestionShape<T extends { type: string; options: Array<{ isCorrect: boolean }> }>(
+  value: T,
+  ctx: z.RefinementCtx,
+) {
   const correctOptions = value.options.filter((option) => option.isCorrect);
 
   if (correctOptions.length !== 1) {

@@ -133,7 +133,14 @@ describe('course routes', () => {
       updatedAt: new Date('2026-01-01T00:00:00.000Z'),
       deletedAt: null,
       instructor: { id: 'admin-1', name: 'LMS Admin', avatarUrl: null },
-      modules: [{ id: 'module-1', title: 'Getting Started', orderIndex: 1, lessons: [{ id: 'lesson-1', title: 'Introduction', orderIndex: 1, isPublished: true }] }],
+      modules: [
+        {
+          id: 'module-1',
+          title: 'Getting Started',
+          orderIndex: 1,
+          lessons: [{ id: 'lesson-1', title: 'Introduction', orderIndex: 1, isPublished: true }],
+        },
+      ],
     });
 
     const response = await request(createApp())
@@ -358,7 +365,10 @@ describe('course routes', () => {
     const response = await request(createApp())
       .patch('/api/v1/courses/11111111-1111-1111-1111-111111111111/thumbnail')
       .set('Authorization', 'Bearer valid-token')
-      .attach('thumbnail', Buffer.from('plain-text-content'), { filename: 'notes.txt', contentType: 'text/plain' });
+      .attach('thumbnail', Buffer.from('plain-text-content'), {
+        filename: 'notes.txt',
+        contentType: 'text/plain',
+      });
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe('Only image uploads are allowed');

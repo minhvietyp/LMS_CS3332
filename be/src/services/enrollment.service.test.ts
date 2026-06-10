@@ -80,7 +80,11 @@ describe('EnrollmentService', () => {
       title: 'React Basics',
       instructorId: 'instructor-1',
     });
-    mockedPrisma.user.findFirst.mockResolvedValue({ id: 'student-1', email: 'student@example.com', name: 'Student One' });
+    mockedPrisma.user.findFirst.mockResolvedValue({
+      id: 'student-1',
+      email: 'student@example.com',
+      name: 'Student One',
+    });
     mockedPrisma.enrollment.findUnique.mockResolvedValue(null);
     mockedPrisma.enrollment.create.mockResolvedValue({
       id: 'enrollment-1',
@@ -126,7 +130,9 @@ describe('EnrollmentService', () => {
       courseTitle: 'React Basics',
       action: 'enrolled',
     });
-    expect(SocketService.sendToUser).toHaveBeenCalledWith('student-1', 'notification', { id: 'notification-1' });
+    expect(SocketService.sendToUser).toHaveBeenCalledWith('student-1', 'notification', {
+      id: 'notification-1',
+    });
     expect(result.status).toBe(ENROLLMENT_STATUS.ACTIVE);
   });
 
@@ -136,7 +142,11 @@ describe('EnrollmentService', () => {
       title: 'React Basics',
       instructorId: 'instructor-1',
     });
-    mockedPrisma.user.findFirst.mockResolvedValue({ id: 'student-1', email: 'student@example.com', name: 'Student One' });
+    mockedPrisma.user.findFirst.mockResolvedValue({
+      id: 'student-1',
+      email: 'student@example.com',
+      name: 'Student One',
+    });
     mockedPrisma.enrollment.findUnique.mockResolvedValue({
       id: 'enrollment-1',
       status: ENROLLMENT_STATUS.DROPPED,
@@ -361,7 +371,11 @@ describe('EnrollmentService', () => {
       status: ENROLLMENT_STATUS.DROPPED,
     });
     mockedPrisma.notification.create.mockResolvedValue({ id: 'notification-1' });
-    mockedPrisma.user.findFirst.mockResolvedValue({ id: 'student-1', email: 'student@example.com', name: 'Student One' });
+    mockedPrisma.user.findFirst.mockResolvedValue({
+      id: 'student-1',
+      email: 'student@example.com',
+      name: 'Student One',
+    });
 
     const result = await enrollmentService.updateStatus(
       'enrollment-1',

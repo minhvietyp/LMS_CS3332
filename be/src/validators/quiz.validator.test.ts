@@ -54,15 +54,16 @@ describe('quiz.validator', () => {
   });
 
   it('accepts valid quiz-related route params', () => {
-    expect(courseIdParamsSchema.parse({ courseId: '11111111-1111-1111-1111-111111111111' }).courseId).toBe(
-      '11111111-1111-1111-1111-111111111111',
-    );
+    expect(
+      courseIdParamsSchema.parse({ courseId: '11111111-1111-1111-1111-111111111111' }).courseId,
+    ).toBe('11111111-1111-1111-1111-111111111111');
     expect(quizIdParamsSchema.parse({ id: '11111111-1111-1111-1111-111111111112' }).id).toBe(
       '11111111-1111-1111-1111-111111111112',
     );
-    expect(questionIdParamsSchema.parse({ questionId: '11111111-1111-1111-1111-111111111113' }).questionId).toBe(
-      '11111111-1111-1111-1111-111111111113',
-    );
+    expect(
+      questionIdParamsSchema.parse({ questionId: '11111111-1111-1111-1111-111111111113' })
+        .questionId,
+    ).toBe('11111111-1111-1111-1111-111111111113');
     expect(
       quizAttemptResultParamsSchema.parse({
         id: '11111111-1111-1111-1111-111111111114',
@@ -75,6 +76,8 @@ describe('quiz.validator', () => {
     expect(() => courseIdParamsSchema.parse({ courseId: 'bad-id' })).toThrow();
     expect(() => quizIdParamsSchema.parse({ id: 'bad-id' })).toThrow();
     expect(() => questionIdParamsSchema.parse({ questionId: 'bad-id' })).toThrow();
-    expect(() => quizAttemptResultParamsSchema.parse({ id: 'bad-id', attemptId: 'bad-id' })).toThrow();
+    expect(() =>
+      quizAttemptResultParamsSchema.parse({ id: 'bad-id', attemptId: 'bad-id' }),
+    ).toThrow();
   });
 });

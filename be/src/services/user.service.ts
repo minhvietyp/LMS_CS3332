@@ -1,9 +1,20 @@
 import bcrypt from 'bcryptjs';
 import prisma from '@config/prisma';
 import { config } from '@config/index';
-import { NotFoundError, ConflictError, BadRequestError, UnauthorizedError } from '@shared/errors/AppError';
+import {
+  NotFoundError,
+  ConflictError,
+  BadRequestError,
+  UnauthorizedError,
+} from '@shared/errors/AppError';
 import { uploadImageBuffer } from '@shared/utils/cloudinary';
-import { ChangePasswordDto, CreateUserDto, UpdateContactDto, UpdateProfileDto, UpdateUserDto } from '../validators/user.validator';
+import {
+  ChangePasswordDto,
+  CreateUserDto,
+  UpdateContactDto,
+  UpdateProfileDto,
+  UpdateUserDto,
+} from '../validators/user.validator';
 import { Prisma } from '@prisma/client';
 import { parsePagination, pickDefined } from '@shared/utils/helpers';
 import { PaginatedResult } from '@types';
@@ -61,6 +72,12 @@ const accountProfileSelect = {
   deletedBy: true,
 } as const;
 
+function toAccountProfile<T extends { password?: string }>(user: T): AccountProfile {
+  const userWithoutPassword = { ...user };
+  delete userWithoutPassword.password;
+  return userWithoutPassword as unknown as AccountProfile;
+}
+
 export class UserService {
   async listPublicInstructors(): Promise<any[]> {
     const instructors = await prisma.user.findMany({
@@ -99,7 +116,10 @@ export class UserService {
     return instructors.map((instructor) => ({
       ...instructor,
       courseCount: instructor.taughtCourses.length,
-      studentCount: instructor.taughtCourses.reduce((count, course) => count + course.enrollments.length, 0),
+      studentCount: instructor.taughtCourses.reduce(
+        (count, course) => count + course.enrollments.length,
+        0,
+      ),
     }));
   }
 
@@ -143,8 +163,15 @@ export class UserService {
     return {
       ...instructor,
       courseCount: instructor.taughtCourses.length,
-      studentCount: instructor.taughtCourses.reduce((count, course) => count + course.enrollments.length, 0),
-      publishedCourses: instructor.taughtCourses.map(({ enrollments, ...course }) => course),
+      studentCount: instructor.taughtCourses.reduce(
+        (count, course) => count + course.enrollments.length,
+        0,
+      ),
+      publishedCourses: instructor.taughtCourses.map((course) => {
+        const courseWithoutEnrollments = { ...course };
+        delete (courseWithoutEnrollments as Partial<typeof course>).enrollments;
+        return courseWithoutEnrollments;
+      }),
     };
   }
 
@@ -244,8 +271,7 @@ export class UserService {
       },
     });
 
-    const { password, ...userWithoutPassword } = user as any;
-    return userWithoutPassword as unknown as AccountProfile;
+    return toAccountProfile(user);
   }
 
   /**
@@ -270,8 +296,7 @@ export class UserService {
       data: pickDefined(data),
     });
 
-    const { password, ...userWithoutPassword } = updatedUser as any;
-    return userWithoutPassword as unknown as AccountProfile;
+    return toAccountProfile(updatedUser);
   }
 
   /**
@@ -339,8 +364,7 @@ export class UserService {
       },
     });
 
-    const { password, ...userWithoutPassword } = updatedUser as any;
-    return userWithoutPassword as unknown as AccountProfile;
+    return toAccountProfile(updatedUser);
   }
 
   async updateCoverImage(id: string, file: Express.Multer.File): Promise<AccountProfile> {
@@ -361,8 +385,7 @@ export class UserService {
       },
     });
 
-    const { password, ...userWithoutPassword } = updatedUser as any;
-    return userWithoutPassword as unknown as AccountProfile;
+    return toAccountProfile(updatedUser);
   }
 
   async updateMyProfile(id: string, data: UpdateProfileDto): Promise<AccountProfile> {
@@ -389,7 +412,10 @@ export class UserService {
       throw NotFoundError('User not found');
     }
 
-    const isCurrentPasswordValid = await bcrypt.compare(data.currentPassword, (user as any).password);
+    const isCurrentPasswordValid = await bcrypt.compare(
+      data.currentPassword,
+      (user as any).password,
+    );
     if (!isCurrentPasswordValid) {
       throw UnauthorizedError('Current password is incorrect');
     }

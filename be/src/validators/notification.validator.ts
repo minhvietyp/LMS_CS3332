@@ -5,10 +5,7 @@ export const notificationIdParamsSchema = z.object({
 });
 
 export const listNotificationsQuerySchema = z.object({
-  limit: z
-    .string()
-    .regex(/^\d+$/)
-    .optional(),
+  limit: z.string().regex(/^\d+$/).optional(),
   cursor: z.string().datetime().optional(),
   unreadOnly: z
     .enum(['true', 'false'])

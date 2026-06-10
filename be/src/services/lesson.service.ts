@@ -13,7 +13,11 @@ type CourseModuleWithLessons = CourseModule & {
 export class LessonService {
   // ─── Module Operations ────────────────────────────────────────────────────
 
-  async listCourseModules(courseId: string, userId: string, userRole: string): Promise<CourseModuleWithLessons[]> {
+  async listCourseModules(
+    courseId: string,
+    userId: string,
+    userRole: string,
+  ): Promise<CourseModuleWithLessons[]> {
     await this.checkCourseOwnership(courseId, userId, userRole);
 
     return prisma.courseModule.findMany({
@@ -33,11 +37,15 @@ export class LessonService {
     });
   }
 
-  async createModule(courseId: string, data: any, userId: string, userRole: string): Promise<CourseModule> {
+  async createModule(
+    courseId: string,
+    data: any,
+    userId: string,
+    userRole: string,
+  ): Promise<CourseModule> {
     await this.checkCourseOwnership(courseId, userId, userRole);
 
-    const nextOrderIndex =
-      data.orderIndex ?? ((await this.getLastModuleOrderIndex(courseId)) + 1);
+    const nextOrderIndex = data.orderIndex ?? (await this.getLastModuleOrderIndex(courseId)) + 1;
 
     return prisma.courseModule.create({
       data: {
@@ -48,7 +56,12 @@ export class LessonService {
     });
   }
 
-  async updateModule(id: string, data: any, userId: string, userRole: string): Promise<CourseModule> {
+  async updateModule(
+    id: string,
+    data: any,
+    userId: string,
+    userRole: string,
+  ): Promise<CourseModule> {
     const module = await prisma.courseModule.findFirst({ where: { id } });
     if (!module) throw NotFoundError('Module not found');
     await this.checkCourseOwnership(module.courseId, userId, userRole);
@@ -70,7 +83,12 @@ export class LessonService {
     await prisma.courseModule.delete({ where: { id } });
   }
 
-  async reorderModules(courseId: string, modules: Array<{ id: string; orderIndex: number }>, userId: string, userRole: string): Promise<CourseModule[]> {
+  async reorderModules(
+    courseId: string,
+    modules: Array<{ id: string; orderIndex: number }>,
+    userId: string,
+    userRole: string,
+  ): Promise<CourseModule[]> {
     await this.checkCourseOwnership(courseId, userId, userRole);
 
     const existingModules = await prisma.courseModule.findMany({
@@ -103,13 +121,17 @@ export class LessonService {
 
   // ─── Lesson Operations ────────────────────────────────────────────────────
 
-  async createLesson(moduleId: string, data: any, userId: string, userRole: string): Promise<Lesson> {
+  async createLesson(
+    moduleId: string,
+    data: any,
+    userId: string,
+    userRole: string,
+  ): Promise<Lesson> {
     const module = await prisma.courseModule.findFirst({ where: { id: moduleId } });
     if (!module) throw NotFoundError('Module not found');
     await this.checkCourseOwnership(module.courseId, userId, userRole);
 
-    const nextOrderIndex =
-      data.orderIndex ?? ((await this.getLastLessonOrderIndex(moduleId)) + 1);
+    const nextOrderIndex = data.orderIndex ?? (await this.getLastLessonOrderIndex(moduleId)) + 1;
 
     return prisma.lesson.create({
       data: {
@@ -121,7 +143,11 @@ export class LessonService {
     });
   }
 
-  async getLessonById(id: string, userId: string, userRole: string): Promise<Lesson & { module: CourseModule; materials: LessonMaterial[] }> {
+  async getLessonById(
+    id: string,
+    userId: string,
+    userRole: string,
+  ): Promise<Lesson & { module: CourseModule; materials: LessonMaterial[] }> {
     const lesson = await prisma.lesson.findFirst({
       where: { id, deletedAt: null },
       include: {
@@ -170,7 +196,12 @@ export class LessonService {
     });
   }
 
-  async reorderLessons(moduleId: string, lessons: Array<{ id: string; orderIndex: number }>, userId: string, userRole: string): Promise<Lesson[]> {
+  async reorderLessons(
+    moduleId: string,
+    lessons: Array<{ id: string; orderIndex: number }>,
+    userId: string,
+    userRole: string,
+  ): Promise<Lesson[]> {
     const module = await prisma.courseModule.findFirst({ where: { id: moduleId } });
     if (!module) throw NotFoundError('Module not found');
     await this.checkCourseOwnership(module.courseId, userId, userRole);
@@ -219,7 +250,11 @@ export class LessonService {
 
   // ─── Material Operations ──────────────────────────────────────────────────
 
-  async listMaterials(lessonId: string, userId: string, userRole: string): Promise<LessonMaterial[]> {
+  async listMaterials(
+    lessonId: string,
+    userId: string,
+    userRole: string,
+  ): Promise<LessonMaterial[]> {
     const lesson = await prisma.lesson.findFirst({
       where: { id: lessonId, deletedAt: null },
       include: { module: true },
@@ -233,7 +268,12 @@ export class LessonService {
     });
   }
 
-  async addMaterial(lessonId: string, data: any, userId: string, userRole: string): Promise<LessonMaterial> {
+  async addMaterial(
+    lessonId: string,
+    data: any,
+    userId: string,
+    userRole: string,
+  ): Promise<LessonMaterial> {
     const lesson = await prisma.lesson.findFirst({
       where: { id: lessonId },
       include: { module: true },
@@ -246,7 +286,13 @@ export class LessonService {
     });
   }
 
-  async uploadMaterial(lessonId: string, file: MaterialFile, data: any, userId: string, userRole: string): Promise<LessonMaterial> {
+  async uploadMaterial(
+    lessonId: string,
+    file: MaterialFile,
+    data: any,
+    userId: string,
+    userRole: string,
+  ): Promise<LessonMaterial> {
     const lesson = await prisma.lesson.findFirst({
       where: { id: lessonId, deletedAt: null },
       include: { module: true },
@@ -279,7 +325,11 @@ export class LessonService {
 
   // ─── Private Helpers ──────────────────────────────────────────────────────
 
-  private async checkCourseOwnership(courseId: string, userId: string, userRole: string): Promise<void> {
+  private async checkCourseOwnership(
+    courseId: string,
+    userId: string,
+    userRole: string,
+  ): Promise<void> {
     const course = await prisma.course.findUnique({ where: { id: courseId } });
     if (!course) throw NotFoundError('Course not found');
 

@@ -18,3 +18,6 @@ be/dist/
 *.njsproj
 *.sln
 *.sw?
+
+.env.production
+be/.env.production

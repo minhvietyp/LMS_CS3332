@@ -34,11 +34,12 @@ export const updateAssignmentSchema = z
     message: 'At least one field must be provided',
   });
 
-export const submitAssignmentSchema = z.object({
-  textContent: z.string().trim().optional(),
-  fileUrl: z.string().url().optional(),
-  fileName: z.string().optional(),
-})
+export const submitAssignmentSchema = z
+  .object({
+    textContent: z.string().trim().optional(),
+    fileUrl: z.string().url().optional(),
+    fileName: z.string().optional(),
+  })
   .refine((data) => Boolean(data.textContent || data.fileUrl), {
     message: 'Either text content or file URL must be provided',
     path: ['textContent'],

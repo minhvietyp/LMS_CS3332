@@ -36,13 +36,7 @@ export const instructorStudentProgressParamsSchema = courseProgressParamsSchema.
 });
 
 export const instructorProgressQuerySchema = z.object({
-  page: z
-    .string()
-    .regex(/^\d+$/)
-    .transform(Number)
-    .pipe(z.number().min(1))
-    .optional()
-    .default('1'),
+  page: z.string().regex(/^\d+$/).transform(Number).pipe(z.number().min(1)).optional().default('1'),
   pageSize: z
     .string()
     .regex(/^\d+$/)
@@ -57,13 +51,7 @@ export const instructorProgressQuerySchema = z.object({
 });
 
 export const adminCourseProgressQuerySchema = z.object({
-  page: z
-    .string()
-    .regex(/^\d+$/)
-    .transform(Number)
-    .pipe(z.number().min(1))
-    .optional()
-    .default('1'),
+  page: z.string().regex(/^\d+$/).transform(Number).pipe(z.number().min(1)).optional().default('1'),
   pageSize: z
     .string()
     .regex(/^\d+$/)
@@ -74,18 +62,15 @@ export const adminCourseProgressQuerySchema = z.object({
   search: z.string().trim().max(100).optional(),
   instructorId: z.string().uuid().optional(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
-  sortBy: z.enum(['title', 'progress', 'students', 'completionRate']).optional().default('progress'),
+  sortBy: z
+    .enum(['title', 'progress', 'students', 'completionRate'])
+    .optional()
+    .default('progress'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
 
 export const progressHistoryQuerySchema = z.object({
-  page: z
-    .string()
-    .regex(/^\d+$/)
-    .transform(Number)
-    .pipe(z.number().min(1))
-    .optional()
-    .default('1'),
+  page: z.string().regex(/^\d+$/).transform(Number).pipe(z.number().min(1)).optional().default('1'),
   pageSize: z
     .string()
     .regex(/^\d+$/)

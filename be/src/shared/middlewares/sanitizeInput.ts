@@ -18,7 +18,10 @@ function sanitizeValue(value: unknown): unknown {
 
   if (value && typeof value === 'object') {
     return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>).map(([key, nestedValue]) => [key, sanitizeValue(nestedValue)]),
+      Object.entries(value as Record<string, unknown>).map(([key, nestedValue]) => [
+        key,
+        sanitizeValue(nestedValue),
+      ]),
     );
   }
 

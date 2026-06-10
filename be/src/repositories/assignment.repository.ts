@@ -1,9 +1,16 @@
-// @ts-nocheck
 import prisma from '@config/prisma';
 import { Assignment, Prisma } from '@prisma/client';
 
+type AssignmentWithDetails = Prisma.AssignmentGetPayload<{
+  include: {
+    course: true;
+    instructor: true;
+    submissions: true;
+  };
+}>;
+
 export class AssignmentRepository {
-  async findById(id: string): Promise<Assignment | null> {
+  async findById(id: string): Promise<AssignmentWithDetails | null> {
     return prisma.assignment.findUnique({
       where: { id },
       include: {
@@ -14,7 +21,10 @@ export class AssignmentRepository {
     });
   }
 
-  async findByCourseId(courseId: string, filters?: Prisma.AssignmentWhereInput): Promise<Assignment[]> {
+  async findByCourseId(
+    courseId: string,
+    filters?: Prisma.AssignmentWhereInput,
+  ): Promise<Assignment[]> {
     return prisma.assignment.findMany({
       where: {
         courseId,
@@ -42,7 +52,7 @@ export class AssignmentRepository {
     });
   }
 
-  async create(data: Prisma.AssignmentCreateInput): Promise<Assignment> {
+  async create(data: Prisma.AssignmentUncheckedCreateInput): Promise<Assignment> {
     return prisma.assignment.create({
       data,
       include: {
@@ -84,16 +94,17 @@ export class AssignmentRepository {
   }
 
   async getStatistics(assignmentId: string) {
-    const [totalSubmissions, onTimeSubmissions, lateSubmissions, gradedSubmissions, gradeStats] = await Promise.all([
-      prisma.submission.count({ where: { assignmentId } }),
-      prisma.submission.count({ where: { assignmentId, isLate: false } }),
-      prisma.submission.count({ where: { assignmentId, isLate: true } }),
-      prisma.submission.count({ where: { assignmentId, grade: { not: null } } }),
-      prisma.submission.aggregate({
-        where: { assignmentId, grade: { not: null } },
-        _avg: { grade: true },
-      }),
-    ]);
+    const [totalSubmissions, onTimeSubmissions, lateSubmissions, gradedSubmissions, gradeStats] =
+      await Promise.all([
+        prisma.submission.count({ where: { assignmentId } }),
+        prisma.submission.count({ where: { assignmentId, isLate: false } }),
+        prisma.submission.count({ where: { assignmentId, isLate: true } }),
+        prisma.submission.count({ where: { assignmentId, grade: { not: null } } }),
+        prisma.submission.aggregate({
+          where: { assignmentId, grade: { not: null } },
+          _avg: { grade: true },
+        }),
+      ]);
     const averageGrade = gradeStats._avg.grade ?? 0;
 
     return {
@@ -102,7 +113,8 @@ export class AssignmentRepository {
       lateSubmissions,
       gradedSubmissions,
       averageGrade: Math.round(averageGrade * 100) / 100,
-      submissionRate: totalSubmissions > 0 ? Math.round((gradedSubmissions / totalSubmissions) * 100) : 0,
+      submissionRate:
+        totalSubmissions > 0 ? Math.round((gradedSubmissions / totalSubmissions) * 100) : 0,
     };
   }
 }

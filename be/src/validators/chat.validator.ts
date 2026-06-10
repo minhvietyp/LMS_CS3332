@@ -5,10 +5,7 @@ export const chatRoomIdParamsSchema = z.object({
 });
 
 export const listChatMessagesQuerySchema = z.object({
-  limit: z
-    .string()
-    .regex(/^\d+$/)
-    .optional(),
+  limit: z.string().regex(/^\d+$/).optional(),
   before: z.string().datetime().optional(),
 });
 

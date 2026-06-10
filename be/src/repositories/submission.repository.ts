@@ -1,9 +1,21 @@
-// @ts-nocheck
 import prisma from '@config/prisma';
 import { Submission, Prisma, SubmissionStatus } from '@prisma/client';
 
+type SubmissionWithDetails = Prisma.SubmissionGetPayload<{
+  include: {
+    assignment: {
+      include: {
+        course: true;
+        instructor: true;
+      };
+    };
+    student: true;
+    gradedByUser: true;
+  };
+}>;
+
 export class SubmissionRepository {
-  async findById(id: string): Promise<Submission | null> {
+  async findById(id: string): Promise<SubmissionWithDetails | null> {
     return prisma.submission.findUnique({
       where: { id },
       include: {
@@ -18,7 +30,7 @@ export class SubmissionRepository {
 
   async findByAssignmentAndStudent(
     assignmentId: string,
-    studentId: string
+    studentId: string,
   ): Promise<Submission | null> {
     return prisma.submission.findUnique({
       where: {
@@ -36,7 +48,7 @@ export class SubmissionRepository {
 
   async findByAssignmentId(
     assignmentId: string,
-    filters?: Prisma.SubmissionWhereInput
+    filters?: Prisma.SubmissionWhereInput,
   ): Promise<Submission[]> {
     return prisma.submission.findMany({
       where: {
@@ -67,10 +79,7 @@ export class SubmissionRepository {
     });
   }
 
-  async findByStudentAndCourse(
-    studentId: string,
-    courseId: string
-  ): Promise<Submission[]> {
+  async findByStudentAndCourse(studentId: string, courseId: string): Promise<Submission[]> {
     return prisma.submission.findMany({
       where: {
         studentId,
@@ -86,7 +95,7 @@ export class SubmissionRepository {
     });
   }
 
-  async create(data: Prisma.SubmissionCreateInput): Promise<Submission> {
+  async create(data: Prisma.SubmissionUncheckedCreateInput): Promise<Submission> {
     return prisma.submission.create({
       data,
       include: {
@@ -99,7 +108,7 @@ export class SubmissionRepository {
     });
   }
 
-  async update(id: string, data: Prisma.SubmissionUpdateInput): Promise<Submission> {
+  async update(id: string, data: Prisma.SubmissionUncheckedUpdateInput): Promise<Submission> {
     return prisma.submission.update({
       where: { id },
       data,
@@ -116,11 +125,11 @@ export class SubmissionRepository {
   async upsert(
     assignmentId: string,
     studentId: string,
-    data: Prisma.SubmissionCreateInput
+    data: Prisma.SubmissionUncheckedCreateInput,
   ): Promise<Submission> {
     return prisma.submission.upsert({
       where: { assignmentId_studentId: { assignmentId, studentId } },
-      update: data as Prisma.SubmissionUpdateInput,
+      update: data,
       create: data,
       include: {
         assignment: {
@@ -154,10 +163,10 @@ export class SubmissionRepository {
     });
 
     const totalSubmissions = submissions.length;
-    const onTimeCount = submissions.filter(s => s.status === SubmissionStatus.ON_TIME).length;
-    const lateCount = submissions.filter(s => s.status === SubmissionStatus.LATE).length;
-    const gradedCount = submissions.filter(s => s.grade !== null).length;
-    const grades = submissions.filter(s => s.grade !== null).map(s => s.grade!);
+    const onTimeCount = submissions.filter((s) => s.status === SubmissionStatus.ON_TIME).length;
+    const lateCount = submissions.filter((s) => s.status === SubmissionStatus.LATE).length;
+    const gradedCount = submissions.filter((s) => s.grade !== null).length;
+    const grades = submissions.filter((s) => s.grade !== null).map((s) => s.grade!);
     const averageGrade = grades.length > 0 ? grades.reduce((a, b) => a + b, 0) / grades.length : 0;
 
     return {
@@ -192,7 +201,7 @@ export class SubmissionRepository {
       },
     });
 
-    const grades = submissions.filter(s => s.grade !== null).map(s => s.grade!);
+    const grades = submissions.filter((s) => s.grade !== null).map((s) => s.grade!);
     const averageGrade = grades.length > 0 ? grades.reduce((a, b) => a + b, 0) / grades.length : 0;
 
     return {
@@ -200,8 +209,8 @@ export class SubmissionRepository {
       totalAssignments,
       submissionRate: Math.round((submissions.length / totalAssignments) * 100),
       averageGrade: Math.round(averageGrade * 100) / 100,
-      onTimeCount: submissions.filter(s => !s.isLate).length,
-      lateCount: submissions.filter(s => s.isLate).length,
+      onTimeCount: submissions.filter((s) => !s.isLate).length,
+      lateCount: submissions.filter((s) => s.isLate).length,
     };
   }
 }

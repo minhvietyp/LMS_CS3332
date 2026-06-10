@@ -108,7 +108,10 @@ describe('AuthService.login', () => {
     });
 
     const expectedRefreshToken = Buffer.from('refresh-token').toString('hex');
-    const expectedTokenHash = crypto.createHash('sha256').update(expectedRefreshToken).digest('hex');
+    const expectedTokenHash = crypto
+      .createHash('sha256')
+      .update(expectedRefreshToken)
+      .digest('hex');
 
     expect(mockedBcrypt.compare).toHaveBeenCalledWith('password123', 'hashed-password');
     expect(mockedSignAccessToken).toHaveBeenCalledWith({
@@ -273,7 +276,9 @@ describe('AuthService password recovery', () => {
     mockedBcrypt.hash.mockResolvedValue('new-hashed-password');
     mockedPrisma.user.update.mockResolvedValue({ id: 'user-1' });
     mockedPrisma.refreshToken.updateMany.mockResolvedValue({ count: 2 });
-    mockedPrisma.$transaction.mockImplementation(async (operations: any[]) => Promise.all(operations));
+    mockedPrisma.$transaction.mockImplementation(async (operations: any[]) =>
+      Promise.all(operations),
+    );
 
     await authService.resetPassword('raw-reset-token', 'NewPassword123');
 
@@ -303,7 +308,9 @@ describe('AuthService password recovery', () => {
       }),
     };
 
-    await expect(authService.resetPassword('expired-token', 'NewPassword123')).rejects.toMatchObject({
+    await expect(
+      authService.resetPassword('expired-token', 'NewPassword123'),
+    ).rejects.toMatchObject({
       statusCode: 400,
       message: 'Invalid or expired password reset token',
     });

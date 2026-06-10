@@ -378,7 +378,10 @@ export class CourseService {
     return modules.filter((module) => module.lessons.length > 0);
   }
 
-  async listResources(id: string, viewer: Viewer): Promise<{ materials: CourseResourceMaterial[] }> {
+  async listResources(
+    id: string,
+    viewer: Viewer,
+  ): Promise<{ materials: CourseResourceMaterial[] }> {
     const course = await prisma.course.findFirst({
       where: {
         id,
@@ -453,29 +456,40 @@ export class CourseService {
    * Create a new course
    */
   async create(data: CreateCourseData, instructorId: string, file?: CourseFile): Promise<Course> {
-    const thumbnailUrl = file ? (await uploadImageBuffer(file.buffer, 'lms/course-thumbnails')).secureUrl : undefined;
+    const thumbnailUrl = file
+      ? (await uploadImageBuffer(file.buffer, 'lms/course-thumbnails')).secureUrl
+      : undefined;
 
-    return prisma.course.create({
-      data: {
-        title: data.title,
-        description: data.description,
-        instructorId,
-        status: COURSE_STATUS.DRAFT,
-        ...(thumbnailUrl ? { thumbnailUrl } : {}),
-      },
-    }).finally(() => this.clearPublicCourseCache());
+    return prisma.course
+      .create({
+        data: {
+          title: data.title,
+          description: data.description,
+          instructorId,
+          status: COURSE_STATUS.DRAFT,
+          ...(thumbnailUrl ? { thumbnailUrl } : {}),
+        },
+      })
+      .finally(() => this.clearPublicCourseCache());
   }
 
   /**
    * Update course details
    */
-  async update(id: string, data: UpdateCourseData, userId: string, userRole: string): Promise<Course> {
+  async update(
+    id: string,
+    data: UpdateCourseData,
+    userId: string,
+    userRole: string,
+  ): Promise<Course> {
     await this.checkOwnership(id, userId, userRole);
 
-    return prisma.course.update({
-      where: { id },
-      data: pickDefined(data),
-    }).finally(() => this.clearPublicCourseCache());
+    return prisma.course
+      .update({
+        where: { id },
+        data: pickDefined(data),
+      })
+      .finally(() => this.clearPublicCourseCache());
   }
 
   async publish(id: string, userId: string, userRole: string): Promise<Course> {
@@ -485,10 +499,12 @@ export class CourseService {
       throw BadRequestError('Only draft courses can be published');
     }
 
-    return prisma.course.update({
-      where: { id },
-      data: { status: COURSE_STATUS.PUBLISHED },
-    }).finally(() => this.clearPublicCourseCache());
+    return prisma.course
+      .update({
+        where: { id },
+        data: { status: COURSE_STATUS.PUBLISHED },
+      })
+      .finally(() => this.clearPublicCourseCache());
   }
 
   async archive(id: string, userId: string, userRole: string): Promise<Course> {
@@ -498,23 +514,32 @@ export class CourseService {
       throw BadRequestError('Only published courses can be archived');
     }
 
-    return prisma.course.update({
-      where: { id },
-      data: { status: COURSE_STATUS.ARCHIVED },
-    }).finally(() => this.clearPublicCourseCache());
+    return prisma.course
+      .update({
+        where: { id },
+        data: { status: COURSE_STATUS.ARCHIVED },
+      })
+      .finally(() => this.clearPublicCourseCache());
   }
 
-  async updateThumbnail(id: string, userId: string, userRole: string, file: CourseFile): Promise<Course> {
+  async updateThumbnail(
+    id: string,
+    userId: string,
+    userRole: string,
+    file: CourseFile,
+  ): Promise<Course> {
     await this.checkOwnership(id, userId, userRole);
 
     const uploaded = await uploadImageBuffer(file.buffer, 'lms/course-thumbnails');
 
-    return prisma.course.update({
-      where: { id },
-      data: {
-        thumbnailUrl: uploaded.secureUrl,
-      },
-    }).finally(() => this.clearPublicCourseCache());
+    return prisma.course
+      .update({
+        where: { id },
+        data: {
+          thumbnailUrl: uploaded.secureUrl,
+        },
+      })
+      .finally(() => this.clearPublicCourseCache());
   }
 
   /**
@@ -546,13 +571,15 @@ export class CourseService {
       throw ForbiddenError('You do not have permission to modify this course');
     }
 
-    return prisma.course.update({
-      where: { id },
-      data: {
-        deletedAt: null,
-        deletedBy: null,
-      },
-    }).finally(() => this.clearPublicCourseCache());
+    return prisma.course
+      .update({
+        where: { id },
+        data: {
+          deletedAt: null,
+          deletedBy: null,
+        },
+      })
+      .finally(() => this.clearPublicCourseCache());
   }
 
   /**

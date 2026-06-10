@@ -8,6 +8,12 @@ import { RegisterDto, LoginDto } from '../validators/auth.validator';
 import { User, UserRole } from '@prisma/client';
 import { EmailService } from './email.service';
 
+function omitPassword(user: User): Omit<User, 'password'> {
+  const userWithoutPassword = { ...user } as Partial<User>;
+  delete userWithoutPassword.password;
+  return userWithoutPassword as Omit<User, 'password'>;
+}
+
 export class AuthService {
   private emailService = new EmailService();
   private passwordResetExpiryMinutes = 30;
@@ -15,7 +21,9 @@ export class AuthService {
   /**
    * Register a new user (Student by default)
    */
-  async register(data: RegisterDto): Promise<{ accessToken: string; refreshToken: string; user: Omit<User, 'password'> }> {
+  async register(
+    data: RegisterDto,
+  ): Promise<{ accessToken: string; refreshToken: string; user: Omit<User, 'password'> }> {
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
     });
@@ -54,19 +62,19 @@ export class AuthService {
       },
     });
 
-    const { password: _p, ...userWithoutPassword } = user;
-
     return {
       accessToken,
       refreshToken: refreshTokenString,
-      user: userWithoutPassword,
+      user: omitPassword(user),
     };
   }
 
   /**
    * Login user and generate access & refresh tokens
    */
-  async login(data: LoginDto): Promise<{ accessToken: string; refreshToken: string; user: Omit<User, 'password'> }> {
+  async login(
+    data: LoginDto,
+  ): Promise<{ accessToken: string; refreshToken: string; user: Omit<User, 'password'> }> {
     const user = await prisma.user.findUnique({
       where: { email: data.email },
     });
@@ -98,12 +106,10 @@ export class AuthService {
       },
     });
 
-    const { password, ...userWithoutPassword } = user;
-
     return {
       accessToken,
       refreshToken: refreshTokenString,
-      user: userWithoutPassword,
+      user: omitPassword(user),
     };
   }
 

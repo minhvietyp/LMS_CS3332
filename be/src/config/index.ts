@@ -23,7 +23,10 @@ export const config = {
     isDevelopment: optionalEnv('NODE_ENV', 'development') === 'development',
     jsonBodyLimit: optionalEnv('JSON_BODY_LIMIT', '100kb'),
     trustProxy: optionalEnv('TRUST_PROXY', 'false') === 'true',
-    logLevel: optionalEnv('LOG_LEVEL', optionalEnv('NODE_ENV', 'development') === 'development' ? 'debug' : 'info'),
+    logLevel: optionalEnv(
+      'LOG_LEVEL',
+      optionalEnv('NODE_ENV', 'development') === 'development' ? 'debug' : 'info',
+    ),
     slowRequestThresholdMs: parseInt(optionalEnv('SLOW_REQUEST_THRESHOLD_MS', '1000'), 10),
     version: optionalEnv('APP_VERSION', process.env.npm_package_version ?? '0.0.0'),
   },

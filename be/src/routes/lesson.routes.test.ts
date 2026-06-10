@@ -153,7 +153,9 @@ describe('lesson routes', () => {
       id: where.id,
       orderIndex: data.orderIndex,
     }));
-    mockedPrisma.$transaction.mockImplementation(async (operations: Array<Promise<unknown>>) => Promise.all(operations));
+    mockedPrisma.$transaction.mockImplementation(async (operations: Array<Promise<unknown>>) =>
+      Promise.all(operations),
+    );
 
     const response = await request(createApp())
       .patch(`/api/v1/lessons/courses/${courseId}/modules/reorder`)
@@ -230,7 +232,15 @@ describe('lesson routes', () => {
       isPublished: false,
       deletedAt: null,
       module: { id: moduleId, courseId, title: 'Module 1', orderIndex: 0 },
-      materials: [{ id: '55555555-5555-5555-5555-555555555555', lessonId, title: 'Handout', type: 'pdf', url: 'https://cdn.example.com/handout.pdf' }],
+      materials: [
+        {
+          id: '55555555-5555-5555-5555-555555555555',
+          lessonId,
+          title: 'Handout',
+          type: 'pdf',
+          url: 'https://cdn.example.com/handout.pdf',
+        },
+      ],
     });
     mockedPrisma.course.findUnique.mockResolvedValue({
       id: courseId,
@@ -255,12 +265,17 @@ describe('lesson routes', () => {
       id: courseId,
       instructorId: 'instructor-1',
     });
-    mockedPrisma.lesson.findMany.mockResolvedValue([{ id: lessonId }, { id: '55555555-5555-5555-5555-555555555555' }]);
+    mockedPrisma.lesson.findMany.mockResolvedValue([
+      { id: lessonId },
+      { id: '55555555-5555-5555-5555-555555555555' },
+    ]);
     mockedPrisma.lesson.update.mockImplementation(async ({ where, data }: any) => ({
       id: where.id,
       orderIndex: data.orderIndex,
     }));
-    mockedPrisma.$transaction.mockImplementation(async (operations: Array<Promise<unknown>>) => Promise.all(operations));
+    mockedPrisma.$transaction.mockImplementation(async (operations: Array<Promise<unknown>>) =>
+      Promise.all(operations),
+    );
 
     const response = await request(createApp())
       .patch(`/api/v1/lessons/modules/${moduleId}/lessons/reorder`)
@@ -388,7 +403,10 @@ describe('lesson routes', () => {
       .set('Authorization', 'Bearer valid-token')
       .field('title', 'Lesson handout')
       .field('type', 'pdf')
-      .attach('file', Buffer.from('material-bytes'), { filename: 'handout.pdf', contentType: 'application/pdf' });
+      .attach('file', Buffer.from('material-bytes'), {
+        filename: 'handout.pdf',
+        contentType: 'application/pdf',
+      });
 
     expect(response.status).toBe(201);
     expect(response.body.message).toBe('Material uploaded successfully');
@@ -412,7 +430,10 @@ describe('lesson routes', () => {
       .set('Authorization', 'Bearer valid-token')
       .field('title', 'Executable')
       .field('type', 'reading')
-      .attach('file', Buffer.from('binary'), { filename: 'app.exe', contentType: 'application/octet-stream' });
+      .attach('file', Buffer.from('binary'), {
+        filename: 'app.exe',
+        contentType: 'application/octet-stream',
+      });
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe('Only image uploads are allowed');
@@ -435,6 +456,8 @@ describe('lesson routes', () => {
       .send({ title: 'Module 2' });
 
     expect(response.status).toBe(403);
-    expect(response.body.message).toBe('You do not have permission to manage content for this course');
+    expect(response.body.message).toBe(
+      'You do not have permission to manage content for this course',
+    );
   });
 });

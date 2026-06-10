@@ -31,7 +31,11 @@ export class AuthController {
 
   async forgotPassword(req: Request, res: Response) {
     await authService.forgotPassword(req.body.email);
-    return ApiResponse.success(res, null, 'If the account exists, a password reset email has been sent');
+    return ApiResponse.success(
+      res,
+      null,
+      'If the account exists, a password reset email has been sent',
+    );
   }
 
   async resetPassword(req: Request, res: Response) {

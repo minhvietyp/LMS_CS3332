@@ -254,7 +254,9 @@ describe('quiz routes', () => {
       .set('Authorization', 'Bearer valid-token');
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe('True/false questions must contain exactly two options before publishing');
+    expect(response.body.message).toBe(
+      'True/false questions must contain exactly two options before publishing',
+    );
   });
 
   it('unpublishes a published quiz', async () => {
@@ -735,7 +737,9 @@ describe('quiz routes', () => {
       });
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe('Submitted answer option does not belong to the specified question');
+    expect(response.body.message).toBe(
+      'Submitted answer option does not belong to the specified question',
+    );
   });
 
   it('returns the result for a student-owned attempt', async () => {

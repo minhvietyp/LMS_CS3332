@@ -12,7 +12,10 @@ export class NotificationService {
     return notification;
   }
 
-  async list(userId: string, query: { limit?: string; cursor?: string; unreadOnly?: boolean } = {}): Promise<Notification[]> {
+  async list(
+    userId: string,
+    query: { limit?: string; cursor?: string; unreadOnly?: boolean } = {},
+  ): Promise<Notification[]> {
     const limit = Math.min(100, Math.max(1, parseInt(String(query.limit ?? '50'), 10)));
     return prisma.notification.findMany({
       where: {

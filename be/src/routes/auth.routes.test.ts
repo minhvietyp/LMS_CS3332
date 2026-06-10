@@ -151,7 +151,9 @@ describe('auth routes', () => {
       .send({ email: 'student@example.com' });
 
     expect(response.status).toBe(200);
-    expect(response.body.message).toBe('If the account exists, a password reset email has been sent');
+    expect(response.body.message).toBe(
+      'If the account exists, a password reset email has been sent',
+    );
     expect(authServiceMock.forgotPassword).toHaveBeenCalledWith('student@example.com');
   });
 
@@ -167,13 +169,11 @@ describe('auth routes', () => {
   it('resets the password with a valid token', async () => {
     authServiceMock.resetPassword.mockResolvedValue(undefined);
 
-    const response = await request(createApp())
-      .post('/api/v1/auth/reset-password')
-      .send({
-        token: 'raw-reset-token',
-        password: 'NewPassword123',
-        confirmPassword: 'NewPassword123',
-      });
+    const response = await request(createApp()).post('/api/v1/auth/reset-password').send({
+      token: 'raw-reset-token',
+      password: 'NewPassword123',
+      confirmPassword: 'NewPassword123',
+    });
 
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Password reset successful');

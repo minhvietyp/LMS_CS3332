@@ -39,9 +39,10 @@ export function errorHandler(
   }
 
   if (err instanceof MulterError) {
-    const message = err.code === 'LIMIT_FILE_SIZE'
-      ? 'Avatar image must be 5 MB or smaller'
-      : 'Only image uploads are allowed';
+    const message =
+      err.code === 'LIMIT_FILE_SIZE'
+        ? 'Avatar image must be 5 MB or smaller'
+        : 'Only image uploads are allowed';
 
     res.status(400).json({
       success: false,
@@ -90,12 +91,10 @@ interface PrismaKnownError {
 }
 
 function isPrismaError(err: unknown): err is PrismaKnownError {
-  const code = typeof err === 'object' && err !== null ? (err as Record<string, unknown>).code : undefined;
+  const code =
+    typeof err === 'object' && err !== null ? (err as Record<string, unknown>).code : undefined;
 
-  return (
-    typeof code === 'string' &&
-    code.startsWith('P')
-  );
+  return typeof code === 'string' && code.startsWith('P');
 }
 
 function mapPrismaError(err: PrismaKnownError): {

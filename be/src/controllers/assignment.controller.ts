@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { AssignmentService } from '../services/assignment.service';
 import { ApiResponse } from '@shared/utils/ApiResponse';
 import { BadRequestError } from '@shared/errors/AppError';
+import { Prisma } from '@prisma/client';
 
 const assignmentService = new AssignmentService();
 
@@ -12,26 +13,18 @@ export class AssignmentController {
     const result = await assignmentService.listByCourse(
       req.params.courseId,
       req.user!.sub,
-      req.user!.role
+      req.user!.role,
     );
     return ApiResponse.success(res, result, 'Assignments fetched successfully');
   }
 
   async getById(req: Request, res: Response) {
-    const result = await assignmentService.getById(
-      req.params.id,
-      req.user!.sub,
-      req.user!.role
-    );
+    const result = await assignmentService.getById(req.params.id, req.user!.sub, req.user!.role);
     return ApiResponse.success(res, result, 'Assignment fetched successfully');
   }
 
   async create(req: Request, res: Response) {
-    const result = await assignmentService.create(
-      req.body,
-      req.user!.sub,
-      req.user!.role
-    );
+    const result = await assignmentService.create(req.body, req.user!.sub, req.user!.role);
     return ApiResponse.created(res, result, 'Assignment created successfully');
   }
 
@@ -40,7 +33,7 @@ export class AssignmentController {
       req.params.id,
       req.body,
       req.user!.sub,
-      req.user!.role
+      req.user!.role,
     );
     return ApiResponse.success(res, result, 'Assignment updated successfully');
   }
@@ -54,7 +47,7 @@ export class AssignmentController {
     const result = await assignmentService.getStatistics(
       req.params.id,
       req.user!.sub,
-      req.user!.role
+      req.user!.role,
     );
     return ApiResponse.success(res, result, 'Assignment statistics fetched');
   }
@@ -62,11 +55,7 @@ export class AssignmentController {
   // ─── Submission Management ────────────────────────────────────────────
 
   async submitAssignment(req: Request, res: Response) {
-    const result = await assignmentService.submitAssignment(
-      req.params.id,
-      req.user!.sub,
-      req.body
-    );
+    const result = await assignmentService.submitAssignment(req.params.id, req.user!.sub, req.body);
     return ApiResponse.success(res, result, 'Assignment submitted successfully');
   }
 
@@ -92,10 +81,7 @@ export class AssignmentController {
   }
 
   async getStudentAssignmentById(req: Request, res: Response) {
-    const result = await assignmentService.getStudentAssignmentById(
-      req.params.id,
-      req.user!.sub,
-    );
+    const result = await assignmentService.getStudentAssignmentById(req.params.id, req.user!.sub);
     return ApiResponse.success(res, result, 'Assignment fetched successfully');
   }
 
@@ -103,7 +89,7 @@ export class AssignmentController {
     const result = await assignmentService.getSubmission(
       req.params.submissionId,
       req.user!.sub,
-      req.user!.role
+      req.user!.role,
     );
     return ApiResponse.success(res, result, 'Submission fetched successfully');
   }
@@ -113,7 +99,7 @@ export class AssignmentController {
       req.params.id,
       req.user!.sub,
       req.user!.role,
-      req.query
+      req.query as Prisma.SubmissionWhereInput,
     );
     return ApiResponse.success(res, result, 'Submissions fetched successfully');
   }
@@ -121,7 +107,7 @@ export class AssignmentController {
   async listStudentSubmissions(req: Request, res: Response) {
     const result = await assignmentService.listStudentSubmissions(
       req.user!.sub,
-      req.params.courseId
+      req.params.courseId,
     );
     return ApiResponse.success(res, result, 'Submissions fetched successfully');
   }
@@ -131,7 +117,7 @@ export class AssignmentController {
       req.params.submissionId,
       req.user!.sub,
       req.user!.role,
-      req.body
+      req.body,
     );
     return ApiResponse.success(res, result, 'Submission graded successfully');
   }
@@ -149,7 +135,7 @@ export class AssignmentController {
     const result = await assignmentService.getSubmissionStatistics(
       req.params.id,
       req.user!.sub,
-      req.user!.role
+      req.user!.role,
     );
     return ApiResponse.success(res, result, 'Submission statistics fetched');
   }

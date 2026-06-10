@@ -7,7 +7,11 @@ const progressService = new ProgressService();
 export class ProgressController {
   async markComplete(req: Request, res: Response) {
     const { isCompleted } = req.body;
-    const result = await progressService.markComplete(req.params.lessonId, req.user!.sub, isCompleted);
+    const result = await progressService.markComplete(
+      req.params.lessonId,
+      req.user!.sub,
+      isCompleted,
+    );
     return ApiResponse.success(res, result, 'Lesson progress updated successfully');
   }
 
@@ -23,7 +27,11 @@ export class ProgressController {
   }
 
   async getStudentProgress(req: Request, res: Response) {
-    const result = await progressService.getInstructorCourseProgress(req.params.courseId, req.user!, req.query);
+    const result = await progressService.getInstructorCourseProgress(
+      req.params.courseId,
+      req.user!,
+      req.query,
+    );
     return ApiResponse.success(res, result, 'Instructor course progress retrieved successfully');
   }
 
@@ -33,7 +41,11 @@ export class ProgressController {
       req.params.studentId,
       req.user!,
     );
-    return ApiResponse.success(res, result, 'Student course progress detail retrieved successfully');
+    return ApiResponse.success(
+      res,
+      result,
+      'Student course progress detail retrieved successfully',
+    );
   }
 
   async getAdminOverview(req: Request, res: Response) {
@@ -52,7 +64,11 @@ export class ProgressController {
   }
 
   async getCourseHistory(req: Request, res: Response) {
-    const result = await progressService.getCourseProgressHistory(req.params.courseId, req.user!, req.query);
+    const result = await progressService.getCourseProgressHistory(
+      req.params.courseId,
+      req.user!,
+      req.query,
+    );
     return ApiResponse.success(res, result, 'Course progress history retrieved successfully');
   }
 
@@ -63,7 +79,11 @@ export class ProgressController {
       req.user!,
       req.query,
     );
-    return ApiResponse.success(res, result, 'Student course progress history retrieved successfully');
+    return ApiResponse.success(
+      res,
+      result,
+      'Student course progress history retrieved successfully',
+    );
   }
 
   async getOverview(req: Request, res: Response) {

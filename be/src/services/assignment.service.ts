@@ -1,12 +1,32 @@
-// @ts-nocheck
 import prisma from '@config/prisma';
 import { NotFoundError, ForbiddenError, BadRequestError } from '@shared/errors/AppError';
-import { Assignment, Submission, SubmissionStatus } from '@prisma/client';
+import { Assignment, Prisma, Submission, SubmissionStatus } from '@prisma/client';
 import { pickDefined } from '@shared/utils/helpers';
 import { USER_ROLES } from '@shared/constants';
 import { uploadRawBuffer } from '@shared/utils/cloudinary';
 import { AssignmentRepository } from '../repositories/assignment.repository';
 import { SubmissionRepository } from '../repositories/submission.repository';
+
+interface CreateAssignmentData {
+  courseId: string;
+  title: string;
+  description?: string | null;
+  dueDate: Date | string;
+  allowLateSubmission?: boolean;
+}
+
+type UpdateAssignmentData = Partial<Omit<CreateAssignmentData, 'courseId'>>;
+
+interface SubmitAssignmentData {
+  textContent?: string | null;
+  fileUrl?: string | null;
+  fileName?: string | null;
+}
+
+interface GradeSubmissionData {
+  grade: number | string;
+  feedback?: string | null;
+}
 
 export class AssignmentService {
   private assignmentRepo = new AssignmentRepository();
@@ -43,14 +63,18 @@ export class AssignmentService {
   async getById(id: string, userId: string, userRole: string) {
     const assignment = await this.assignmentRepo.findById(id);
     if (!assignment) throw NotFoundError('Assignment not found');
-    
+
     await this.checkCourseOwnership(assignment.courseId, userId, userRole);
     return assignment;
   }
 
-  async create(data: any, instructorId: string, userRole: string): Promise<Assignment> {
+  async create(
+    data: CreateAssignmentData,
+    instructorId: string,
+    userRole: string,
+  ): Promise<Assignment> {
     await this.checkCourseOwnership(data.courseId, instructorId, userRole);
-    
+
     return this.assignmentRepo.create({
       courseId: data.courseId,
       title: data.title,
@@ -58,29 +82,35 @@ export class AssignmentService {
       dueDate: data.dueDate,
       allowLateSubmission: data.allowLateSubmission ?? true,
       createdBy: instructorId,
-      course: { connect: { id: data.courseId } },
-      instructor: { connect: { id: instructorId } },
-    });
+    } satisfies Prisma.AssignmentUncheckedCreateInput);
   }
 
-  async update(id: string, data: any, userId: string, userRole: string): Promise<Assignment> {
+  async update(
+    id: string,
+    data: UpdateAssignmentData,
+    userId: string,
+    userRole: string,
+  ): Promise<Assignment> {
     const assignment = await this.assignmentRepo.findById(id);
     if (!assignment) throw NotFoundError('Assignment not found');
-    
+
     await this.checkCourseOwnership(assignment.courseId, userId, userRole);
-    
-    return this.assignmentRepo.update(id, pickDefined({
-      title: data.title,
-      description: data.description,
-      dueDate: data.dueDate,
-      allowLateSubmission: data.allowLateSubmission,
-    }));
+
+    return this.assignmentRepo.update(
+      id,
+      pickDefined({
+        title: data.title,
+        description: data.description,
+        dueDate: data.dueDate,
+        allowLateSubmission: data.allowLateSubmission,
+      }),
+    );
   }
 
   async softDelete(id: string, userId: string, userRole: string): Promise<Assignment> {
     const assignment = await this.assignmentRepo.findById(id);
     if (!assignment) throw NotFoundError('Assignment not found');
-    
+
     await this.checkCourseOwnership(assignment.courseId, userId, userRole);
     return this.assignmentRepo.softDelete(id, userId);
   }
@@ -88,7 +118,7 @@ export class AssignmentService {
   async delete(id: string, userId: string, userRole: string): Promise<void> {
     const assignment = await this.assignmentRepo.findById(id);
     if (!assignment) throw NotFoundError('Assignment not found');
-    
+
     await this.checkCourseOwnership(assignment.courseId, userId, userRole);
     await this.assignmentRepo.delete(id);
   }
@@ -96,7 +126,7 @@ export class AssignmentService {
   async getStatistics(assignmentId: string, userId: string, userRole: string) {
     const assignment = await this.assignmentRepo.findById(assignmentId);
     if (!assignment) throw NotFoundError('Assignment not found');
-    
+
     await this.checkCourseOwnership(assignment.courseId, userId, userRole);
     return this.assignmentRepo.getStatistics(assignmentId);
   }
@@ -106,7 +136,7 @@ export class AssignmentService {
   async submitAssignment(
     assignmentId: string,
     studentId: string,
-    data: any
+    data: SubmitAssignmentData,
   ): Promise<Submission> {
     const assignment = await prisma.assignment.findUnique({
       where: { id: assignmentId },
@@ -126,10 +156,10 @@ export class AssignmentService {
     // Check for existing submission
     const existingSubmission = await this.submissionRepo.findByAssignmentAndStudent(
       assignmentId,
-      studentId
+      studentId,
     );
 
-    const submissionData = {
+    const submissionData: Prisma.SubmissionUncheckedCreateInput = {
       assignmentId,
       studentId,
       textContent: data.textContent ?? null,
@@ -138,15 +168,13 @@ export class AssignmentService {
       isLate: timing.isLate,
       submittedAt: now,
       status: timing.status,
-      assignment: { connect: { id: assignmentId } },
-      student: { connect: { id: studentId } },
     };
 
     if (existingSubmission) {
       return this.submissionRepo.update(existingSubmission.id, submissionData);
     }
 
-    return this.submissionRepo.create(submissionData as any);
+    return this.submissionRepo.create(submissionData);
   }
 
   async uploadSubmissionFile(assignmentId: string, studentId: string, file: Express.Multer.File) {
@@ -212,18 +240,14 @@ export class AssignmentService {
     return assignment;
   }
 
-  async getSubmission(
-    submissionId: string,
-    userId: string,
-    userRole: string
-  ): Promise<Submission> {
+  async getSubmission(submissionId: string, userId: string, userRole: string): Promise<Submission> {
     const submission = await this.submissionRepo.findById(submissionId);
     if (!submission) throw NotFoundError('Submission not found');
 
     // Check authorization: student can view own, instructor/admin can view course submissions
     const isOwnSubmission = submission.studentId === userId;
-    const isInstructor = userRole === USER_ROLES.INSTRUCTOR && 
-                         submission.assignment.instructor.id === userId;
+    const isInstructor =
+      userRole === USER_ROLES.INSTRUCTOR && submission.assignment.instructor.id === userId;
     const isAdmin = userRole === USER_ROLES.ADMIN;
 
     if (!isOwnSubmission && !isInstructor && !isAdmin) {
@@ -237,7 +261,7 @@ export class AssignmentService {
     assignmentId: string,
     userId: string,
     userRole: string,
-    filters?: any
+    filters?: Prisma.SubmissionWhereInput,
   ): Promise<Submission[]> {
     const assignment = await this.assignmentRepo.findById(assignmentId);
     if (!assignment) throw NotFoundError('Assignment not found');
@@ -247,10 +271,7 @@ export class AssignmentService {
     return this.submissionRepo.findByAssignmentId(assignmentId, filters);
   }
 
-  async listStudentSubmissions(
-    studentId: string,
-    courseId: string
-  ): Promise<Submission[]> {
+  async listStudentSubmissions(studentId: string, courseId: string): Promise<Submission[]> {
     return this.submissionRepo.findByStudentAndCourse(studentId, courseId);
   }
 
@@ -258,19 +279,15 @@ export class AssignmentService {
     submissionId: string,
     instructorId: string,
     userRole: string,
-    data: any
+    data: GradeSubmissionData,
   ): Promise<Submission> {
     const submission = await this.submissionRepo.findById(submissionId);
     if (!submission) throw NotFoundError('Submission not found');
 
-    await this.checkCourseOwnership(
-      submission.assignment.courseId,
-      instructorId,
-      userRole
-    );
+    await this.checkCourseOwnership(submission.assignment.courseId, instructorId, userRole);
 
     // Validate grade
-    const grade = parseInt(data.grade, 10);
+    const grade = parseInt(String(data.grade), 10);
     if (isNaN(grade) || grade < 0 || grade > 100) {
       throw BadRequestError('Grade must be a number between 0 and 100');
     }
@@ -292,11 +309,7 @@ export class AssignmentService {
     const submission = await this.submissionRepo.findById(submissionId);
     if (!submission) throw NotFoundError('Submission not found');
 
-    await this.checkCourseOwnership(
-      submission.assignment.courseId,
-      instructorId,
-      userRole,
-    );
+    await this.checkCourseOwnership(submission.assignment.courseId, instructorId, userRole);
 
     if (submission.status !== SubmissionStatus.GRADED) {
       throw BadRequestError('Submission must be graded before it can be returned');
@@ -307,11 +320,7 @@ export class AssignmentService {
     });
   }
 
-  async getSubmissionStatistics(
-    assignmentId: string,
-    userId: string,
-    userRole: string
-  ) {
+  async getSubmissionStatistics(assignmentId: string, userId: string, userRole: string) {
     const assignment = await this.assignmentRepo.findById(assignmentId);
     if (!assignment) throw NotFoundError('Assignment not found');
 
@@ -319,10 +328,7 @@ export class AssignmentService {
     return this.submissionRepo.getStatisticsByAssignment(assignmentId);
   }
 
-  async getStudentAssignmentStatistics(
-    studentId: string,
-    courseId: string
-  ) {
+  async getStudentAssignmentStatistics(studentId: string, courseId: string) {
     return this.submissionRepo.getStatisticsByStudent(studentId, courseId);
   }
 
@@ -331,11 +337,11 @@ export class AssignmentService {
   private async checkCourseOwnership(
     courseId: string,
     userId: string,
-    userRole: string
+    userRole: string,
   ): Promise<void> {
     const course = await prisma.course.findUnique({ where: { id: courseId } });
     if (!course) throw NotFoundError('Course not found');
-    
+
     if (userRole !== USER_ROLES.ADMIN && course.instructorId !== userId) {
       throw ForbiddenError('Access denied');
     }

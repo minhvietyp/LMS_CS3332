@@ -48,7 +48,9 @@ describe('assignment.validator', () => {
   });
 
   it('accepts text-only, file-only, and mixed submissions', () => {
-    expect(submitAssignmentSchema.parse({ textContent: 'My answer' }).textContent).toBe('My answer');
+    expect(submitAssignmentSchema.parse({ textContent: 'My answer' }).textContent).toBe(
+      'My answer',
+    );
     expect(
       submitAssignmentSchema.parse({
         fileUrl: 'https://files.local/report.pdf',
@@ -97,15 +99,16 @@ describe('assignment.validator', () => {
   });
 
   it('accepts valid route params', () => {
-    expect(courseIdParamsSchema.parse({ courseId: '11111111-1111-1111-1111-111111111111' }).courseId).toBe(
-      '11111111-1111-1111-1111-111111111111',
-    );
+    expect(
+      courseIdParamsSchema.parse({ courseId: '11111111-1111-1111-1111-111111111111' }).courseId,
+    ).toBe('11111111-1111-1111-1111-111111111111');
     expect(assignmentIdParamsSchema.parse({ id: '22222222-2222-2222-2222-222222222222' }).id).toBe(
       '22222222-2222-2222-2222-222222222222',
     );
-    expect(submissionIdParamsSchema.parse({ submissionId: '33333333-3333-3333-3333-333333333333' }).submissionId).toBe(
-      '33333333-3333-3333-3333-333333333333',
-    );
+    expect(
+      submissionIdParamsSchema.parse({ submissionId: '33333333-3333-3333-3333-333333333333' })
+        .submissionId,
+    ).toBe('33333333-3333-3333-3333-333333333333');
   });
 
   it('rejects invalid route params', () => {

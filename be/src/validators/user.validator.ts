@@ -51,14 +51,16 @@ export const updateContactSchema = z.object({
   githubUrl: z.string().url().optional().or(z.literal('')),
 });
 
-export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(6),
-  newPassword: z.string().min(6),
-  confirmPassword: z.string().min(6),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(6),
+    newPassword: z.string().min(6),
+    confirmPassword: z.string().min(6),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
 
 export const createUserSchema = z.object({
   name: z.string().min(2).max(100),
@@ -74,9 +76,18 @@ export const listUsersQuerySchema = z.object({
   limit: z.string().regex(/^\d+$/).optional(),
   search: z.string().trim().max(200).optional(),
   role: roleEnum.optional(),
-  isActive: z.string().transform(v => v === 'true').optional(),
-  includeDeleted: z.string().transform(v => v === 'true').optional(),
-  deleted: z.string().transform(v => v === 'true').optional(),
+  isActive: z
+    .string()
+    .transform((v) => v === 'true')
+    .optional(),
+  includeDeleted: z
+    .string()
+    .transform((v) => v === 'true')
+    .optional(),
+  deleted: z
+    .string()
+    .transform((v) => v === 'true')
+    .optional(),
 });
 
 export type CreateUserDto = z.infer<typeof createUserSchema>;

@@ -110,7 +110,11 @@ export class EmailService {
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown email delivery error';
-      logger.error('Email delivery failed', { error: message, recipient: payload.recipient, template: payload.template });
+      logger.error('Email delivery failed', {
+        error: message,
+        recipient: payload.recipient,
+        template: payload.template,
+      });
 
       return this.createLog({
         userId: payload.userId,

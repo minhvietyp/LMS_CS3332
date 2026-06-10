@@ -182,7 +182,12 @@ export class QuizService {
     });
   }
 
-  async setPublishedState(id: string, isPublished: boolean, userId: string, userRole: string): Promise<Quiz> {
+  async setPublishedState(
+    id: string,
+    isPublished: boolean,
+    userId: string,
+    userRole: string,
+  ): Promise<Quiz> {
     const quiz = await prisma.quiz.findUnique({
       where: { id },
       include: {
@@ -204,11 +209,15 @@ export class QuizService {
       for (const question of quiz.questions) {
         const correctOptions = question.answerOptions.filter((option) => option.isCorrect);
         if (correctOptions.length !== 1) {
-          throw BadRequestError('Each question must have exactly one correct answer before publishing');
+          throw BadRequestError(
+            'Each question must have exactly one correct answer before publishing',
+          );
         }
 
         if (question.type === QUESTION_TYPE.TRUE_FALSE && question.answerOptions.length !== 2) {
-          throw BadRequestError('True/false questions must contain exactly two options before publishing');
+          throw BadRequestError(
+            'True/false questions must contain exactly two options before publishing',
+          );
         }
       }
     }
@@ -234,7 +243,8 @@ export class QuizService {
     if (quiz.isPublished) throw BadRequestError('Unpublish the quiz before editing questions');
 
     const { options, ...questionData } = data;
-    const nextOrderIndex = questionData.orderIndex ?? (await prisma.question.count({ where: { quizId } }));
+    const nextOrderIndex =
+      questionData.orderIndex ?? (await prisma.question.count({ where: { quizId } }));
 
     return prisma.question.create({
       data: {
@@ -255,8 +265,10 @@ export class QuizService {
       include: { quiz: true },
     });
     if (!question) throw NotFoundError('Question not found');
-    if (question.quiz.courseId) await this.checkCourseOwnership(question.quiz.courseId, userId, userRole);
-    if (question.quiz.isPublished) throw BadRequestError('Unpublish the quiz before editing questions');
+    if (question.quiz.courseId)
+      await this.checkCourseOwnership(question.quiz.courseId, userId, userRole);
+    if (question.quiz.isPublished)
+      throw BadRequestError('Unpublish the quiz before editing questions');
 
     const { options, ...questionData } = data;
 
@@ -290,8 +302,10 @@ export class QuizService {
       include: { quiz: true },
     });
     if (!question) throw NotFoundError('Question not found');
-    if (question.quiz.courseId) await this.checkCourseOwnership(question.quiz.courseId, userId, userRole);
-    if (question.quiz.isPublished) throw BadRequestError('Unpublish the quiz before removing questions');
+    if (question.quiz.courseId)
+      await this.checkCourseOwnership(question.quiz.courseId, userId, userRole);
+    if (question.quiz.isPublished)
+      throw BadRequestError('Unpublish the quiz before removing questions');
 
     await prisma.question.delete({ where: { id: questionId } });
   }
@@ -386,7 +400,9 @@ export class QuizService {
       answers: attempt.quiz.questions.map((question) => {
         const submittedAnswer = attempt.answers.find((answer) => answer.questionId === question.id);
         const correctOption = question.answerOptions.find((option) => option.isCorrect);
-        const selectedOption = question.answerOptions.find((option) => option.id === submittedAnswer?.selectedOptionId);
+        const selectedOption = question.answerOptions.find(
+          (option) => option.id === submittedAnswer?.selectedOptionId,
+        );
 
         return {
           questionId: question.id,
@@ -401,7 +417,12 @@ export class QuizService {
     };
   }
 
-  async submit(quizId: string, attemptId: string, studentId: string, answers: any[]): Promise<QuizAttempt> {
+  async submit(
+    quizId: string,
+    attemptId: string,
+    studentId: string,
+    answers: any[],
+  ): Promise<QuizAttempt> {
     const quiz = await prisma.quiz.findUnique({
       where: { id: quizId },
       include: { questions: { include: { answerOptions: true } } },
@@ -439,7 +460,9 @@ export class QuizService {
         throw BadRequestError('Submitted question does not belong to this quiz');
       }
 
-      const selectedOption = question.answerOptions.find((option) => option.id === answer.selectedOptionId);
+      const selectedOption = question.answerOptions.find(
+        (option) => option.id === answer.selectedOptionId,
+      );
       if (!selectedOption) {
         throw BadRequestError('Submitted answer option does not belong to the specified question');
       }
@@ -451,11 +474,12 @@ export class QuizService {
       passingScore: quiz.passingScore,
     });
 
-    const attemptAnswersData: Prisma.QuizAttemptAnswerCreateManyAttemptInput[] = gradingResult.answers.map((answer) => ({
-      questionId: answer.questionId,
-      selectedOptionId: answer.selectedOptionId,
-      isCorrect: answer.isCorrect,
-    }));
+    const attemptAnswersData: Prisma.QuizAttemptAnswerCreateManyAttemptInput[] =
+      gradingResult.answers.map((answer) => ({
+        questionId: answer.questionId,
+        selectedOptionId: answer.selectedOptionId,
+        isCorrect: answer.isCorrect,
+      }));
 
     return prisma.quizAttempt.update({
       where: {
@@ -472,7 +496,11 @@ export class QuizService {
     });
   }
 
-  private async checkCourseOwnership(courseId: string, userId: string, userRole: string): Promise<void> {
+  private async checkCourseOwnership(
+    courseId: string,
+    userId: string,
+    userRole: string,
+  ): Promise<void> {
     const course = await prisma.course.findUnique({ where: { id: courseId } });
     if (!course) throw NotFoundError('Course not found');
     if (userRole !== USER_ROLES.ADMIN && course.instructorId !== userId) {

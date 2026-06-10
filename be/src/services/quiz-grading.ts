@@ -51,7 +51,8 @@ export function gradeQuizAttempt(args: {
 
   const correctCount = answers.filter((answer) => answer.isCorrect).length;
   const totalQuestions = questions.length;
-  const score = totalQuestions === 0 ? 0 : Number(((correctCount / totalQuestions) * 100).toFixed(2));
+  const score =
+    totalQuestions === 0 ? 0 : Number(((correctCount / totalQuestions) * 100).toFixed(2));
 
   return {
     score,

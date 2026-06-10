@@ -93,7 +93,10 @@ describe('AuthService.register', () => {
     });
 
     const expectedRefreshToken = Buffer.from('register-refresh-token').toString('hex');
-    const expectedTokenHash = crypto.createHash('sha256').update(expectedRefreshToken).digest('hex');
+    const expectedTokenHash = crypto
+      .createHash('sha256')
+      .update(expectedRefreshToken)
+      .digest('hex');
 
     expect(mockedPrisma.user.findUnique).toHaveBeenCalledWith({
       where: { email: 'newstudent@example.com' },

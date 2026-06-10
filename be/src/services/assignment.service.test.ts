@@ -5,7 +5,7 @@ import { USER_ROLES } from '@shared/constants';
 
 /**
  * AssignmentService Integration Tests
- * 
+ *
  * These tests verify the core business logic of assignment creation, submission,
  * and grading. Full integration tests would run against a test database.
  * These are behavioral tests that verify error handling and authorization.
@@ -57,7 +57,7 @@ describe('AssignmentService', () => {
     it('validates assignment date is in future for reasonable assignments', () => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 7); // 7 days from now
-      
+
       const dueDate = futureDate.toISOString();
       expect(dueDate).toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
     });
@@ -66,12 +66,12 @@ describe('AssignmentService', () => {
       const validGrades = [0, 50, 75, 85, 100];
       const invalidGrades = [-1, 101, 150];
 
-      validGrades.forEach(grade => {
+      validGrades.forEach((grade) => {
         expect(grade).toBeGreaterThanOrEqual(0);
         expect(grade).toBeLessThanOrEqual(100);
       });
 
-      invalidGrades.forEach(grade => {
+      invalidGrades.forEach((grade) => {
         expect(grade < 0 || grade > 100).toBe(true);
       });
     });
@@ -112,12 +112,18 @@ describe('AssignmentService', () => {
         {},
         { textContent: '', fileUrl: '' },
         { textContent: '   ' },
-      ];
+      ] as Array<{ textContent?: string; fileUrl?: string }>;
 
-      validSubmissions.forEach(sub => {
+      validSubmissions.forEach((sub) => {
         const hasText = sub.textContent && sub.textContent.trim().length > 0;
         const hasFile = sub.fileUrl && sub.fileUrl.length > 0;
         expect(hasText || hasFile).toBe(true);
+      });
+
+      invalidSubmissions.forEach((sub) => {
+        const hasText = sub.textContent && sub.textContent.trim().length > 0;
+        const hasFile = sub.fileUrl && sub.fileUrl.length > 0;
+        expect(hasText || hasFile).toBeFalsy();
       });
     });
 
@@ -141,7 +147,7 @@ describe('AssignmentService', () => {
     it('service methods follow async/await pattern', async () => {
       const service = new AssignmentService();
       const method = service.listByCourse;
-      
+
       expect(method).toBeDefined();
       expect(method.constructor.name).toBe('AsyncFunction');
     });

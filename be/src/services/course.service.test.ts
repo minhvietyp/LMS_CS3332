@@ -49,7 +49,10 @@ describe('CourseService', () => {
       },
     ]);
 
-    const result = await courseService.list({ page: '1', limit: '10' }, { sub: 'instructor-1', role: USER_ROLES.INSTRUCTOR });
+    const result = await courseService.list(
+      { page: '1', limit: '10' },
+      { sub: 'instructor-1', role: USER_ROLES.INSTRUCTOR },
+    );
 
     expect(mockedPrisma.course.count).toHaveBeenCalledWith({
       where: expect.objectContaining({
@@ -93,7 +96,10 @@ describe('CourseService', () => {
       deletedAt: null,
     });
 
-    const result = await courseService.create({ title: 'New course', description: 'Intro course' }, 'instructor-1');
+    const result = await courseService.create(
+      { title: 'New course', description: 'Intro course' },
+      'instructor-1',
+    );
 
     expect(mockedPrisma.course.create).toHaveBeenCalledWith({
       data: {
@@ -129,7 +135,10 @@ describe('CourseService', () => {
       { buffer: Buffer.from('thumbnail-bytes') } as any,
     );
 
-    expect(mockedUploadImageBuffer).toHaveBeenCalledWith(Buffer.from('thumbnail-bytes'), 'lms/course-thumbnails');
+    expect(mockedUploadImageBuffer).toHaveBeenCalledWith(
+      Buffer.from('thumbnail-bytes'),
+      'lms/course-thumbnails',
+    );
     expect(mockedPrisma.course.create).toHaveBeenCalledWith({
       data: {
         title: 'New course',
@@ -204,7 +213,12 @@ describe('CourseService', () => {
     });
 
     await expect(
-      courseService.update('course-1', { title: 'Illegal update' }, 'instructor-1', USER_ROLES.INSTRUCTOR),
+      courseService.update(
+        'course-1',
+        { title: 'Illegal update' },
+        'instructor-1',
+        USER_ROLES.INSTRUCTOR,
+      ),
     ).rejects.toMatchObject({
       statusCode: 403,
       message: 'You do not have permission to modify this course',
@@ -281,7 +295,10 @@ describe('CourseService', () => {
       modules: [],
     });
 
-    const result = await courseService.getById('course-1', { sub: 'instructor-1', role: USER_ROLES.INSTRUCTOR });
+    const result = await courseService.getById('course-1', {
+      sub: 'instructor-1',
+      role: USER_ROLES.INSTRUCTOR,
+    });
 
     expect(mockedPrisma.course.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -306,7 +323,10 @@ describe('CourseService', () => {
       modules: [],
     });
 
-    const result = await courseService.getById('course-1', { sub: 'admin-1', role: USER_ROLES.ADMIN });
+    const result = await courseService.getById('course-1', {
+      sub: 'admin-1',
+      role: USER_ROLES.ADMIN,
+    });
 
     expect(mockedPrisma.course.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -378,7 +398,9 @@ describe('CourseService', () => {
       deletedAt: null,
     });
 
-    await expect(courseService.publish('course-1', 'instructor-1', USER_ROLES.INSTRUCTOR)).rejects.toMatchObject({
+    await expect(
+      courseService.publish('course-1', 'instructor-1', USER_ROLES.INSTRUCTOR),
+    ).rejects.toMatchObject({
       statusCode: 400,
       message: 'Only draft courses can be published',
     });
@@ -394,7 +416,9 @@ describe('CourseService', () => {
       deletedAt: null,
     });
 
-    await expect(courseService.archive('course-1', 'instructor-1', USER_ROLES.INSTRUCTOR)).rejects.toMatchObject({
+    await expect(
+      courseService.archive('course-1', 'instructor-1', USER_ROLES.INSTRUCTOR),
+    ).rejects.toMatchObject({
       statusCode: 400,
       message: 'Only published courses can be archived',
     });
@@ -431,7 +455,10 @@ describe('CourseService', () => {
       { buffer: Buffer.from('thumbnail-bytes') } as any,
     );
 
-    expect(mockedUploadImageBuffer).toHaveBeenCalledWith(Buffer.from('thumbnail-bytes'), 'lms/course-thumbnails');
+    expect(mockedUploadImageBuffer).toHaveBeenCalledWith(
+      Buffer.from('thumbnail-bytes'),
+      'lms/course-thumbnails',
+    );
     expect(mockedPrisma.course.update).toHaveBeenCalledWith({
       where: { id: 'course-1' },
       data: { thumbnailUrl: 'https://cdn.example.com/course-thumbnail.png' },
@@ -461,14 +488,14 @@ describe('CourseService', () => {
       deletedAt: null,
     });
 
-    const result = await courseService.updateThumbnail(
-      'course-1',
-      'admin-1',
-      USER_ROLES.ADMIN,
-      { buffer: Buffer.from('admin-thumbnail-bytes') } as any,
-    );
+    const result = await courseService.updateThumbnail('course-1', 'admin-1', USER_ROLES.ADMIN, {
+      buffer: Buffer.from('admin-thumbnail-bytes'),
+    } as any);
 
-    expect(mockedUploadImageBuffer).toHaveBeenCalledWith(Buffer.from('admin-thumbnail-bytes'), 'lms/course-thumbnails');
+    expect(mockedUploadImageBuffer).toHaveBeenCalledWith(
+      Buffer.from('admin-thumbnail-bytes'),
+      'lms/course-thumbnails',
+    );
     expect(mockedPrisma.course.update).toHaveBeenCalledWith({
       where: { id: 'course-1' },
       data: { thumbnailUrl: 'https://cdn.example.com/admin-course-thumbnail.png' },

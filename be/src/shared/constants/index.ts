@@ -86,9 +86,7 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.COURSE_DELETE,
     PERMISSIONS.COURSE_RESTORE,
   ],
-  [USER_ROLES.STUDENT]: [
-    PERMISSIONS.COURSE_READ,
-  ],
+  [USER_ROLES.STUDENT]: [PERMISSIONS.COURSE_READ],
 } as const satisfies Record<string, readonly Permission[]>;
 
 // Default pagination

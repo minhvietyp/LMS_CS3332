@@ -8,7 +8,13 @@ const courseService = new CourseService();
 export class CourseController {
   async listPublic(req: Request, res: Response) {
     const result = await courseService.listPublic(req.query);
-    return ApiResponse.success(res, result.data, 'Public courses retrieved successfully', 200, result.meta);
+    return ApiResponse.success(
+      res,
+      result.data,
+      'Public courses retrieved successfully',
+      200,
+      result.meta,
+    );
   }
 
   async getPublicById(req: Request, res: Response) {
@@ -18,7 +24,13 @@ export class CourseController {
 
   async list(req: Request, res: Response) {
     const result = await courseService.list(req.query, req.user!);
-    return ApiResponse.success(res, result.data, 'Courses retrieved successfully', 200, result.meta);
+    return ApiResponse.success(
+      res,
+      result.data,
+      'Courses retrieved successfully',
+      200,
+      result.meta,
+    );
   }
 
   async getById(req: Request, res: Response) {
@@ -42,7 +54,12 @@ export class CourseController {
   }
 
   async update(req: Request, res: Response) {
-    const course = await courseService.update(req.params.id, req.body, req.user!.sub, req.user!.role);
+    const course = await courseService.update(
+      req.params.id,
+      req.body,
+      req.user!.sub,
+      req.user!.role,
+    );
     return ApiResponse.success(res, course, 'Course updated successfully');
   }
 
@@ -61,7 +78,12 @@ export class CourseController {
       throw BadRequestError('Thumbnail file is required');
     }
 
-    const course = await courseService.updateThumbnail(req.params.id, req.user!.sub, req.user!.role, req.file);
+    const course = await courseService.updateThumbnail(
+      req.params.id,
+      req.user!.sub,
+      req.user!.role,
+      req.file,
+    );
     return ApiResponse.success(res, course, 'Course thumbnail updated successfully');
   }
 

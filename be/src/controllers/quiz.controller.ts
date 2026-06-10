@@ -16,7 +16,11 @@ export class QuizController {
   }
 
   async listByCourse(req: Request, res: Response) {
-    const result = await quizService.listByCourse(req.params.courseId, req.user!.sub, req.user!.role);
+    const result = await quizService.listByCourse(
+      req.params.courseId,
+      req.user!.sub,
+      req.user!.role,
+    );
     return ApiResponse.success(res, result, 'Quizzes fetched successfully');
   }
 
@@ -36,12 +40,22 @@ export class QuizController {
   }
 
   async publish(req: Request, res: Response) {
-    const result = await quizService.setPublishedState(req.params.id, true, req.user!.sub, req.user!.role);
+    const result = await quizService.setPublishedState(
+      req.params.id,
+      true,
+      req.user!.sub,
+      req.user!.role,
+    );
     return ApiResponse.success(res, result, 'Quiz published successfully');
   }
 
   async unpublish(req: Request, res: Response) {
-    const result = await quizService.setPublishedState(req.params.id, false, req.user!.sub, req.user!.role);
+    const result = await quizService.setPublishedState(
+      req.params.id,
+      false,
+      req.user!.sub,
+      req.user!.role,
+    );
     return ApiResponse.success(res, result, 'Quiz moved back to draft successfully');
   }
 
@@ -51,12 +65,22 @@ export class QuizController {
   }
 
   async addQuestion(req: Request, res: Response) {
-    const result = await quizService.addQuestion(req.params.id, req.body, req.user!.sub, req.user!.role);
+    const result = await quizService.addQuestion(
+      req.params.id,
+      req.body,
+      req.user!.sub,
+      req.user!.role,
+    );
     return ApiResponse.created(res, result, 'Question added successfully');
   }
 
   async updateQuestion(req: Request, res: Response) {
-    const result = await quizService.updateQuestion(req.params.questionId, req.body, req.user!.sub, req.user!.role);
+    const result = await quizService.updateQuestion(
+      req.params.questionId,
+      req.body,
+      req.user!.sub,
+      req.user!.role,
+    );
     return ApiResponse.success(res, result, 'Question updated successfully');
   }
 
@@ -76,12 +100,21 @@ export class QuizController {
   }
 
   async getAttemptResult(req: Request, res: Response) {
-    const result = await quizService.getAttemptResult(req.params.id, req.params.attemptId, req.user!.sub);
+    const result = await quizService.getAttemptResult(
+      req.params.id,
+      req.params.attemptId,
+      req.user!.sub,
+    );
     return ApiResponse.success(res, result, 'Quiz attempt result fetched successfully');
   }
 
   async submit(req: Request, res: Response) {
-    const result = await quizService.submit(req.params.id, req.body.attemptId, req.user!.sub, req.body.answers);
+    const result = await quizService.submit(
+      req.params.id,
+      req.body.attemptId,
+      req.user!.sub,
+      req.body.answers,
+    );
     return ApiResponse.success(res, result, 'Quiz submitted successfully');
   }
 }

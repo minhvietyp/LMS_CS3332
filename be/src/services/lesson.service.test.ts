@@ -62,7 +62,11 @@ describe('LessonService module management', () => {
       },
     ]);
 
-    const result = await lessonService.listCourseModules('course-1', 'instructor-1', USER_ROLES.INSTRUCTOR);
+    const result = await lessonService.listCourseModules(
+      'course-1',
+      'instructor-1',
+      USER_ROLES.INSTRUCTOR,
+    );
 
     expect(mockedPrisma.courseModule.findMany).toHaveBeenCalledWith({
       where: { courseId: 'course-1' },
@@ -96,7 +100,12 @@ describe('LessonService module management', () => {
       orderIndex: 2,
     });
 
-    const result = await lessonService.createModule('course-1', { title: ' Module 2 ' }, 'instructor-1', USER_ROLES.INSTRUCTOR);
+    const result = await lessonService.createModule(
+      'course-1',
+      { title: ' Module 2 ' },
+      'instructor-1',
+      USER_ROLES.INSTRUCTOR,
+    );
 
     expect(mockedPrisma.courseModule.create).toHaveBeenCalledWith({
       data: {
@@ -114,15 +123,14 @@ describe('LessonService module management', () => {
       instructorId: 'instructor-1',
       status: COURSE_STATUS.DRAFT,
     });
-    mockedPrisma.courseModule.findMany.mockResolvedValue([
-      { id: 'module-1' },
-      { id: 'module-2' },
-    ]);
+    mockedPrisma.courseModule.findMany.mockResolvedValue([{ id: 'module-1' }, { id: 'module-2' }]);
     mockedPrisma.courseModule.update.mockImplementation(async ({ where, data }: any) => ({
       id: where.id,
       orderIndex: data.orderIndex,
     }));
-    mockedPrisma.$transaction.mockImplementation(async (operations: Array<Promise<unknown>>) => Promise.all(operations));
+    mockedPrisma.$transaction.mockImplementation(async (operations: Array<Promise<unknown>>) =>
+      Promise.all(operations),
+    );
 
     const result = await lessonService.reorderModules(
       'course-1',
@@ -169,7 +177,10 @@ describe('LessonService module management', () => {
       instructorId: 'instructor-1',
       status: COURSE_STATUS.DRAFT,
     });
-    mockedPrisma.courseModule.findFirst.mockResolvedValueOnce({ id: 'module-2', courseId: 'course-1' });
+    mockedPrisma.courseModule.findFirst.mockResolvedValueOnce({
+      id: 'module-2',
+      courseId: 'course-1',
+    });
     mockedPrisma.lesson.findFirst
       .mockResolvedValueOnce({
         id: 'lesson-1',
@@ -215,7 +226,15 @@ describe('LessonService module management', () => {
       isPublished: false,
       deletedAt: null,
       module: { id: 'module-1', courseId: 'course-1', title: 'Module 1', orderIndex: 0 },
-      materials: [{ id: 'material-1', lessonId: 'lesson-1', title: 'Handout', type: 'pdf', url: 'https://cdn.example.com/handout.pdf' }],
+      materials: [
+        {
+          id: 'material-1',
+          lessonId: 'lesson-1',
+          title: 'Handout',
+          type: 'pdf',
+          url: 'https://cdn.example.com/handout.pdf',
+        },
+      ],
     });
     mockedPrisma.course.findUnique.mockResolvedValue({
       id: 'course-1',
@@ -223,7 +242,11 @@ describe('LessonService module management', () => {
       status: COURSE_STATUS.DRAFT,
     });
 
-    const result = await lessonService.getLessonById('lesson-1', 'instructor-1', USER_ROLES.INSTRUCTOR);
+    const result = await lessonService.getLessonById(
+      'lesson-1',
+      'instructor-1',
+      USER_ROLES.INSTRUCTOR,
+    );
 
     expect(mockedPrisma.lesson.findFirst).toHaveBeenCalledWith({
       where: { id: 'lesson-1', deletedAt: null },
@@ -247,15 +270,14 @@ describe('LessonService module management', () => {
       instructorId: 'instructor-1',
       status: COURSE_STATUS.DRAFT,
     });
-    mockedPrisma.lesson.findMany.mockResolvedValue([
-      { id: 'lesson-1' },
-      { id: 'lesson-2' },
-    ]);
+    mockedPrisma.lesson.findMany.mockResolvedValue([{ id: 'lesson-1' }, { id: 'lesson-2' }]);
     mockedPrisma.lesson.update.mockImplementation(async ({ where, data }: any) => ({
       id: where.id,
       orderIndex: data.orderIndex,
     }));
-    mockedPrisma.$transaction.mockImplementation(async (operations: Array<Promise<unknown>>) => Promise.all(operations));
+    mockedPrisma.$transaction.mockImplementation(async (operations: Array<Promise<unknown>>) =>
+      Promise.all(operations),
+    );
 
     const result = await lessonService.reorderLessons(
       'module-1',
@@ -351,10 +373,20 @@ describe('LessonService module management', () => {
       status: COURSE_STATUS.DRAFT,
     });
     mockedPrisma.lessonMaterial.findMany.mockResolvedValue([
-      { id: 'material-1', lessonId: 'lesson-1', title: 'Handout', type: 'pdf', url: 'https://cdn.example.com/handout.pdf' },
+      {
+        id: 'material-1',
+        lessonId: 'lesson-1',
+        title: 'Handout',
+        type: 'pdf',
+        url: 'https://cdn.example.com/handout.pdf',
+      },
     ]);
 
-    const result = await lessonService.listMaterials('lesson-1', 'instructor-1', USER_ROLES.INSTRUCTOR);
+    const result = await lessonService.listMaterials(
+      'lesson-1',
+      'instructor-1',
+      USER_ROLES.INSTRUCTOR,
+    );
 
     expect(mockedPrisma.lessonMaterial.findMany).toHaveBeenCalledWith({
       where: { lessonId: 'lesson-1' },
@@ -395,7 +427,10 @@ describe('LessonService module management', () => {
       USER_ROLES.INSTRUCTOR,
     );
 
-    expect(mockedUploadRawBuffer).toHaveBeenCalledWith(Buffer.from('pdf-bytes'), 'lms/lesson-materials');
+    expect(mockedUploadRawBuffer).toHaveBeenCalledWith(
+      Buffer.from('pdf-bytes'),
+      'lms/lesson-materials',
+    );
     expect(mockedPrisma.lessonMaterial.create).toHaveBeenCalledWith({
       data: {
         lessonId: 'lesson-1',

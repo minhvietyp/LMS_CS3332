@@ -62,7 +62,11 @@ export class EnrollmentService {
   /**
    * Enroll a student in a course
    */
-  async enroll(data: { studentId: string; courseId: string }, userId: string, userRole: string): Promise<Enrollment> {
+  async enroll(
+    data: { studentId: string; courseId: string },
+    userId: string,
+    userRole: string,
+  ): Promise<Enrollment> {
     const course = await prisma.course.findFirst({
       where: { id: data.courseId, deletedAt: null },
       select: { id: true, title: true, instructorId: true },
@@ -261,7 +265,10 @@ export class EnrollmentService {
 
     return Promise.all(
       enrollments.map(async (enrollment) => {
-        const progress = await this.progressService.getCourseProgress(enrollment.courseId, studentId);
+        const progress = await this.progressService.getCourseProgress(
+          enrollment.courseId,
+          studentId,
+        );
 
         return {
           enrollmentId: enrollment.id,

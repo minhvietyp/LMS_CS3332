@@ -6,11 +6,7 @@ import { UnauthorizedError } from '@shared/errors/AppError';
  * Middleware to authenticate user via JWT token in the Authorization header.
  * Formats supported: "Bearer <token>"
  */
-export const authenticate = (
-  req: Request,
-  _res: Response,
-  next: NextFunction,
-): void => {
+export const authenticate = (req: Request, _res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

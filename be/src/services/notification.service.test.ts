@@ -37,7 +37,10 @@ describe('NotificationService', () => {
   });
 
   it('creates a notification and emits it to the student', async () => {
-    mockedPrisma.notification.create.mockResolvedValue({ id: 'notification-1', userId: 'student-1' });
+    mockedPrisma.notification.create.mockResolvedValue({
+      id: 'notification-1',
+      userId: 'student-1',
+    });
 
     const service = new NotificationService();
     const result = await service.create({
@@ -65,7 +68,10 @@ describe('NotificationService', () => {
   });
 
   it('lists notifications in newest-first order', async () => {
-    mockedPrisma.notification.findMany.mockResolvedValue([{ id: 'notification-2' }, { id: 'notification-1' }]);
+    mockedPrisma.notification.findMany.mockResolvedValue([
+      { id: 'notification-2' },
+      { id: 'notification-1' },
+    ]);
 
     const service = new NotificationService();
     const result = await service.list('student-1');

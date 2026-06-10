@@ -24,7 +24,10 @@ export class ChatService {
     return message;
   }
 
-  async getMessages(roomId: string, query: { limit?: string; before?: string } = {}): Promise<ChatMessage[]> {
+  async getMessages(
+    roomId: string,
+    query: { limit?: string; before?: string } = {},
+  ): Promise<ChatMessage[]> {
     const limit = Math.min(100, Math.max(1, parseInt(String(query.limit ?? '50'), 10)));
     const messages = await prisma.chatMessage.findMany({
       where: {

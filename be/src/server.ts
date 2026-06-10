@@ -23,9 +23,7 @@ async function bootstrap(): Promise<void> {
   SocketService.init(server);
 
   server.listen(config.app.port, () => {
-    logger.info(
-      `🚀 LMS API running on http://localhost:${config.app.port} [${config.app.env}]`,
-    );
+    logger.info(`🚀 LMS API running on http://localhost:${config.app.port} [${config.app.env}]`);
     logger.info(`📡 Health check: http://localhost:${config.app.port}/health`);
   });
 

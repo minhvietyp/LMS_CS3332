@@ -68,7 +68,11 @@ describe('progress routes', () => {
 
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Lesson progress updated successfully');
-    expect(progressServiceMock.markComplete).toHaveBeenCalledWith('11111111-1111-1111-1111-111111111111', 'student-1', true);
+    expect(progressServiceMock.markComplete).toHaveBeenCalledWith(
+      '11111111-1111-1111-1111-111111111111',
+      'student-1',
+      true,
+    );
   });
 
   it('rejects invalid lesson id before reaching service', async () => {
@@ -82,7 +86,9 @@ describe('progress routes', () => {
   });
 
   it('returns forbidden when student not enrolled', async () => {
-    progressServiceMock.markComplete.mockRejectedValue(ForbiddenError('Student is not enrolled in this course'));
+    progressServiceMock.markComplete.mockRejectedValue(
+      ForbiddenError('Student is not enrolled in this course'),
+    );
 
     const response = await request(createApp())
       .patch('/api/v1/progress/lessons/11111111-1111-1111-1111-111111111111/complete')
@@ -103,7 +109,11 @@ describe('progress routes', () => {
 
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('Lesson state updated successfully');
-    expect(progressServiceMock.setLessonState).toHaveBeenCalledWith('11111111-1111-1111-1111-111111111111', 'student-1', 'IN_PROGRESS');
+    expect(progressServiceMock.setLessonState).toHaveBeenCalledWith(
+      '11111111-1111-1111-1111-111111111111',
+      'student-1',
+      'IN_PROGRESS',
+    );
   });
 
   it('rejects invalid course id for student my-progress route', async () => {
@@ -257,7 +267,9 @@ describe('progress routes', () => {
       });
 
       const response = await request(createApp())
-        .get('/api/v1/progress/courses/11111111-1111-1111-1111-111111111111/students-progress?status=ACTIVE&page=1&pageSize=10')
+        .get(
+          '/api/v1/progress/courses/11111111-1111-1111-1111-111111111111/students-progress?status=ACTIVE&page=1&pageSize=10',
+        )
         .set('Authorization', 'Bearer valid-token');
 
       expect(response.status).toBe(200);
@@ -274,14 +286,20 @@ describe('progress routes', () => {
         next();
       });
       progressServiceMock.getInstructorStudentCourseProgress.mockResolvedValue({
-        student: { id: '22222222-2222-2222-2222-222222222222', name: 'Student A', email: 'student@example.com' },
+        student: {
+          id: '22222222-2222-2222-2222-222222222222',
+          name: 'Student A',
+          email: 'student@example.com',
+        },
         course: { id: '11111111-1111-1111-1111-111111111111', title: 'Course A' },
         summary: { percentage: 50 },
         lessons: [],
       });
 
       const response = await request(createApp())
-        .get('/api/v1/progress/courses/11111111-1111-1111-1111-111111111111/students/22222222-2222-2222-2222-222222222222')
+        .get(
+          '/api/v1/progress/courses/11111111-1111-1111-1111-111111111111/students/22222222-2222-2222-2222-222222222222',
+        )
         .set('Authorization', 'Bearer valid-token');
 
       expect(response.status).toBe(200);
@@ -303,7 +321,9 @@ describe('progress routes', () => {
 
     it('rejects invalid instructor progress query before reaching service', async () => {
       const response = await request(createApp())
-        .get('/api/v1/progress/courses/11111111-1111-1111-1111-111111111111/students-progress?sortBy=invalid')
+        .get(
+          '/api/v1/progress/courses/11111111-1111-1111-1111-111111111111/students-progress?sortBy=invalid',
+        )
         .set('Authorization', 'Bearer valid-token');
 
       expect(response.status).toBe(422);
@@ -371,7 +391,10 @@ describe('progress routes', () => {
         .set('Authorization', 'Bearer valid-token');
 
       expect(response.status).toBe(200);
-      expect(progressServiceMock.getMyProgressHistory).toHaveBeenCalledWith('student-1', expect.objectContaining({ page: 1, pageSize: 10 }));
+      expect(progressServiceMock.getMyProgressHistory).toHaveBeenCalledWith(
+        'student-1',
+        expect.objectContaining({ page: 1, pageSize: 10 }),
+      );
     });
 
     it('returns course progress history for instructor', async () => {
@@ -416,7 +439,9 @@ describe('progress routes', () => {
       });
 
       const response = await request(createApp())
-        .get('/api/v1/progress/courses/11111111-1111-1111-1111-111111111111/students/22222222-2222-2222-2222-222222222222/history?page=2&pageSize=5&actionType=MARK_COMPLETE')
+        .get(
+          '/api/v1/progress/courses/11111111-1111-1111-1111-111111111111/students/22222222-2222-2222-2222-222222222222/history?page=2&pageSize=5&actionType=MARK_COMPLETE',
+        )
         .set('Authorization', 'Bearer valid-token');
 
       expect(response.status).toBe(200);

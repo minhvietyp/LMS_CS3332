@@ -93,7 +93,12 @@ describe('ProgressService', () => {
     expect(mockedPrisma.progress.upsert).toHaveBeenCalledWith({
       where: { studentId_lessonId: { studentId: 'student-1', lessonId: 'lesson-1' } },
       update: { isCompleted: true, completedAt: expect.any(Date) },
-      create: { studentId: 'student-1', lessonId: 'lesson-1', isCompleted: true, completedAt: expect.any(Date) },
+      create: {
+        studentId: 'student-1',
+        lessonId: 'lesson-1',
+        isCompleted: true,
+        completedAt: expect.any(Date),
+      },
     });
     expect(mockedPrisma.enrollment.update).toHaveBeenCalledWith({
       where: { id: 'enrollment-1' },
@@ -124,7 +129,11 @@ describe('ProgressService', () => {
     ]);
     mockedPrisma.progress.count.mockResolvedValue(1);
     mockedPrisma.progress.findMany.mockResolvedValue([
-      { lessonId: 'lesson-1', isCompleted: true, completedAt: new Date('2026-01-01T00:00:00.000Z') },
+      {
+        lessonId: 'lesson-1',
+        isCompleted: true,
+        completedAt: new Date('2026-01-01T00:00:00.000Z'),
+      },
     ]);
 
     const result = await progressService.getCourseProgress('course-1', 'student-1');
@@ -160,20 +169,32 @@ describe('ProgressService', () => {
     });
     mockedPrisma.enrollment.findUnique.mockResolvedValue(null);
 
-    await expect(progressService.markComplete('lesson-1', 'student-1', true)).rejects.toMatchObject({
-      statusCode: 403,
-      message: 'Student is not enrolled in this course',
-    });
+    await expect(progressService.markComplete('lesson-1', 'student-1', true)).rejects.toMatchObject(
+      {
+        statusCode: 403,
+        message: 'Student is not enrolled in this course',
+      },
+    );
   });
 
   it('sets lesson state and does not complete when IN_PROGRESS', async () => {
-    mockedPrisma.lesson.findFirst.mockResolvedValue({ id: 'lesson-10', module: { courseId: 'course-10', course: { title: 'C10' } } });
-    mockedPrisma.enrollment.findUnique.mockResolvedValue({ id: 'enroll-10', status: ENROLLMENT_STATUS.ACTIVE, student: { id: 'student-10', email: 's10@e', name: 'S10' } });
+    mockedPrisma.lesson.findFirst.mockResolvedValue({
+      id: 'lesson-10',
+      module: { courseId: 'course-10', course: { title: 'C10' } },
+    });
+    mockedPrisma.enrollment.findUnique.mockResolvedValue({
+      id: 'enroll-10',
+      status: ENROLLMENT_STATUS.ACTIVE,
+      student: { id: 'student-10', email: 's10@e', name: 'S10' },
+    });
     mockedPrisma.progress.findUnique.mockResolvedValue(null);
     mockedPrisma.progress.upsert.mockResolvedValue({ id: 'progress-10', isCompleted: false });
     mockedPrisma.lesson.count.mockResolvedValue(5);
     mockedPrisma.progress.count.mockResolvedValue(1);
-    mockedPrisma.enrollment.update.mockResolvedValue({ id: 'enroll-10', status: ENROLLMENT_STATUS.ACTIVE });
+    mockedPrisma.enrollment.update.mockResolvedValue({
+      id: 'enroll-10',
+      status: ENROLLMENT_STATUS.ACTIVE,
+    });
 
     const result = await progressService.setLessonState('lesson-10', 'student-10', 'IN_PROGRESS');
     expect(result.isCompleted).toBe(false);
@@ -195,9 +216,21 @@ describe('ProgressService', () => {
       ]);
       mockedPrisma.progress.count.mockResolvedValue(3);
       mockedPrisma.progress.findMany.mockResolvedValue([
-        { lessonId: 'lesson-1', isCompleted: true, completedAt: new Date('2026-01-01T00:00:00.000Z') },
-        { lessonId: 'lesson-2', isCompleted: true, completedAt: new Date('2026-01-02T00:00:00.000Z') },
-        { lessonId: 'lesson-3', isCompleted: true, completedAt: new Date('2026-01-03T00:00:00.000Z') },
+        {
+          lessonId: 'lesson-1',
+          isCompleted: true,
+          completedAt: new Date('2026-01-01T00:00:00.000Z'),
+        },
+        {
+          lessonId: 'lesson-2',
+          isCompleted: true,
+          completedAt: new Date('2026-01-02T00:00:00.000Z'),
+        },
+        {
+          lessonId: 'lesson-3',
+          isCompleted: true,
+          completedAt: new Date('2026-01-03T00:00:00.000Z'),
+        },
       ]);
 
       const result = await progressService.getCourseProgress('course-1', 'student-1');
@@ -246,7 +279,11 @@ describe('ProgressService', () => {
       ]);
       mockedPrisma.progress.count.mockResolvedValue(1);
       mockedPrisma.progress.findMany.mockResolvedValue([
-        { lessonId: 'lesson-2', isCompleted: true, completedAt: new Date('2026-01-02T00:00:00.000Z') },
+        {
+          lessonId: 'lesson-2',
+          isCompleted: true,
+          completedAt: new Date('2026-01-02T00:00:00.000Z'),
+        },
       ]);
 
       const result = await progressService.getCourseProgress('course-3', 'student-3');
@@ -272,8 +309,16 @@ describe('ProgressService', () => {
       ]);
       mockedPrisma.progress.count.mockResolvedValue(2);
       mockedPrisma.progress.findMany.mockResolvedValue([
-        { lessonId: 'lesson-1', isCompleted: true, completedAt: new Date('2026-01-01T00:00:00.000Z') },
-        { lessonId: 'lesson-3', isCompleted: true, completedAt: new Date('2026-01-03T00:00:00.000Z') },
+        {
+          lessonId: 'lesson-1',
+          isCompleted: true,
+          completedAt: new Date('2026-01-01T00:00:00.000Z'),
+        },
+        {
+          lessonId: 'lesson-3',
+          isCompleted: true,
+          completedAt: new Date('2026-01-03T00:00:00.000Z'),
+        },
       ]);
 
       const result = await progressService.getCourseProgress('course-4', 'student-4');
@@ -298,7 +343,11 @@ describe('ProgressService', () => {
       ]);
       mockedPrisma.progress.count.mockResolvedValue(1);
       mockedPrisma.progress.findMany.mockResolvedValue([
-        { lessonId: 'lesson-1', isCompleted: true, completedAt: new Date('2026-01-01T00:00:00.000Z') },
+        {
+          lessonId: 'lesson-1',
+          isCompleted: true,
+          completedAt: new Date('2026-01-01T00:00:00.000Z'),
+        },
       ]);
 
       const result = await progressService.getCourseProgress('course-5', 'student-5');
@@ -322,7 +371,11 @@ describe('ProgressService', () => {
       ]);
       mockedPrisma.progress.count.mockResolvedValue(1);
       mockedPrisma.progress.findMany.mockResolvedValue([
-        { lessonId: 'lesson-1', isCompleted: true, completedAt: new Date('2026-01-01T00:00:00.000Z') },
+        {
+          lessonId: 'lesson-1',
+          isCompleted: true,
+          completedAt: new Date('2026-01-01T00:00:00.000Z'),
+        },
       ]);
 
       const result = await progressService.getCourseProgress('course-6', 'student-6');
@@ -385,7 +438,11 @@ describe('ProgressService', () => {
       ]);
       mockedPrisma.progress.count.mockResolvedValue(1);
       mockedPrisma.progress.findMany.mockResolvedValue([
-        { lessonId: 'lesson-1', isCompleted: true, completedAt: new Date('2026-01-01T00:00:00.000Z') },
+        {
+          lessonId: 'lesson-1',
+          isCompleted: true,
+          completedAt: new Date('2026-01-01T00:00:00.000Z'),
+        },
       ]);
 
       const result = await progressService.getCourseProgress('course-6', 'student-6');
@@ -440,7 +497,8 @@ describe('ProgressService', () => {
 
       // Mock getCourseProgress calls
       const originalGetCourseProgress = progressService.getCourseProgress;
-      progressService.getCourseProgress = vi.fn()
+      progressService.getCourseProgress = vi
+        .fn()
         .mockResolvedValueOnce({
           courseId: 'course-1',
           completedLessons: 2,
@@ -682,7 +740,10 @@ describe('ProgressService', () => {
         },
       ]);
 
-      const result = await progressService.getMyProgressHistory('student-1', { page: 1, pageSize: 10 });
+      const result = await progressService.getMyProgressHistory('student-1', {
+        page: 1,
+        pageSize: 10,
+      });
 
       expect(result.pagination.total).toBe(1);
       expect(result.items[0]).toMatchObject({

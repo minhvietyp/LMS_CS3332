@@ -90,18 +90,25 @@ describe('enrollment routes', () => {
       },
     });
 
-    const response = await request(createApp()).get('/api/v1/enrollments/my-courses/11111111-1111-1111-1111-111111111111/status');
+    const response = await request(createApp()).get(
+      '/api/v1/enrollments/my-courses/11111111-1111-1111-1111-111111111111/status',
+    );
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
     expect(response.body.message).toBe('Course enrollment status retrieved successfully');
     expect(response.body.data.enrollmentId).toBe('enrollment-1');
-    expect(enrollmentServiceMock.getMyEnrollmentStatus).toHaveBeenCalledWith('11111111-1111-1111-1111-111111111111', 'student-1');
+    expect(enrollmentServiceMock.getMyEnrollmentStatus).toHaveBeenCalledWith(
+      '11111111-1111-1111-1111-111111111111',
+      'student-1',
+    );
     expect(authenticateMock).toHaveBeenCalled();
   });
 
   it('rejects an invalid course id before reaching the service', async () => {
-    const response = await request(createApp()).get('/api/v1/enrollments/my-courses/not-a-uuid/status');
+    const response = await request(createApp()).get(
+      '/api/v1/enrollments/my-courses/not-a-uuid/status',
+    );
 
     expect(response.status).toBe(422);
     expect(response.body.success).toBe(false);
@@ -152,9 +159,13 @@ describe('enrollment routes', () => {
   });
 
   it('returns not found when the student has no active enrollment', async () => {
-    enrollmentServiceMock.getMyEnrollmentStatus.mockRejectedValue(NotFoundError('Enrollment not found'));
+    enrollmentServiceMock.getMyEnrollmentStatus.mockRejectedValue(
+      NotFoundError('Enrollment not found'),
+    );
 
-    const response = await request(createApp()).get('/api/v1/enrollments/my-courses/11111111-1111-1111-1111-111111111111/status');
+    const response = await request(createApp()).get(
+      '/api/v1/enrollments/my-courses/11111111-1111-1111-1111-111111111111/status',
+    );
 
     expect(response.status).toBe(404);
     expect(response.body.success).toBe(false);

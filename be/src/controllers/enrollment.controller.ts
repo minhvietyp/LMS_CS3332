@@ -27,7 +27,11 @@ export class EnrollmentController {
   }
 
   async listByCourse(req: Request, res: Response) {
-    const result = await enrollmentService.listByCourse(req.params.courseId, req.user!.sub, req.user!.role);
+    const result = await enrollmentService.listByCourse(
+      req.params.courseId,
+      req.user!.sub,
+      req.user!.role,
+    );
     return ApiResponse.success(res, result, 'Course enrollments retrieved successfully');
   }
 
@@ -37,7 +41,10 @@ export class EnrollmentController {
   }
 
   async getMyCourseStatus(req: Request, res: Response) {
-    const result = await enrollmentService.getMyEnrollmentStatus(req.params.courseId, req.user!.sub);
+    const result = await enrollmentService.getMyEnrollmentStatus(
+      req.params.courseId,
+      req.user!.sub,
+    );
     return ApiResponse.success(res, result, 'Course enrollment status retrieved successfully');
   }
 }

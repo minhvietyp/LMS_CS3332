@@ -99,7 +99,7 @@ describe('seedRolesAndAdmin', () => {
 
     const result = await seedRolesAndAdmin(prisma, seedConfig);
 
-  expect(hashMock).not.toHaveBeenCalled();
+    expect(hashMock).not.toHaveBeenCalled();
     expect(prisma.user.update).toHaveBeenCalledWith({
       where: { email: 'admin@lms.local' },
       data: {
@@ -143,7 +143,7 @@ describe('seedRolesAndAdmin', () => {
 
     const result = await seedRolesAndAdmin(prisma, seedConfig);
 
-  expect(hashMock).not.toHaveBeenCalled();
+    expect(hashMock).not.toHaveBeenCalled();
     expect(prisma.user.update).toHaveBeenCalledWith({
       where: { email: 'admin@lms.local' },
       data: {
@@ -172,7 +172,7 @@ describe('seedRolesAndAdmin', () => {
 
     const result = await seedRolesAndAdmin(prisma, seedConfig);
 
-  expect(hashMock).not.toHaveBeenCalled();
+    expect(hashMock).not.toHaveBeenCalled();
     expect(prisma.user.create).not.toHaveBeenCalled();
     expect(prisma.user.update).not.toHaveBeenCalled();
     expect(result.action).toBe('unchanged');

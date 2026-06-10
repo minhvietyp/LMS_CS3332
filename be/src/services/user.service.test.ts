@@ -68,7 +68,12 @@ describe('UserService', () => {
       },
     ]);
 
-    const result = await userService.list({ page: '1', limit: '10', search: 'admin', role: 'ADMIN' });
+    const result = await userService.list({
+      page: '1',
+      limit: '10',
+      search: 'admin',
+      role: 'ADMIN',
+    });
 
     expect(mockedPrisma.user.count).toHaveBeenCalledWith({
       where: expect.objectContaining({
@@ -255,7 +260,10 @@ describe('UserService', () => {
       deletedBy: null,
     });
 
-    const result = await userService.update('user-1', { name: 'Updated Name', email: 'new@example.com' } as any);
+    const result = await userService.update('user-1', {
+      name: 'Updated Name',
+      email: 'new@example.com',
+    } as any);
 
     expect(mockedPrisma.user.update).toHaveBeenCalledWith({
       where: { id: 'user-1' },
@@ -346,7 +354,10 @@ describe('UserService', () => {
       buffer: Buffer.from('avatar-bytes'),
     } as any);
 
-    expect(mockedUploadImageBuffer).toHaveBeenCalledWith(Buffer.from('avatar-bytes'), 'lms/avatars');
+    expect(mockedUploadImageBuffer).toHaveBeenCalledWith(
+      Buffer.from('avatar-bytes'),
+      'lms/avatars',
+    );
     expect(mockedPrisma.user.update).toHaveBeenCalledWith({
       where: { id: 'user-1' },
       data: {
