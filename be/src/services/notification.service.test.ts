@@ -79,6 +79,7 @@ describe('NotificationService', () => {
     expect(mockedPrisma.notification.findMany).toHaveBeenCalledWith({
       where: { userId: 'student-1' },
       orderBy: { createdAt: 'desc' },
+      take: 50,
     });
     expect(result).toHaveLength(2);
   });
