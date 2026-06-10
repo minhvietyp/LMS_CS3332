@@ -341,10 +341,6 @@ export function UserManagement() {
   const search = searchParams.get('search') ?? '';
 
   useEffect(() => {
-    setSearchInput(search);
-  }, [search]);
-
-  useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       const nextSearch = searchInput.trim();
       if (nextSearch === search) {
@@ -389,7 +385,6 @@ export function UserManagement() {
 
   useEffect(() => {
     if (!isAdmin) {
-      setIsLoading(false);
       return;
     }
 
@@ -697,7 +692,7 @@ export function UserManagementForm({
     return () => {
       active = false;
     };
-  }, [isAdmin]);
+  }, [isAdmin, mode]);
 
   useEffect(() => {
     if (!isAdmin || mode !== 'edit' || !userId) {
@@ -934,7 +929,6 @@ export function UserManagementDetail({ userId }: { userId: string }) {
 
   useEffect(() => {
     if (!isAdmin) {
-      setIsLoading(false);
       return;
     }
 

@@ -103,18 +103,14 @@ export function StudentCommunityPage() {
     });
   }, [roomsQuery.data]);
 
-  useEffect(() => {
-    if (!selectedRoomId && rooms.length) {
-      setSelectedRoomId(rooms[0].id);
-    }
-  }, [rooms, selectedRoomId]);
+  const effectiveSelectedRoomId = selectedRoomId ?? rooms[0]?.id ?? null;
 
-  const selectedRoom = rooms.find((room) => room.id === selectedRoomId) ?? null;
+  const selectedRoom = rooms.find((room) => room.id === effectiveSelectedRoomId) ?? null;
 
   const messagesQuery = useQuery({
-    queryKey: ['chat', 'messages', selectedRoomId],
-    queryFn: () => getChatRoomMessagesRequest(selectedRoomId!),
-    enabled: Boolean(selectedRoomId),
+    queryKey: ['chat', 'messages', effectiveSelectedRoomId],
+    queryFn: () => getChatRoomMessagesRequest(effectiveSelectedRoomId!),
+    enabled: Boolean(effectiveSelectedRoomId),
     staleTime: 10 * 1000,
     retry: 1,
   });
@@ -129,20 +125,20 @@ export function StudentCommunityPage() {
   });
 
   useEffect(() => {
-    if (!token || !selectedRoomId) return;
+    if (!token || !effectiveSelectedRoomId) return;
 
     connectChatSocket(token);
-    joinChatRoom(selectedRoomId);
+    joinChatRoom(effectiveSelectedRoomId);
 
     const unsubscribe = subscribeToRoomMessages(() => {
-      void queryClient.invalidateQueries({ queryKey: ['chat', 'messages', selectedRoomId] });
+      void queryClient.invalidateQueries({ queryKey: ['chat', 'messages', effectiveSelectedRoomId] });
       void queryClient.invalidateQueries({ queryKey: ['chat', 'rooms'] });
     });
 
     return () => {
       unsubscribe?.();
     };
-  }, [queryClient, selectedRoomId, token]);
+  }, [effectiveSelectedRoomId, queryClient, token]);
 
   const filteredRooms = useMemo(() => {
     const search = searchValue.trim().toLowerCase();
@@ -168,7 +164,7 @@ export function StudentCommunityPage() {
   const participantCount = selectedRoom ? getParticipantCount(selectedRoom) : 0;
   const unreadTotal = rooms.reduce((sum, room) => sum + getUnreadCount(room, user?.id), 0);
 
-  const canSend = Boolean(selectedRoomId && draftMessage.trim() && !sendMessageMutation.isPending);
+  const canSend = Boolean(effectiveSelectedRoomId && draftMessage.trim() && !sendMessageMutation.isPending);
   const error = roomsQuery.error || messagesQuery.error || sendMessageMutation.error;
 
   return (
@@ -188,7 +184,7 @@ export function StudentCommunityPage() {
                     className="client-button client-button-primary"
                     onClick={() => {
                       void roomsQuery.refetch();
-                      if (selectedRoomId) void messagesQuery.refetch();
+                      if (effectiveSelectedRoomId) void messagesQuery.refetch();
                     }}
                   >
                     Retry
@@ -268,7 +264,7 @@ export function StudentCommunityPage() {
                   {filteredRooms.map((room) => {
                     const latestMessage = getLatestMessage(room);
                     const unread = getUnreadCount(room, user?.id);
-                    const isSelected = room.id === selectedRoomId;
+                    const isSelected = room.id === effectiveSelectedRoomId;
 
                     return (
                       <button
@@ -381,8 +377,8 @@ export function StudentCommunityPage() {
                         disabled={!canSend}
                         loading={sendMessageMutation.isPending}
                         onClick={() => {
-                          if (!selectedRoomId || !draftMessage.trim()) return;
-                          sendMessageMutation.mutate({ roomId: selectedRoomId, content: draftMessage.trim() });
+                          if (!effectiveSelectedRoomId || !draftMessage.trim()) return;
+                          sendMessageMutation.mutate({ roomId: effectiveSelectedRoomId, content: draftMessage.trim() });
                         }}
                       >
                         Send message

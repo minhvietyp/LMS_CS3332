@@ -84,7 +84,7 @@ export function ClientDashboardHero() {
             {isInstructor ? 'Teaching priorities' : 'Learning priorities'}
           </span>
           <Typography.Title level={4}>
-            {isInstructor ? 'Focus on engagement, feedback, and course delivery.' : 'Focus on consistency, progress, and the next lesson.'}
+            {isInstructor ? 'Focus on progress, feedback, and course delivery.' : 'Focus on consistency, progress, and the next lesson.'}
           </Typography.Title>
           <div className="client-dashboard-hero__focus-points">
             {focusPoints.map((point) => (

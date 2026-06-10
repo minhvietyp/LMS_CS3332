@@ -1,5 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import { assignmentAPIClient } from '../services/api/assignment.service';
+import {
+  assignmentAPIClient,
+  type AssignmentSubmissionSummary,
+  type AssignmentSummary,
+} from '../services/api/assignment.service';
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
+}
 
 interface UseAssignmentsOptions {
   courseId?: string;
@@ -10,7 +18,7 @@ export const useAssignments = ({
   courseId,
   autoFetch = true,
 }: UseAssignmentsOptions) => {
-  const [assignments, setAssignments] = useState([]);
+  const [assignments, setAssignments] = useState<AssignmentSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,8 +30,8 @@ export const useAssignments = ({
     try {
       const data = await assignmentAPIClient.listByCourse(courseId);
       setAssignments(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load assignments');
+    } catch (err) {
+      setError(getErrorMessage(err, 'Failed to load assignments'));
     } finally {
       setLoading(false);
     }
@@ -47,7 +55,7 @@ export const useAssignment = ({
   assignmentId,
   autoFetch = true,
 }: UseAssignmentOptions) => {
-  const [assignment, setAssignment] = useState(null);
+  const [assignment, setAssignment] = useState<AssignmentSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,8 +67,8 @@ export const useAssignment = ({
     try {
       const data = await assignmentAPIClient.getAssignment(assignmentId);
       setAssignment(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load assignment');
+    } catch (err) {
+      setError(getErrorMessage(err, 'Failed to load assignment'));
     } finally {
       setLoading(false);
     }
@@ -84,7 +92,7 @@ export const useSubmissions = ({
   assignmentId,
   autoFetch = true,
 }: UseSubmissionsOptions) => {
-  const [submissions, setSubmissions] = useState([]);
+  const [submissions, setSubmissions] = useState<AssignmentSubmissionSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -98,8 +106,8 @@ export const useSubmissions = ({
         assignmentId
       );
       setSubmissions(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load submissions');
+    } catch (err) {
+      setError(getErrorMessage(err, 'Failed to load submissions'));
     } finally {
       setLoading(false);
     }
@@ -123,7 +131,7 @@ export const useStudentSubmissions = ({
   courseId,
   autoFetch = true,
 }: UseStudentSubmissionsOptions) => {
-  const [submissions, setSubmissions] = useState([]);
+  const [submissions, setSubmissions] = useState<AssignmentSubmissionSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -135,8 +143,8 @@ export const useStudentSubmissions = ({
     try {
       const data = await assignmentAPIClient.listStudentSubmissions(courseId);
       setSubmissions(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load submissions');
+    } catch (err) {
+      setError(getErrorMessage(err, 'Failed to load submissions'));
     } finally {
       setLoading(false);
     }
@@ -160,7 +168,7 @@ export const useSubmission = ({
   submissionId,
   autoFetch = true,
 }: UseSubmissionOptions) => {
-  const [submission, setSubmission] = useState(null);
+  const [submission, setSubmission] = useState<AssignmentSubmissionSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -172,8 +180,8 @@ export const useSubmission = ({
     try {
       const data = await assignmentAPIClient.getSubmission(submissionId);
       setSubmission(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load submission');
+    } catch (err) {
+      setError(getErrorMessage(err, 'Failed to load submission'));
     } finally {
       setLoading(false);
     }

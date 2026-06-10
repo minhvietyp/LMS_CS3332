@@ -1,7 +1,6 @@
-// @ts-nocheck
 import axios, { AxiosError } from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 interface CreateAssignmentData {
   courseId: string;
@@ -29,28 +28,56 @@ interface GradeSubmissionData {
   feedback?: string;
 }
 
+export interface AssignmentSummary {
+  id: string;
+  courseId?: string;
+  title: string;
+  description?: string | null;
+  dueDate?: string;
+  allowLateSubmission?: boolean;
+}
+
+export interface AssignmentSubmissionSummary {
+  id: string;
+  assignmentId?: string;
+  studentId?: string;
+  textContent?: string | null;
+  fileUrl?: string | null;
+  fileName?: string | null;
+  grade?: number | null;
+  feedback?: string | null;
+  status?: string;
+}
+
+type SubmissionFilters = Record<string, string | number | boolean | undefined>;
+
+type ApiEnvelope<T> = {
+  data: T;
+  message?: string;
+};
+
 export class AssignmentAPIClient {
   private apiUrl = `${API_BASE_URL}/assignments`;
 
   // ─── Assignment Management ───────────────────────────────────────────────
 
-  async createAssignment(data: CreateAssignmentData) {
-    const response = await axios.post(this.apiUrl, data);
+  async createAssignment(data: CreateAssignmentData): Promise<AssignmentSummary> {
+    const response = await axios.post<ApiEnvelope<AssignmentSummary>>(this.apiUrl, data);
     return response.data.data;
   }
 
-  async getAssignment(id: string) {
-    const response = await axios.get(`${this.apiUrl}/${id}`);
+  async getAssignment(id: string): Promise<AssignmentSummary> {
+    const response = await axios.get<ApiEnvelope<AssignmentSummary>>(`${this.apiUrl}/${id}`);
     return response.data.data;
   }
 
-  async listByCourse(courseId: string) {
-    const response = await axios.get(`${this.apiUrl}/courses/${courseId}`);
+  async listByCourse(courseId: string): Promise<AssignmentSummary[]> {
+    const response = await axios.get<ApiEnvelope<AssignmentSummary[]>>(`${this.apiUrl}/courses/${courseId}`);
     return response.data.data;
   }
 
-  async updateAssignment(id: string, data: UpdateAssignmentData) {
-    const response = await axios.patch(`${this.apiUrl}/${id}`, data);
+  async updateAssignment(id: string, data: UpdateAssignmentData): Promise<AssignmentSummary> {
+    const response = await axios.patch<ApiEnvelope<AssignmentSummary>>(`${this.apiUrl}/${id}`, data);
     return response.data.data;
   }
 
@@ -58,68 +85,67 @@ export class AssignmentAPIClient {
     await axios.delete(`${this.apiUrl}/${id}`);
   }
 
-  async getAssignmentStatistics(id: string) {
-    const response = await axios.get(`${this.apiUrl}/${id}/statistics`);
+  async getAssignmentStatistics(id: string): Promise<unknown> {
+    const response = await axios.get<ApiEnvelope<unknown>>(`${this.apiUrl}/${id}/statistics`);
     return response.data.data;
   }
 
   // ─── Submission Management ───────────────────────────────────────────────
 
-  async submitAssignment(assignmentId: string, data: SubmitAssignmentData) {
-    const response = await axios.post(
+  async submitAssignment(assignmentId: string, data: SubmitAssignmentData): Promise<AssignmentSubmissionSummary> {
+    const response = await axios.post<ApiEnvelope<AssignmentSubmissionSummary>>(
       `${this.apiUrl}/${assignmentId}/submit`,
       data
     );
     return response.data.data;
   }
 
-  async getSubmission(submissionId: string) {
-    const response = await axios.get(`${this.apiUrl}/submissions/${submissionId}`);
+  async getSubmission(submissionId: string): Promise<AssignmentSubmissionSummary> {
+    const response = await axios.get<ApiEnvelope<AssignmentSubmissionSummary>>(`${this.apiUrl}/submissions/${submissionId}`);
     return response.data.data;
   }
 
-  async listSubmissionsByAssignment(assignmentId: string, filters?: any) {
-    const response = await axios.get(
+  async listSubmissionsByAssignment(assignmentId: string, filters?: SubmissionFilters): Promise<AssignmentSubmissionSummary[]> {
+    const response = await axios.get<ApiEnvelope<AssignmentSubmissionSummary[]>>(
       `${this.apiUrl}/${assignmentId}/submissions`,
       { params: filters }
     );
     return response.data.data;
   }
 
-  async listStudentSubmissions(courseId: string) {
-    const response = await axios.get(
+  async listStudentSubmissions(courseId: string): Promise<AssignmentSubmissionSummary[]> {
+    const response = await axios.get<ApiEnvelope<AssignmentSubmissionSummary[]>>(
       `${this.apiUrl}/courses/${courseId}/my-submissions`
     );
     return response.data.data;
   }
 
-  async gradeSubmission(submissionId: string, data: GradeSubmissionData) {
-    const response = await axios.patch(
+  async gradeSubmission(submissionId: string, data: GradeSubmissionData): Promise<AssignmentSubmissionSummary> {
+    const response = await axios.patch<ApiEnvelope<AssignmentSubmissionSummary>>(
       `${this.apiUrl}/submissions/${submissionId}/grade`,
       data
     );
     return response.data.data;
   }
 
-  async getSubmissionStatistics(assignmentId: string) {
-    const response = await axios.get(
+  async getSubmissionStatistics(assignmentId: string): Promise<unknown> {
+    const response = await axios.get<ApiEnvelope<unknown>>(
       `${this.apiUrl}/${assignmentId}/submissions/statistics`
     );
     return response.data.data;
   }
 
-  async handleError(error: AxiosError) {
+  async handleError(error: AxiosError<ApiEnvelope<unknown>>): Promise<never> {
     if (error.response?.status === 404) {
-      throw new Error('Not found');
+      throw new Error('Not found', { cause: error });
     }
     if (error.response?.status === 403) {
-      throw new Error('Access denied');
+      throw new Error('Access denied', { cause: error });
     }
     if (error.response?.status === 400) {
-      const data = error.response?.data as any;
-      throw new Error(data?.message || 'Invalid request');
+      throw new Error(error.response.data.message || 'Invalid request', { cause: error });
     }
-    throw new Error('An error occurred');
+    throw new Error('An error occurred', { cause: error });
   }
 }
 

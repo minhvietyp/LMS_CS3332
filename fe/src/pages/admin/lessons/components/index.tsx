@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Card, Collapse, Empty, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag, Typography, Upload } from 'antd';
+import { Alert, Button, Card, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag, Typography, Upload } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { Navigate } from 'react-router-dom';
-import { BookOpenCheck, FileText, GripVertical, Link2, PlayCircle, Plus, RefreshCw, Trash2, Upload as UploadIcon } from 'lucide-react';
+import { BookOpenCheck, Link2, Plus, RefreshCw, Trash2, Upload as UploadIcon } from 'lucide-react';
 import { useAuth } from '../../../../context/AuthContext';
 import { canAccess, PERMISSIONS } from '../../../../utils/rbac';
 import { listCoursesRequest, type CourseListItem } from '../../../../services/api/courseApi';
@@ -74,7 +74,7 @@ function flattenLessons(modules: ModuleWithLessons[]): LessonRow[] {
     });
 }
 
-export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'workspace' }) {
+export function LessonManagement() {
   const { user } = useAuth();
   const [courses, setCourses] = useState<CourseListItem[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
@@ -108,18 +108,20 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
       })),
     [courses],
   );
+  const selectedCourseExists = selectedCourseId ? courses.some((course) => course.id === selectedCourseId) : false;
+  const effectiveSelectedCourseId = selectedCourseExists ? selectedCourseId : courses[0]?.id ?? null;
+  const visibleModules = effectiveSelectedCourseId ? modules : [];
 
   const moduleOptions = useMemo(
     () =>
-      modules.map((module) => ({
+      visibleModules.map((module) => ({
         value: module.id,
         label: `${module.orderIndex + 1}. ${module.title}`,
       })),
-    [modules],
+    [visibleModules],
   );
 
-  const lessonRows = useMemo(() => flattenLessons(modules), [modules]);
-  const [expandedModuleKeys, setExpandedModuleKeys] = useState<string[]>([]);
+  const lessonRows = useMemo(() => flattenLessons(visibleModules), [visibleModules]);
 
   const loadCourses = async () => {
     setIsLoadingCourses(true);
@@ -129,13 +131,6 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
       const result = await listCoursesRequest({ includeDeleted: false });
       const manageableCourses = result.data.filter((course) => user?.role === 'ADMIN' || course.instructorId === user?.id);
       setCourses(manageableCourses);
-
-      if (!selectedCourseId && manageableCourses.length > 0) {
-        setSelectedCourseId(manageableCourses[0].id);
-      }
-      if (selectedCourseId && !manageableCourses.some((course) => course.id === selectedCourseId)) {
-        setSelectedCourseId(manageableCourses[0]?.id ?? null);
-      }
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Failed to load courses.');
     } finally {
@@ -160,39 +155,14 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
   useEffect(() => {
     if (canManageLessons) {
       void loadCourses();
-    } else {
-      setIsLoadingCourses(false);
     }
   }, [canManageLessons]);
 
   useEffect(() => {
-    if (selectedCourseId && canManageLessons) {
-      void loadModules(selectedCourseId);
-    } else {
-      setModules([]);
+    if (effectiveSelectedCourseId && canManageLessons) {
+      void loadModules(effectiveSelectedCourseId);
     }
-  }, [selectedCourseId, canManageLessons]);
-
-  useEffect(() => {
-    if (variant !== 'workspace') {
-      return;
-    }
-
-    const validExpandedKeys = expandedModuleKeys.filter((key) => modules.some((module) => module.id === key));
-    if (validExpandedKeys.length !== expandedModuleKeys.length) {
-      setExpandedModuleKeys(validExpandedKeys);
-      return;
-    }
-
-    if (validExpandedKeys.length > 0) {
-      return;
-    }
-
-    const firstNonEmptyModule = modules.find((module) => module.lessons.length > 0) ?? modules[0];
-    if (firstNonEmptyModule) {
-      setExpandedModuleKeys([firstNonEmptyModule.id]);
-    }
-  }, [expandedModuleKeys, modules, variant]);
+  }, [effectiveSelectedCourseId, canManageLessons]);
 
   const openCreateModuleModal = () => {
     setEditingModule(null);
@@ -216,7 +186,7 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
   };
 
   const submitModule = async () => {
-    if (!selectedCourseId) return;
+    if (!effectiveSelectedCourseId) return;
 
     const values = await moduleForm.validateFields();
     const payload = {
@@ -231,11 +201,11 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
       if (editingModule) {
         await updateModuleRequest(editingModule.id, payload);
       } else {
-        await createModuleRequest(selectedCourseId, payload);
+        await createModuleRequest(effectiveSelectedCourseId, payload);
       }
 
       closeModuleModal();
-      await loadModules(selectedCourseId);
+      await loadModules(effectiveSelectedCourseId);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Failed to save module.');
     } finally {
@@ -244,14 +214,14 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
   };
 
   const handleDeleteModule = async (moduleId: string) => {
-    if (!selectedCourseId) return;
+    if (!effectiveSelectedCourseId) return;
 
     setIsMutating(moduleId);
     setErrorMessage(null);
 
     try {
       await deleteModuleRequest(moduleId);
-      await loadModules(selectedCourseId);
+      await loadModules(effectiveSelectedCourseId);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Failed to delete module.');
     } finally {
@@ -262,7 +232,7 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
   const openCreateLessonModal = () => {
     setEditingLesson(null);
     lessonForm.setFieldsValue({
-      moduleId: modules[0]?.id,
+      moduleId: visibleModules[0]?.id,
     });
     setIsLessonModalOpen(true);
   };
@@ -285,7 +255,7 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
   };
 
   const submitLesson = async () => {
-    if (!selectedCourseId) return;
+    if (!effectiveSelectedCourseId) return;
 
     const values = await lessonForm.validateFields();
 
@@ -309,7 +279,7 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
       }
 
       closeLessonModal();
-      await loadModules(selectedCourseId);
+      await loadModules(effectiveSelectedCourseId);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Failed to save lesson.');
     } finally {
@@ -318,14 +288,14 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
   };
 
   const handleDeleteLesson = async (lessonId: string) => {
-    if (!selectedCourseId) return;
+    if (!effectiveSelectedCourseId) return;
 
     setIsMutating(lessonId);
     setErrorMessage(null);
 
     try {
       await deleteLessonRequest(lessonId);
-      await loadModules(selectedCourseId);
+      await loadModules(effectiveSelectedCourseId);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Failed to delete lesson.');
     } finally {
@@ -361,7 +331,7 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
   };
 
   const submitMaterial = async () => {
-    if (!selectedLessonForMaterials || !selectedCourseId) return;
+    if (!selectedLessonForMaterials || !effectiveSelectedCourseId) return;
 
     const values = await materialForm.validateFields();
     setIsMutating(`material-${selectedLessonForMaterials.id}`);
@@ -387,7 +357,7 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
 
       const latestMaterials = await listLessonMaterialsRequest(selectedLessonForMaterials.id);
       setLessonMaterials(latestMaterials);
-      await loadModules(selectedCourseId);
+      await loadModules(effectiveSelectedCourseId);
       materialForm.setFieldsValue({ title: '', type: values.type, url: undefined });
       setSelectedMaterialFile(null);
     } catch (error) {
@@ -398,7 +368,7 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
   };
 
   const handleDeleteMaterial = async (materialId: string) => {
-    if (!selectedLessonForMaterials || !selectedCourseId) return;
+    if (!selectedLessonForMaterials || !effectiveSelectedCourseId) return;
 
     setIsMutating(materialId);
     setErrorMessage(null);
@@ -407,7 +377,7 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
       await deleteLessonMaterialRequest(materialId);
       const latestMaterials = await listLessonMaterialsRequest(selectedLessonForMaterials.id);
       setLessonMaterials(latestMaterials);
-      await loadModules(selectedCourseId);
+      await loadModules(effectiveSelectedCourseId);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Failed to delete material.');
     } finally {
@@ -569,7 +539,7 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
               <Select
                 className="lesson-management-toolbar__course-select"
                 placeholder="Select a course"
-                value={selectedCourseId ?? undefined}
+                value={effectiveSelectedCourseId ?? undefined}
                 onChange={(value) => setSelectedCourseId(value)}
                 options={courseOptions}
                 loading={isLoadingCourses}
@@ -581,10 +551,10 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
               </Button>
             </Space>
             <Space>
-              <Button type="default" icon={<BookOpenCheck size={16} />} onClick={openCreateModuleModal} disabled={!selectedCourseId}>
+              <Button type="default" icon={<BookOpenCheck size={16} />} onClick={openCreateModuleModal} disabled={!effectiveSelectedCourseId}>
                 New module
               </Button>
-              <Button type="primary" icon={<Plus size={16} />} onClick={openCreateLessonModal} disabled={!selectedCourseId || modules.length === 0}>
+              <Button type="primary" icon={<Plus size={16} />} onClick={openCreateLessonModal} disabled={!effectiveSelectedCourseId || visibleModules.length === 0}>
                 New lesson
               </Button>
             </Space>
@@ -592,161 +562,29 @@ export function LessonManagement({ variant = 'admin' }: { variant?: 'admin' | 'w
 
           {errorMessage ? <Alert type="error" showIcon message={errorMessage} /> : null}
 
-          {variant === 'workspace' ? (
-            <div className="lesson-management-workspace">
-              <div className="lesson-management-workspace__summary">
-                <div className="lesson-management-workspace__summary-item">
-                  <span>Modules</span>
-                  <strong>{modules.length}</strong>
-                </div>
-                <div className="lesson-management-workspace__summary-item">
-                  <span>Lessons</span>
-                  <strong>{lessonRows.length}</strong>
-                </div>
-                <div className="lesson-management-workspace__summary-item">
-                  <span>Published</span>
-                  <strong>{lessonRows.filter((lesson) => lesson.isPublished).length}</strong>
-                </div>
-              </div>
+          <div className="lesson-management-grid">
+            <Card title="Modules" bordered={false} className="lesson-management-grid__card">
+              <Table<ModuleWithLessons>
+                rowKey="id"
+                columns={moduleColumns}
+                dataSource={visibleModules}
+                loading={isLoadingModules}
+                pagination={false}
+                locale={{ emptyText: effectiveSelectedCourseId ? 'No modules yet.' : 'Select a course to view modules.' }}
+              />
+            </Card>
 
-              <Card bordered={false} className="lesson-management-grid__card lesson-management-workspace__card">
-                {modules.length ? (
-                  <Collapse
-                    ghost
-                    activeKey={expandedModuleKeys}
-                    onChange={(keys) => setExpandedModuleKeys(Array.isArray(keys) ? keys.map(String) : [String(keys)])}
-                    items={modules.map((module) => {
-                      const publishedLessons = module.lessons.filter((lesson) => lesson.isPublished).length;
-                      return {
-                        key: module.id,
-                        label: (
-                          <div className="lesson-management-workspace__module-header">
-                            <div className="lesson-management-workspace__module-copy">
-                              <Typography.Text className="lesson-management-workspace__module-eyebrow">
-                                Module {module.orderIndex + 1}
-                              </Typography.Text>
-                              <Typography.Text strong>{module.title}</Typography.Text>
-                            </div>
-                            <div className="lesson-management-workspace__module-stats">
-                              <span>Lessons: {module.lessons.length}</span>
-                              <span>Published: {publishedLessons}</span>
-                            </div>
-                          </div>
-                        ),
-                        extra: (
-                          <Space onClick={(event) => event.stopPropagation()}>
-                            <Button size="small" onClick={() => openEditModuleModal(module)}>
-                              Edit
-                            </Button>
-                            <Popconfirm
-                              title="Delete this module?"
-                              description="All lessons in this module will also be removed."
-                              okText="Delete"
-                              cancelText="Cancel"
-                              onConfirm={() => void handleDeleteModule(module.id)}
-                            >
-                              <Button danger size="small" loading={isMutating === module.id}>
-                                Delete
-                              </Button>
-                            </Popconfirm>
-                          </Space>
-                        ),
-                        children: module.lessons.length ? (
-                          <div className="lesson-management-workspace__lesson-list">
-                            {module.lessons
-                              .slice()
-                              .sort((a, b) => a.orderIndex - b.orderIndex)
-                              .map((lesson) => {
-                                const lessonRecord = lessonRows.find((row) => row.id === lesson.id);
-                                const hasMaterials = (lessonRecord?.materials.length ?? 0) > 0;
-                                return (
-                                  <article key={lesson.id} className="lesson-management-workspace__lesson-card">
-                                    <div className="lesson-management-workspace__lesson-main">
-                                      <div className="lesson-management-workspace__lesson-icon">
-                                        <GripVertical size={14} />
-                                      </div>
-                                      <div className="lesson-management-workspace__lesson-copy">
-                                        <Typography.Text strong>{lesson.title}</Typography.Text>
-                                        <div className="lesson-management-workspace__lesson-meta">
-                                          <span>
-                                            <PlayCircle size={14} />
-                                            {lesson.videoUrl ? 'Video lesson' : 'No video'}
-                                          </span>
-                                          <span>
-                                            <FileText size={14} />
-                                            {hasMaterials ? `${lessonRecord?.materials.length ?? 0} materials` : 'No materials'}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div className="lesson-management-workspace__lesson-side">
-                                      <Tag color={lesson.isPublished ? 'green' : 'default'}>
-                                        {lesson.isPublished ? 'Published' : 'Draft'}
-                                      </Tag>
-                                      <Space wrap>
-                                        <Button size="small" onClick={() => lessonRecord && openEditLessonModal(lessonRecord)}>
-                                          Edit
-                                        </Button>
-                                        <Button
-                                          size="small"
-                                          icon={<UploadIcon size={14} />}
-                                          onClick={() => lessonRecord && void openMaterialModal(lessonRecord)}
-                                        >
-                                          Materials
-                                        </Button>
-                                        <Popconfirm
-                                          title="Delete this lesson?"
-                                          description="The lesson will be soft deleted and hidden from lists."
-                                          okText="Delete"
-                                          cancelText="Cancel"
-                                          onConfirm={() => void handleDeleteLesson(lesson.id)}
-                                        >
-                                          <Button danger size="small" loading={isMutating === lesson.id}>
-                                            Delete
-                                          </Button>
-                                        </Popconfirm>
-                                      </Space>
-                                    </div>
-                                  </article>
-                                );
-                              })}
-                          </div>
-                        ) : (
-                          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No lessons in this module yet." />
-                        ),
-                      };
-                    })}
-                  />
-                ) : (
-                  <Empty description={selectedCourseId ? 'No modules yet.' : 'Select a course to view modules.'} />
-                )}
-              </Card>
-            </div>
-          ) : (
-            <div className="lesson-management-grid">
-              <Card title="Modules" bordered={false} className="lesson-management-grid__card">
-                <Table<ModuleWithLessons>
-                  rowKey="id"
-                  columns={moduleColumns}
-                  dataSource={modules}
-                  loading={isLoadingModules}
-                  pagination={false}
-                  locale={{ emptyText: selectedCourseId ? 'No modules yet.' : 'Select a course to view modules.' }}
-                />
-              </Card>
-
-              <Card title="Lessons" bordered={false} className="lesson-management-grid__card">
-                <Table<LessonRow>
-                  rowKey="id"
-                  columns={lessonColumns}
-                  dataSource={lessonRows}
-                  loading={isLoadingModules}
-                  pagination={false}
-                  locale={{ emptyText: selectedCourseId ? 'No lessons yet.' : 'Select a course to view lessons.' }}
-                />
-              </Card>
-            </div>
-          )}
+            <Card title="Lessons" bordered={false} className="lesson-management-grid__card">
+              <Table<LessonRow>
+                rowKey="id"
+                columns={lessonColumns}
+                dataSource={lessonRows}
+                loading={isLoadingModules}
+                pagination={false}
+                locale={{ emptyText: effectiveSelectedCourseId ? 'No lessons yet.' : 'Select a course to view lessons.' }}
+              />
+            </Card>
+          </div>
         </Space>
       </Card>
 

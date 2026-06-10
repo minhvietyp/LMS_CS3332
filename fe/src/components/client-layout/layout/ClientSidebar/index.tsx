@@ -16,8 +16,6 @@ type ClientSidebarProps = {
   onCloseMobile: () => void;
 };
 
-type SidebarNavItem = NonNullable<ReturnType<typeof getVisibleClientMenu>[number]['items'][number]>;
-
 function getInitials(name?: string | null) {
   if (!name) return 'U';
 
@@ -44,57 +42,11 @@ export function ClientSidebar({
   const isCollapsed = !isMobile && !isTablet && collapsed;
 
   const { primarySections, settingsItem } = useMemo(() => {
-    if (user?.role === 'STUDENT') {
-      return {
-        primarySections: sections
-          .map((section) => ({
-            ...section,
-            items: section.items.filter((item) =>
-              [
-                'student-dashboard',
-                'student-courses',
-                'student-calendar',
-                'student-progress',
-                'student-grades',
-                'student-community',
-                'notifications',
-              ].includes(item.key),
-            ),
-          }))
-          .filter((section) => section.items.length > 0),
-        settingsItem: sections.flatMap((section) => section.items).find((item) => item.key === 'settings'),
-      };
-    }
-
-    const itemMap = new Map(sections.flatMap((section) => section.items).map((item) => [item.key, item]));
-    const pickItem = (key: string): SidebarNavItem | null => itemMap.get(key) ?? null;
-
     return {
-      primarySections: [
-        {
-          key: 'learning',
-          title: 'Learning',
-          items: [pickItem('instructor-dashboard')].filter((item): item is SidebarNavItem => Boolean(item)),
-        },
-        {
-          key: 'teaching',
-          title: 'Teaching',
-          items: [
-            pickItem('instructor-progress'),
-            pickItem('instructor-courses'),
-            pickItem('instructor-lessons'),
-            pickItem('instructor-assessments'),
-          ].filter((item): item is SidebarNavItem => Boolean(item)),
-        },
-        {
-          key: 'community',
-          title: 'Community',
-          items: [pickItem('direct-chat')].filter((item): item is SidebarNavItem => Boolean(item)),
-        },
-      ],
+      primarySections: sections.filter((section) => section.key !== 'account'),
       settingsItem: sections.flatMap((section) => section.items).find((item) => item.key === 'settings'),
     };
-  }, [sections, user?.role]);
+  }, [sections]);
 
   const handleLogout = async () => {
     if (refreshToken) {
@@ -113,7 +65,7 @@ export function ClientSidebar({
     onCloseMobile();
   };
 
-  const renderNavButton = (item: SidebarNavItem) => {
+  const renderNavButton = (item: (typeof primarySections)[number]['items'][number]) => {
     const Icon = item.icon;
     const isActive = activeItem?.key === item.key;
     const button = (
@@ -143,7 +95,7 @@ export function ClientSidebar({
   };
 
   const continueRoute =
-    continueLearning.courseId && continueLearning.currentLesson
+    user?.role === 'STUDENT' && continueLearning.courseId && continueLearning.currentLesson
       ? `/courses/${continueLearning.courseId}/learn/${continueLearning.currentLesson.id}`
       : null;
 
@@ -169,11 +121,6 @@ export function ClientSidebar({
       </nav>
 
       <div className="client-sidebar__footer">
-        {user?.role === 'INSTRUCTOR' ? (
-          <Typography.Text className="client-sidebar__group-label client-sidebar__footer-label" aria-hidden={isCollapsed}>
-            Settings
-          </Typography.Text>
-        ) : null}
         {continueRoute && !isCollapsed ? (
           <button type="button" className="client-sidebar__resume-card" onClick={() => handleNavigate(continueRoute)}>
             <span className="client-sidebar__resume-label">Continue Learning</span>

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, Col, Empty, Row, Select, Space, Spin, Statistic, Table, Tag, Typography } from 'antd';
+import { Alert, Card, Col, Empty, Row, Select, Space, Spin, Statistic, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
 import {
@@ -63,7 +63,7 @@ export function AssignmentReportPage() {
     const returned = submissions.filter((submission) => submission.status === 'RETURNED').length;
     const averageGrade = graded.length
       ? Math.round(graded.reduce((total, submission) => total + (submission.grade ?? 0), 0) / graded.length)
-      : 0;
+      : null;
 
     return {
       totalSubmissions: submissions.length,
@@ -135,12 +135,48 @@ export function AssignmentReportPage() {
       >
         <main className="instructor-report-page">
           {coursesQuery.isLoading ? <Spin tip="Loading assignment reports..." /> : null}
+          {coursesQuery.error ? (
+            <Alert
+              type="error"
+              showIcon
+              message="Failed to load courses"
+              description={coursesQuery.error instanceof Error ? coursesQuery.error.message : 'Unexpected error'}
+            />
+          ) : null}
+          {assignmentsQuery.error ? (
+            <Alert
+              type="error"
+              showIcon
+              message="Failed to load assignments"
+              description={assignmentsQuery.error instanceof Error ? assignmentsQuery.error.message : 'Unexpected error'}
+            />
+          ) : null}
+          {submissionsQuery.error ? (
+            <Alert
+              type="error"
+              showIcon
+              message="Failed to load submissions"
+              description={submissionsQuery.error instanceof Error ? submissionsQuery.error.message : 'Unexpected error'}
+            />
+          ) : null}
 
           {selectedCourse ? (
-            <Typography.Paragraph className="instructor-report-page__context">
-              Reporting on <Typography.Text strong>{selectedCourse.title}</Typography.Text>
-              {selectedAssignment ? ` / ${selectedAssignment.title}` : ''}
-            </Typography.Paragraph>
+            <Card className="instructor-report-page__hero-card">
+              <div>
+                <Typography.Text className="instructor-report-page__eyebrow">Selected report scope</Typography.Text>
+                <Typography.Title level={3}>{selectedCourse.title}</Typography.Title>
+                <Typography.Paragraph type="secondary">
+                  {selectedAssignment
+                    ? `Assignment: ${selectedAssignment.title}`
+                    : 'Choose an assignment to inspect real submission outcomes.'}
+                </Typography.Paragraph>
+              </div>
+              {selectedAssignment ? (
+                <Tag color={selectedAssignment.allowLateSubmission ? 'green' : 'red'}>
+                  {selectedAssignment.allowLateSubmission ? 'Late allowed' : 'Late blocked'}
+                </Tag>
+              ) : null}
+            </Card>
           ) : null}
 
           {activeAssignmentId ? (
@@ -149,16 +185,34 @@ export function AssignmentReportPage() {
                 <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Submissions" value={summary.totalSubmissions} /></Card></Col>
                 <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Graded" value={summary.gradedCount} /></Card></Col>
                 <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Returned" value={summary.returnedCount} /></Card></Col>
-                <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Average Grade" value={summary.averageGrade} suffix="%" /></Card></Col>
+                <Col xs={24} md={12} xl={6}>
+                  <Card className="instructor-report-page__summary-card">
+                    <Statistic
+                      title="Average Grade"
+                      value={summary.averageGrade ?? 'Not available'}
+                      suffix={summary.averageGrade == null ? undefined : '%'}
+                    />
+                  </Card>
+                </Col>
               </Row>
 
               <Card className="instructor-report-page__table-card">
+                <div className="instructor-report-page__section-heading">
+                  <div>
+                    <Typography.Title level={4}>Submission outcomes</Typography.Title>
+                    <Typography.Text type="secondary">
+                      Grades and return status are derived from the selected assignment submissions.
+                    </Typography.Text>
+                  </div>
+                </div>
                 <Table
                   rowKey="id"
                   columns={columns}
                   dataSource={submissionsQuery.data ?? []}
                   loading={submissionsQuery.isLoading}
                   pagination={false}
+                  scroll={{ x: 820 }}
+                  locale={{ emptyText: 'No submissions found for this assignment.' }}
                 />
               </Card>
             </>

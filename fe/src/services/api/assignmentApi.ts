@@ -89,7 +89,7 @@ export async function listCourseAssignmentsRequest(courseId: string): Promise<As
     const response = await apiClient.get<ApiEnvelope<AssignmentListItem[]>>(`/assignments/courses/${courseId}`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load assignments.'));
+    throw new Error(getErrorMessage(error, 'Failed to load assignments.'), { cause: error });
   }
 }
 
@@ -98,7 +98,7 @@ export async function createAssignmentRequest(payload: AssignmentPayload): Promi
     const response = await apiClient.post<ApiEnvelope<AssignmentListItem>>('/assignments', payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to create assignment.'));
+    throw new Error(getErrorMessage(error, 'Failed to create assignment.'), { cause: error });
   }
 }
 
@@ -110,7 +110,7 @@ export async function updateAssignmentRequest(
     const response = await apiClient.patch<ApiEnvelope<AssignmentListItem>>(`/assignments/${assignmentId}`, payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to update assignment.'));
+    throw new Error(getErrorMessage(error, 'Failed to update assignment.'), { cause: error });
   }
 }
 
@@ -118,7 +118,7 @@ export async function deleteAssignmentRequest(assignmentId: string): Promise<voi
   try {
     await apiClient.delete(`/assignments/${assignmentId}`);
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to delete assignment.'));
+    throw new Error(getErrorMessage(error, 'Failed to delete assignment.'), { cause: error });
   }
 }
 
@@ -127,7 +127,7 @@ export async function listStudentCourseAssignmentsRequest(courseId: string): Pro
     const response = await apiClient.get<ApiEnvelope<StudentAssignmentListItem[]>>(`/assignments/courses/${courseId}/student`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load assignments.'));
+    throw new Error(getErrorMessage(error, 'Failed to load assignments.'), { cause: error });
   }
 }
 
@@ -136,7 +136,7 @@ export async function getStudentAssignmentDetailRequest(assignmentId: string): P
     const response = await apiClient.get<ApiEnvelope<StudentAssignmentDetail>>(`/assignments/${assignmentId}/student`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load assignment details.'));
+    throw new Error(getErrorMessage(error, 'Failed to load assignment details.'), { cause: error });
   }
 }
 
@@ -148,7 +148,7 @@ export async function submitStudentAssignmentRequest(
     const response = await apiClient.post<ApiEnvelope<AssignmentSubmissionRecord>>(`/assignments/${assignmentId}/submit`, payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to submit assignment.'));
+    throw new Error(getErrorMessage(error, 'Failed to submit assignment.'), { cause: error });
   }
 }
 
@@ -171,7 +171,7 @@ export async function uploadAssignmentSubmissionFileRequest(
     );
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to upload assignment file.'));
+    throw new Error(getErrorMessage(error, 'Failed to upload assignment file.'), { cause: error });
   }
 }
 
@@ -180,7 +180,7 @@ export async function listMyAssignmentSubmissionsRequest(courseId: string): Prom
     const response = await apiClient.get<ApiEnvelope<AssignmentSubmissionRecord[]>>(`/assignments/courses/${courseId}/my-submissions`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load submissions.'));
+    throw new Error(getErrorMessage(error, 'Failed to load submissions.'), { cause: error });
   }
 }
 
@@ -189,7 +189,7 @@ export async function listAssignmentSubmissionsRequest(assignmentId: string): Pr
     const response = await apiClient.get<ApiEnvelope<AssignmentSubmissionListItem[]>>(`/assignments/${assignmentId}/submissions`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load assignment submissions.'));
+    throw new Error(getErrorMessage(error, 'Failed to load assignment submissions.'), { cause: error });
   }
 }
 
@@ -204,7 +204,7 @@ export async function gradeAssignmentSubmissionRequest(
     );
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to grade submission.'));
+    throw new Error(getErrorMessage(error, 'Failed to grade submission.'), { cause: error });
   }
 }
 
@@ -215,6 +215,6 @@ export async function returnAssignmentSubmissionRequest(submissionId: string): P
     );
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to return submission.'));
+    throw new Error(getErrorMessage(error, 'Failed to return submission.'), { cause: error });
   }
 }

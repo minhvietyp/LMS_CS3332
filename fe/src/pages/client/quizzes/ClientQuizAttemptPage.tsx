@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Typography } from 'antd';
 import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
@@ -80,16 +80,11 @@ export function ClientQuizAttemptPage() {
   const latestAttempt = attemptsQuery.data?.[0] ?? null;
   const startedAttempt = attemptsQuery.data?.find((attempt) => getAttemptStatus(attempt) === 'STARTED') ?? null;
 
-  useEffect(() => {
-    if (currentAttemptId) {
-      setCurrentQuestionIndex(0);
-    }
-  }, [currentAttemptId]);
-
   const startAttemptMutation = useMutation({
     mutationFn: () => startQuizAttemptRequest(quizId!),
     onSuccess: async (attempt) => {
       setCurrentAttemptId(attempt.id);
+      setCurrentQuestionIndex(0);
       setSelectedAnswers({});
       setSubmitError(null);
       await attemptsQuery.refetch();
@@ -224,6 +219,7 @@ export function ClientQuizAttemptPage() {
                         className="client-button client-button-primary"
                         onClick={() => {
                           setCurrentAttemptId(startedAttempt.id);
+                          setCurrentQuestionIndex(0);
                           setSubmitError(null);
                         }}
                       >
@@ -362,6 +358,7 @@ export function ClientQuizAttemptPage() {
                                     className="client-button client-button-secondary"
                                     onClick={() => {
                                       setCurrentAttemptId(attempt.id);
+                                      setCurrentQuestionIndex(0);
                                       setSubmitError(null);
                                     }}
                                   >

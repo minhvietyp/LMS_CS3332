@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { Button, Progress, Skeleton, Typography } from 'antd';
 import {
@@ -33,6 +33,10 @@ import type { ActivityItem, CourseProgressItem } from '../../../../types/progres
 import { getNotificationDestination, getNotificationTypeLabel } from '../../../../utils/notifications';
 import './StudentDashboard.css';
 
+function getCurrentTimestamp() {
+  return Date.now();
+}
+
 type DashboardDueItem = {
   id: string;
   kind: 'assignment' | 'quiz';
@@ -57,11 +61,11 @@ type DashboardFocusItem = {
   actionLabel: string;
 };
 
-function formatRelativeDate(value: string | null) {
+function formatRelativeDate(value: string | null, now: number) {
   if (!value) return 'Date not set';
 
   const target = new Date(value).getTime();
-  const diffDays = Math.ceil((target - Date.now()) / (1000 * 60 * 60 * 24));
+  const diffDays = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
 
   if (diffDays < 0) return `${Math.abs(diffDays)} day${Math.abs(diffDays) === 1 ? '' : 's'} overdue`;
   if (diffDays === 0) return 'Due today';
@@ -106,11 +110,12 @@ function flattenCourseLessons(course: CourseDetail | undefined) {
 function getAssignmentStatus(
   submission: AssignmentSubmissionRecord | undefined,
   dueDate: string | null,
+  now: number,
 ): DashboardDueItem['status'] {
   if (submission?.status === 'GRADED') return { tone: 'graded', label: 'Graded' };
   if (submission) return { tone: 'submitted', label: submission.isLate ? 'Submitted late' : 'Submitted' };
 
-  if (dueDate && new Date(dueDate).getTime() < Date.now()) {
+  if (dueDate && new Date(dueDate).getTime() < now) {
     return { tone: 'overdue', label: 'Overdue' };
   }
 
@@ -133,6 +138,7 @@ function buildDeadlineItems(
   courses: CourseProgressItem[],
   assignmentsByCourse: StudentAssignmentListItem[][],
   quizzesByCourse: StudentQuizCourseItem[][],
+  now: number,
 ): DashboardDueItem[] {
   const courseMap = new Map(courses.map((course) => [course.courseId, course]));
   const assignmentItems = assignmentsByCourse.flatMap((assignments) =>
@@ -147,10 +153,10 @@ function buildDeadlineItems(
           title: assignment.title,
           courseTitle: courseMap.get(assignment.courseId ?? '')?.courseTitle ?? 'Course assignment',
           timestamp: assignment.dueDate ?? null,
-          relativeCopy: formatRelativeDate(assignment.dueDate ?? null),
+          relativeCopy: formatRelativeDate(assignment.dueDate ?? null, now),
           href: `/courses/${assignment.courseId}/assignments/${assignment.id}`,
           actionLabel: submission ? 'Review' : 'Submit',
-          status: getAssignmentStatus(submission, assignment.dueDate ?? null),
+          status: getAssignmentStatus(submission, assignment.dueDate ?? null, now),
         };
       }),
   );
@@ -228,6 +234,7 @@ function getNotificationActionLabel(notification: NotificationItem) {
 }
 
 export function StudentDashboard({ studentName }: { studentName: string }) {
+  const [now] = useState(getCurrentTimestamp);
   const overviewQuery = useProgressOverview();
   const activityQuery = useActivityTimeline(5, 0);
   const notificationsQuery = useQuery({
@@ -281,7 +288,7 @@ export function StudentDashboard({ studentName }: { studentName: string }) {
   const currentLesson = continueCourseLessons.length ? continueCourseLessons[currentLessonIndex] : null;
   const assignmentsByCourse = assignmentQueries.map((query) => query.data ?? []);
   const quizzesByCourse = quizQueries.map((query) => query.data ?? []);
-  const deadlines = buildDeadlineItems(studentCourses, assignmentsByCourse, quizzesByCourse);
+  const deadlines = buildDeadlineItems(studentCourses, assignmentsByCourse, quizzesByCourse, now);
   const previewNotifications = (notificationsQuery.data ?? []).slice(0, 3);
   const unreadAlerts = (notificationsQuery.data ?? []).filter((notification) => !notification.isRead).length;
   const pendingAssignments = assignmentsByCourse.reduce(

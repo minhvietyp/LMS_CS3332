@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { Button, Typography } from 'antd';
 import { AlertTriangle, ClipboardCheck, FileCheck2 } from 'lucide-react';
@@ -19,6 +19,10 @@ import {
 } from '../../../services/api/quizApi';
 import type { CourseProgressItem } from '../../../types/progress';
 import './StudentGradesPage.css';
+
+function getCurrentTimestamp() {
+  return Date.now();
+}
 
 type GradeCategory = 'Assignment' | 'Quiz';
 type GradeItemStatus = 'graded' | 'submitted' | 'pending' | 'missing' | 'overdue' | 'not-available';
@@ -87,13 +91,13 @@ function getLatestSubmission(assignment: StudentAssignmentListItem): AssignmentS
     .sort((left, right) => new Date(right.submittedAt).getTime() - new Date(left.submittedAt).getTime())[0] ?? null;
 }
 
-function getAssignmentStatus(assignment: StudentAssignmentListItem, submission: AssignmentSubmissionRecord | null): GradeItemStatus {
+function getAssignmentStatus(assignment: StudentAssignmentListItem, submission: AssignmentSubmissionRecord | null, now: number): GradeItemStatus {
   if (submission?.grade != null) return 'graded';
   if (submission) return 'submitted';
 
   if (assignment.dueDate) {
     const dueTime = new Date(assignment.dueDate).getTime();
-    if (!Number.isNaN(dueTime) && dueTime < Date.now()) {
+    if (!Number.isNaN(dueTime) && dueTime < now) {
       return assignment.allowLateSubmission ? 'missing' : 'overdue';
     }
   }
@@ -207,10 +211,11 @@ function buildCourseGradeModel(
   assignments: StudentAssignmentListItem[],
   quizzes: StudentQuizCourseItem[],
   quizAttemptsByQuizId: Map<string, StudentQuizAttempt[]>,
+  now: number,
 ): CourseGradeModel {
   const assignmentItems: GradeItem[] = assignments.map((assignment) => {
     const latestSubmission = getLatestSubmission(assignment);
-    const status = getAssignmentStatus(assignment, latestSubmission);
+    const status = getAssignmentStatus(assignment, latestSubmission, now);
 
     return {
       id: `assignment-${assignment.id}`,
@@ -265,6 +270,7 @@ function buildCourseGradeModel(
 
 export function StudentGradesPage() {
   const navigate = useNavigate();
+  const [now] = useState(getCurrentTimestamp);
 
   const overviewQuery = useQuery({
     queryKey: ['progress', 'grades', 'overview'],
@@ -325,9 +331,10 @@ export function StudentGradesPage() {
         assignmentQueries[index]?.data ?? [],
         quizListQueries[index]?.data ?? [],
         quizAttemptsByQuizId,
+        now,
       ),
     );
-  }, [assignmentQueries, courses, quizAttemptQueries, quizListQueries, quizzesWithCourse]);
+  }, [assignmentQueries, courses, now, quizAttemptQueries, quizListQueries, quizzesWithCourse]);
 
   const gradedCourseModels = courseGradeModels.filter((model) => model.totalScore !== null);
   const currentAverage = gradedCourseModels.length

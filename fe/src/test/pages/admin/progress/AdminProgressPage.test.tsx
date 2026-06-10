@@ -61,14 +61,14 @@ const mockCoursesState = {
 };
 
 const mockStudentsState = {
-  data: undefined as any,
+  data: undefined,
   isLoading: false,
   error: null,
   refetch: studentsRefetch,
 };
 
 const mockDetailState = {
-  data: undefined as any,
+  data: undefined,
   isLoading: false,
   error: null,
 };

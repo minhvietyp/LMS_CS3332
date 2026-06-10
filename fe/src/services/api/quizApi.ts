@@ -151,7 +151,7 @@ export async function listCourseQuizzesRequest(courseId: string): Promise<QuizLi
     const response = await apiClient.get<ApiEnvelope<QuizListItem[]>>(`/quizzes/courses/${courseId}`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load quizzes.'));
+    throw new Error(getErrorMessage(error, 'Failed to load quizzes.'), { cause: error });
   }
 }
 
@@ -160,7 +160,7 @@ export async function createQuizRequest(payload: QuizPayload): Promise<QuizListI
     const response = await apiClient.post<ApiEnvelope<QuizListItem>>('/quizzes', payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to create quiz.'));
+    throw new Error(getErrorMessage(error, 'Failed to create quiz.'), { cause: error });
   }
 }
 
@@ -169,7 +169,7 @@ export async function updateQuizRequest(quizId: string, payload: Partial<QuizPay
     const response = await apiClient.patch<ApiEnvelope<QuizListItem>>(`/quizzes/${quizId}`, payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to update quiz.'));
+    throw new Error(getErrorMessage(error, 'Failed to update quiz.'), { cause: error });
   }
 }
 
@@ -178,7 +178,7 @@ export async function publishQuizRequest(quizId: string): Promise<QuizListItem> 
     const response = await apiClient.post<ApiEnvelope<QuizListItem>>(`/quizzes/${quizId}/publish`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to publish quiz.'));
+    throw new Error(getErrorMessage(error, 'Failed to publish quiz.'), { cause: error });
   }
 }
 
@@ -187,7 +187,7 @@ export async function unpublishQuizRequest(quizId: string): Promise<QuizListItem
     const response = await apiClient.post<ApiEnvelope<QuizListItem>>(`/quizzes/${quizId}/unpublish`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to unpublish quiz.'));
+    throw new Error(getErrorMessage(error, 'Failed to unpublish quiz.'), { cause: error });
   }
 }
 
@@ -195,7 +195,7 @@ export async function deleteQuizRequest(quizId: string): Promise<void> {
   try {
     await apiClient.delete(`/quizzes/${quizId}`);
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to delete quiz.'));
+    throw new Error(getErrorMessage(error, 'Failed to delete quiz.'), { cause: error });
   }
 }
 
@@ -204,7 +204,7 @@ export async function createQuizQuestionRequest(quizId: string, payload: QuizQue
     const response = await apiClient.post<ApiEnvelope<QuizQuestion>>(`/quizzes/${quizId}/questions`, payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to create question.'));
+    throw new Error(getErrorMessage(error, 'Failed to create question.'), { cause: error });
   }
 }
 
@@ -216,7 +216,7 @@ export async function updateQuizQuestionRequest(
     const response = await apiClient.patch<ApiEnvelope<QuizQuestion>>(`/quizzes/questions/${questionId}`, payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to update question.'));
+    throw new Error(getErrorMessage(error, 'Failed to update question.'), { cause: error });
   }
 }
 
@@ -224,7 +224,7 @@ export async function deleteQuizQuestionRequest(questionId: string): Promise<voi
   try {
     await apiClient.delete(`/quizzes/questions/${questionId}`);
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to delete question.'));
+    throw new Error(getErrorMessage(error, 'Failed to delete question.'), { cause: error });
   }
 }
 
@@ -233,7 +233,7 @@ export async function listStudentCourseQuizzesRequest(courseId: string): Promise
     const response = await apiClient.get<ApiEnvelope<StudentQuizCourseItem[]>>(`/quizzes/courses/${courseId}/student`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load course quizzes.'));
+    throw new Error(getErrorMessage(error, 'Failed to load course quizzes.'), { cause: error });
   }
 }
 
@@ -242,7 +242,7 @@ export async function getStudentQuizDetailRequest(quizId: string): Promise<Stude
     const response = await apiClient.get<ApiEnvelope<StudentQuizDetail>>(`/quizzes/${quizId}/student`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load quiz detail.'));
+    throw new Error(getErrorMessage(error, 'Failed to load quiz detail.'), { cause: error });
   }
 }
 
@@ -251,7 +251,7 @@ export async function startQuizAttemptRequest(quizId: string): Promise<StudentQu
     const response = await apiClient.post<ApiEnvelope<StudentQuizAttempt>>(`/quizzes/${quizId}/attempts/start`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to start quiz attempt.'));
+    throw new Error(getErrorMessage(error, 'Failed to start quiz attempt.'), { cause: error });
   }
 }
 
@@ -260,7 +260,7 @@ export async function listMyQuizAttemptsRequest(quizId: string): Promise<Student
     const response = await apiClient.get<ApiEnvelope<StudentQuizAttempt[]>>(`/quizzes/${quizId}/attempts/me`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load quiz attempts.'));
+    throw new Error(getErrorMessage(error, 'Failed to load quiz attempts.'), { cause: error });
   }
 }
 
@@ -278,7 +278,7 @@ export async function submitQuizAttemptRequest(
     const response = await apiClient.post<ApiEnvelope<StudentQuizAttempt>>(`/quizzes/${quizId}/submit`, payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to submit quiz attempt.'));
+    throw new Error(getErrorMessage(error, 'Failed to submit quiz attempt.'), { cause: error });
   }
 }
 
@@ -287,6 +287,6 @@ export async function getQuizAttemptResultRequest(quizId: string, attemptId: str
     const response = await apiClient.get<ApiEnvelope<StudentQuizResult>>(`/quizzes/${quizId}/results/${attemptId}`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load quiz result.'));
+    throw new Error(getErrorMessage(error, 'Failed to load quiz result.'), { cause: error });
   }
 }

@@ -1,22 +1,24 @@
-import { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Alert,
-  Avatar,
   Button,
   Card,
+  Col,
   Drawer,
   Empty,
   Input,
-  Pagination,
   Progress,
+  Row,
   Select,
   Space,
   Spin,
   Statistic,
+  Table,
   Tag,
   Typography,
 } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { ReloadOutlined } from '@ant-design/icons';
 import { listCoursesRequest, type CourseListItem } from '../../../services/api/courseApi';
 import {
@@ -86,17 +88,9 @@ export function InstructorProgressPage() {
     retry: 1,
   });
 
-  useEffect(() => {
-    if (!selectedCourseId && coursesQuery.data?.length) {
-      setSelectedCourseId(coursesQuery.data[0].id);
-    }
-  }, [coursesQuery.data, selectedCourseId]);
+  const effectiveSelectedCourseId = selectedCourseId ?? coursesQuery.data?.[0]?.id;
 
-  useEffect(() => {
-    setPage(1);
-  }, [deferredSearch, selectedCourseId, sortBy, sortOrder, status]);
-
-  const progressQuery = useInstructorCourseProgress(selectedCourseId, {
+  const progressQuery = useInstructorCourseProgress(effectiveSelectedCourseId, {
     page,
     pageSize: 10,
     search: deferredSearch || undefined,
@@ -105,25 +99,72 @@ export function InstructorProgressPage() {
     sortOrder,
   });
 
-  const detailQuery = useInstructorStudentCourseProgress(selectedCourseId, selectedStudentId);
+  const detailQuery = useInstructorStudentCourseProgress(effectiveSelectedCourseId, selectedStudentId);
 
   const selectedCourse = useMemo(
-    () => coursesQuery.data?.find((course) => course.id === selectedCourseId),
-    [coursesQuery.data, selectedCourseId],
+    () => coursesQuery.data?.find((course) => course.id === effectiveSelectedCourseId),
+    [coursesQuery.data, effectiveSelectedCourseId],
   );
 
-  const spotlightStudents = useMemo(
-    () =>
-      progressQuery.data?.students.filter(
-        (student) => student.enrollmentStatus === 'ACTIVE' && student.weightedPercentage < 50,
-      ) ?? [],
-    [progressQuery.data?.students],
+  const columns = useMemo<ColumnsType<InstructorStudentProgressItem>>(
+    () => [
+      {
+        title: 'Student',
+        key: 'student',
+        render: (_, record) => (
+          <div className="instructor-progress-page__student-cell">
+            <Typography.Text strong>{record.studentName}</Typography.Text>
+            <Typography.Text type="secondary">{record.studentEmail}</Typography.Text>
+          </div>
+        ),
+      },
+      {
+        title: 'Status',
+        dataIndex: 'enrollmentStatus',
+        key: 'enrollmentStatus',
+        render: (value: EnrollmentStatus) => <Tag color={statusColor(value)}>{value}</Tag>,
+      },
+      {
+        title: 'Progress',
+        key: 'progress',
+        render: (_, record) => (
+          <div className="instructor-progress-page__progress-cell">
+            <Progress
+              percent={record.weightedPercentage}
+              size="small"
+              strokeColor={progressStrokeColor(record.weightedPercentage)}
+            />
+            <Typography.Text type="secondary">
+              {record.completedLessons}/{record.totalLessons} lessons
+            </Typography.Text>
+          </div>
+        ),
+      },
+      {
+        title: 'Last Activity',
+        dataIndex: 'lastProgressAt',
+        key: 'lastProgressAt',
+        render: (value: string | null) => (
+          <Typography.Text type={value ? undefined : 'secondary'}>{formatDate(value)}</Typography.Text>
+        ),
+      },
+      {
+        title: 'Action',
+        key: 'action',
+        render: (_, record) => (
+          <Button type="link" onClick={() => setSelectedStudentId(record.studentId)}>
+            View detail
+          </Button>
+        ),
+      },
+    ],
+    [],
   );
 
   if (coursesQuery.isLoading) {
     return (
       <ClientLayout>
-        <ClientPageContainer title="Instructor progress monitoring" subtitle="Review course completion and activity across your students.">
+        <ClientPageContainer title="Student Progress" subtitle="Monitor learner progress by course.">
           <main className="instructor-progress-page">
             <section className="instructor-progress-page__loading">
               <Spin size="large" tip="Loading instructor progress..." />
@@ -137,7 +178,7 @@ export function InstructorProgressPage() {
   if (coursesQuery.error) {
     return (
       <ClientLayout>
-        <ClientPageContainer title="Instructor progress monitoring" subtitle="Review course completion and activity across your students.">
+        <ClientPageContainer title="Student Progress" subtitle="Monitor learner progress by course.">
           <main className="instructor-progress-page">
             <Alert
               type="error"
@@ -154,7 +195,7 @@ export function InstructorProgressPage() {
   if (!coursesQuery.data?.length) {
     return (
       <ClientLayout>
-        <ClientPageContainer title="Instructor progress monitoring" subtitle="Review course completion and activity across your students.">
+        <ClientPageContainer title="Student Progress" subtitle="Monitor learner progress by course.">
           <main className="instructor-progress-page">
             <Empty description="No instructor-owned courses available for progress monitoring." />
           </main>
@@ -166,16 +207,17 @@ export function InstructorProgressPage() {
   return (
     <ClientLayout>
       <ClientPageContainer
-        title="Instructor progress monitoring"
-        subtitle="Review course completion, last activity, and lesson-level progress across your students."
+        title="Student Progress"
+        subtitle="Monitor learner progress, completion status, and lesson activity by course."
         actions={
           <Space className="instructor-progress-page__actions">
             <Select
               className="instructor-progress-page__course-select"
-              value={selectedCourseId}
+              value={effectiveSelectedCourseId}
               onChange={(value) => {
                 setSelectedCourseId(value);
                 setSelectedStudentId(undefined);
+                setPage(1);
               }}
               options={coursesQuery.data.map((course: CourseListItem) => ({
                 label: course.title,
@@ -201,6 +243,9 @@ export function InstructorProgressPage() {
               <Typography.Title level={4} className="instructor-progress-page__course-title">
                 {selectedCourse?.title}
               </Typography.Title>
+              <Typography.Paragraph type="secondary" className="instructor-progress-page__course-copy">
+                Progress values are loaded from the instructor progress endpoint for this course.
+              </Typography.Paragraph>
             </div>
             <Tag color={selectedCourse?.status === 'PUBLISHED' ? 'green' : 'default'}>{selectedCourse?.status}</Tag>
           </Card>
@@ -222,180 +267,107 @@ export function InstructorProgressPage() {
 
           {progressQuery.data ? (
             <>
-              <section className="instructor-progress-page__summary-grid">
-                <Card className="instructor-progress-page__summary-card instructor-progress-page__summary-card--soft">
-                  <Statistic title="Students" value={progressQuery.data.course.totalStudents} />
-                  <Typography.Text type="secondary">
-                    {progressQuery.data.course.activeStudents} active learners across this course.
-                  </Typography.Text>
-                </Card>
-                <Card className="instructor-progress-page__summary-card instructor-progress-page__summary-card--soft">
-                  <Statistic title="Average Progress" value={progressQuery.data.course.averageProgress} suffix="%" />
-                  <Typography.Text type="secondary">
-                    Weighted completion average {progressQuery.data.course.averageWeightedProgress}%.
-                  </Typography.Text>
-                </Card>
-                <Card className="instructor-progress-page__summary-card instructor-progress-page__summary-card--soft">
-                  <Statistic title="Completion Rate" value={progressQuery.data.course.completedStudents} suffix={`/${progressQuery.data.course.totalStudents}`} />
-                  <Typography.Text type="secondary">
-                    Students who fully completed all published lessons.
-                  </Typography.Text>
-                </Card>
-                <Card className="instructor-progress-page__summary-card instructor-progress-page__summary-card--soft">
-                  <Statistic title="Lessons" value={progressQuery.data.course.totalLessons} />
-                  <Typography.Text type="secondary">
-                    {progressQuery.data.course.droppedStudents} dropped enrollments currently tracked.
-                  </Typography.Text>
-                </Card>
-              </section>
+              <Row gutter={[16, 16]} className="instructor-progress-page__summary-grid">
+                <Col xs={24} sm={12} lg={6}>
+                  <Card className="instructor-progress-page__summary-card">
+                    <Statistic title="Enrolled Students" value={progressQuery.data.course.totalStudents} />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} lg={6}>
+                  <Card className="instructor-progress-page__summary-card">
+                    <Statistic title="Active Students" value={progressQuery.data.course.activeStudents} />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} lg={6}>
+                  <Card className="instructor-progress-page__summary-card">
+                    <Statistic title="Completed Students" value={progressQuery.data.course.completedStudents} />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} lg={6}>
+                  <Card className="instructor-progress-page__summary-card">
+                    <Statistic title="Average Progress" value={progressQuery.data.course.averageWeightedProgress} suffix="%" />
+                  </Card>
+                </Col>
+              </Row>
 
-              <section className="instructor-progress-page__workspace-grid">
-                <Card className="instructor-progress-page__table-card instructor-progress-page__table-card--primary">
-                  <div className="instructor-progress-page__toolbar">
-                    <div className="instructor-progress-page__toolbar-copy">
-                      <Typography.Text className="instructor-progress-page__eyebrow">Student filters</Typography.Text>
-                      <Typography.Title level={4}>Learner progress feed</Typography.Title>
-                    </div>
-                    <Input.Search
-                      allowClear
-                      placeholder="Search student name or email"
-                      value={search}
-                      onChange={(event) => setSearch(event.target.value)}
-                      className="instructor-progress-page__search"
-                    />
-                    <Select
-                      allowClear
-                      placeholder="Status"
-                      value={status}
-                      onChange={(value) => setStatus(value)}
-                      className="instructor-progress-page__filter"
-                      options={[
-                        { label: 'Active', value: 'ACTIVE' },
-                        { label: 'Completed', value: 'COMPLETED' },
-                        { label: 'Dropped', value: 'DROPPED' },
-                      ]}
-                    />
-                    <Select
-                      value={sortBy}
-                      onChange={(value) => setSortBy(value)}
-                      className="instructor-progress-page__filter"
-                      options={[
-                        { label: 'Sort by progress', value: 'progress' },
-                        { label: 'Sort by name', value: 'name' },
-                        { label: 'Sort by last activity', value: 'lastActivity' },
-                        { label: 'Sort by enrolled date', value: 'enrolledAt' },
-                      ]}
-                    />
-                    <Select
-                      value={sortOrder}
-                      onChange={(value) => setSortOrder(value)}
-                      className="instructor-progress-page__filter"
-                      options={[
-                        { label: 'Descending', value: 'desc' },
-                        { label: 'Ascending', value: 'asc' },
-                      ]}
-                    />
-                  </div>
-
-                  {progressQuery.data.students.length ? (
-                    <div className="instructor-progress-page__student-grid">
-                      {progressQuery.data.students.map((record: InstructorStudentProgressItem) => (
-                        <article key={record.studentId} className="instructor-progress-page__student-card">
-                          <div className="instructor-progress-page__student-head">
-                            <div className="instructor-progress-page__student-identity">
-                              <Avatar className="instructor-progress-page__student-avatar">
-                                {record.studentName
-                                  .split(' ')
-                                  .slice(0, 2)
-                                  .map((part) => part[0] ?? '')
-                                  .join('')
-                                  .toUpperCase()}
-                              </Avatar>
-                              <div className="instructor-progress-page__student-cell">
-                                <Typography.Text strong>{record.studentName}</Typography.Text>
-                                <Typography.Text type="secondary">{record.studentEmail}</Typography.Text>
-                              </div>
-                            </div>
-                            <Tag color={statusColor(record.enrollmentStatus)}>{record.enrollmentStatus}</Tag>
-                          </div>
-
-                          <div className="instructor-progress-page__student-progress">
-                            <div className="instructor-progress-page__progress-copy">
-                              <Typography.Text strong>{record.weightedPercentage}% complete</Typography.Text>
-                              <Typography.Text type="secondary">
-                                {record.completedLessons}/{record.totalLessons} lessons
-                              </Typography.Text>
-                            </div>
-                            <Progress
-                              percent={record.weightedPercentage}
-                              size="small"
-                              strokeColor={progressStrokeColor(record.weightedPercentage)}
-                            />
-                          </div>
-
-                          <div className="instructor-progress-page__student-meta">
-                            <div>
-                              <Typography.Text type="secondary">Last activity</Typography.Text>
-                              <Typography.Text>{formatDate(record.lastProgressAt)}</Typography.Text>
-                            </div>
-                            <div>
-                              <Typography.Text type="secondary">Enrolled</Typography.Text>
-                              <Typography.Text>{formatDate(record.enrolledAt)}</Typography.Text>
-                            </div>
-                          </div>
-
-                          <div className="instructor-progress-page__student-actions">
-                            <Button type="primary" onClick={() => setSelectedStudentId(record.studentId)}>
-                              Open progress
-                            </Button>
-                            <Button onClick={() => setSelectedStudentId(record.studentId)}>View detail</Button>
-                            <Button href={`mailto:${record.studentEmail}`}>Send message</Button>
-                          </div>
-                        </article>
-                      ))}
-                    </div>
-                  ) : (
-                    <Empty description="No students matched the selected filters." />
-                  )}
-
-                  <div className="instructor-progress-page__pagination">
+              <Card className="instructor-progress-page__table-card">
+                <div className="instructor-progress-page__section-heading">
+                  <div>
+                    <Typography.Title level={4}>Learner progress roster</Typography.Title>
                     <Typography.Text type="secondary">
-                      Showing {progressQuery.data.students.length} of {progressQuery.data.pagination.total} learners
+                      Search, filter, and open lesson-level detail for students in the selected course.
                     </Typography.Text>
-                    <Pagination
-                      current={progressQuery.data.pagination.page}
-                      pageSize={progressQuery.data.pagination.pageSize}
-                      total={progressQuery.data.pagination.total}
-                      onChange={(nextPage) => setPage(nextPage)}
-                    />
                   </div>
-                </Card>
+                </div>
+                <div className="instructor-progress-page__toolbar">
+                  <Input.Search
+                    allowClear
+                    placeholder="Search student name or email"
+                    value={search}
+                    onChange={(event) => {
+                      setSearch(event.target.value);
+                      setPage(1);
+                    }}
+                    className="instructor-progress-page__search"
+                  />
+                  <Select
+                    allowClear
+                    placeholder="Status"
+                    value={status}
+                    onChange={(value) => {
+                      setStatus(value);
+                      setPage(1);
+                    }}
+                    className="instructor-progress-page__filter"
+                    options={[
+                      { label: 'Active', value: 'ACTIVE' },
+                      { label: 'Completed', value: 'COMPLETED' },
+                      { label: 'Dropped', value: 'DROPPED' },
+                    ]}
+                  />
+                  <Select
+                    value={sortBy}
+                    onChange={(value) => {
+                      setSortBy(value);
+                      setPage(1);
+                    }}
+                    className="instructor-progress-page__filter"
+                    options={[
+                      { label: 'Sort by progress', value: 'progress' },
+                      { label: 'Sort by name', value: 'name' },
+                      { label: 'Sort by last activity', value: 'lastActivity' },
+                      { label: 'Sort by enrolled date', value: 'enrolledAt' },
+                    ]}
+                  />
+                  <Select
+                    value={sortOrder}
+                    onChange={(value) => {
+                      setSortOrder(value);
+                      setPage(1);
+                    }}
+                    className="instructor-progress-page__filter"
+                    options={[
+                      { label: 'Descending', value: 'desc' },
+                      { label: 'Ascending', value: 'asc' },
+                    ]}
+                  />
+                </div>
 
-                <Card className="instructor-progress-page__spotlight-card">
-                  <Typography.Text className="instructor-progress-page__eyebrow">Teaching focus</Typography.Text>
-                  <Typography.Title level={4}>Students needing attention</Typography.Title>
-                  {spotlightStudents.length ? (
-                    <div className="instructor-progress-page__spotlight-list">
-                      {spotlightStudents.slice(0, 4).map((student) => (
-                        <div key={student.studentId} className="instructor-progress-page__spotlight-item">
-                          <div>
-                            <Typography.Text strong>{student.studentName}</Typography.Text>
-                            <Typography.Text type="secondary">
-                              Last activity {formatDate(student.lastProgressAt)}
-                            </Typography.Text>
-                          </div>
-                          <Tag color="orange">{student.weightedPercentage}%</Tag>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <Empty
-                      image={Empty.PRESENTED_IMAGE_SIMPLE}
-                      description="No at-risk learners in the current result set."
-                    />
-                  )}
-                </Card>
-              </section>
+                <Table
+                  rowKey="studentId"
+                  columns={columns}
+                  dataSource={progressQuery.data.students}
+                  pagination={{
+                    current: progressQuery.data.pagination.page,
+                    pageSize: progressQuery.data.pagination.pageSize,
+                    total: progressQuery.data.pagination.total,
+                    onChange: (nextPage) => setPage(nextPage),
+                  }}
+                  locale={{
+                    emptyText: 'No students matched the selected filters.',
+                  }}
+                />
+              </Card>
             </>
           ) : null}
 

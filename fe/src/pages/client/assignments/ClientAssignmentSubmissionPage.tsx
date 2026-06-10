@@ -18,6 +18,10 @@ import './ClientAssignmentPages.css';
 
 const { TextArea } = Input;
 
+function getCurrentTimestamp() {
+  return Date.now();
+}
+
 type AssignmentResourcePlaceholder = {
   id: string;
   title: string;
@@ -93,6 +97,7 @@ export function ClientAssignmentSubmissionPage() {
   const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [now] = useState(getCurrentTimestamp);
 
   const courseQuery = useQuery({
     queryKey: ['assignments', 'course-detail', courseId],
@@ -122,8 +127,8 @@ export function ClientAssignmentSubmissionPage() {
 
   const isClosed = useMemo(() => {
     if (!assignmentQuery.data?.dueDate) return false;
-    return new Date(assignmentQuery.data.dueDate).getTime() < Date.now() && !assignmentQuery.data.allowLateSubmission;
-  }, [assignmentQuery.data]);
+    return new Date(assignmentQuery.data.dueDate).getTime() < now && !assignmentQuery.data.allowLateSubmission;
+  }, [assignmentQuery.data, now]);
 
   const statusPresentation = getSubmissionStatusPresentation(latestSubmission, isClosed);
 

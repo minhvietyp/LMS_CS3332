@@ -17,6 +17,14 @@ type ClientPageContainerProps = {
 
 function getStaticLabel(pathname: string) {
   if (pathname === '/dashboard') return 'Dashboard';
+  if (pathname === '/instructor/dashboard') return 'Instructor Dashboard';
+  if (pathname === '/instructor/courses') return 'My Courses';
+  if (pathname === '/instructor/lessons') return 'Lessons & Modules';
+  if (pathname === '/instructor/assessments') return 'Assessments';
+  if (pathname === '/instructor/progress') return 'Student Progress';
+  if (pathname === '/reports/assignments') return 'Assignment Reports';
+  if (pathname === '/reports/quizzes') return 'Quiz Reports';
+  if (pathname === '/reports/instructor-activity') return 'Activity Reports';
   if (pathname === '/courses') return 'Courses';
   if (pathname === '/progress') return 'Progress';
   if (pathname === '/grades') return 'Grades';
@@ -25,6 +33,52 @@ function getStaticLabel(pathname: string) {
   if (pathname === '/notifications') return 'Notifications';
   if (pathname === '/settings') return 'Settings';
   if (pathname === '/profile') return 'Profile';
+
+  return null;
+}
+
+function getInstructorBreadcrumbItems(pathname: string): Array<{ title: ReactNode }> | null {
+  if (pathname === '/instructor/dashboard') {
+    return [{ title: 'Instructor Dashboard' }];
+  }
+
+  const courseDetailMatch = pathname.match(/^\/instructor\/courses\/([^/]+)$/);
+  if (courseDetailMatch) {
+    return [
+      { title: <Link to="/instructor/dashboard">Instructor Dashboard</Link> },
+      { title: <Link to="/instructor/courses">My Courses</Link> },
+      { title: 'Course Details' },
+    ];
+  }
+
+  const analyticsMatch = pathname.match(/^\/courses\/([^/]+)\/analytics$/);
+  if (analyticsMatch) {
+    return [
+      { title: <Link to="/instructor/dashboard">Instructor Dashboard</Link> },
+      { title: <Link to="/instructor/courses">My Courses</Link> },
+      { title: 'Course Analytics' },
+    ];
+  }
+
+  const staticLabel = getStaticLabel(pathname);
+  if (!staticLabel) {
+    return null;
+  }
+
+  if (pathname.startsWith('/instructor/')) {
+    return [
+      { title: <Link to="/instructor/dashboard">Instructor Dashboard</Link> },
+      { title: staticLabel },
+    ];
+  }
+
+  if (pathname.startsWith('/reports/')) {
+    return [
+      { title: <Link to="/instructor/dashboard">Instructor Dashboard</Link> },
+      { title: 'Reports' },
+      { title: staticLabel },
+    ];
+  }
 
   return null;
 }
@@ -73,6 +127,11 @@ export function ClientPageContainer({
   });
 
   const breadcrumbItems = useMemo(() => {
+    const instructorItems = getInstructorBreadcrumbItems(location.pathname);
+    if (instructorItems) {
+      return instructorItems;
+    }
+
     const staticLabel = getStaticLabel(location.pathname);
 
     if (staticLabel) {

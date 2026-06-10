@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, Col, Empty, Row, Select, Spin, Statistic, Table, Tag, Typography } from 'antd';
+import { Alert, Card, Col, Empty, Progress, Row, Select, Spin, Statistic, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
 import { listCoursesRequest } from '../../../services/api/courseApi';
@@ -19,24 +19,23 @@ export function InstructorActivityReportPage() {
     },
     staleTime: 60_000,
   });
+  const effectiveSelectedCourseId = selectedCourseId ?? coursesQuery.data?.[0]?.id;
+  const selectedCourse = useMemo(
+    () => coursesQuery.data?.find((course) => course.id === effectiveSelectedCourseId),
+    [coursesQuery.data, effectiveSelectedCourseId],
+  );
 
   const progressQuery = useQuery({
-    queryKey: ['reports', 'instructor-activity', selectedCourseId],
-    queryFn: () => progressService.getInstructorCourseProgress(selectedCourseId!, {
+    queryKey: ['reports', 'instructor-activity', effectiveSelectedCourseId],
+    queryFn: () => progressService.getInstructorCourseProgress(effectiveSelectedCourseId!, {
       page: 1,
       pageSize: 25,
       sortBy: 'lastActivity',
       sortOrder: 'desc',
     }),
-    enabled: Boolean(selectedCourseId),
+    enabled: Boolean(effectiveSelectedCourseId),
     staleTime: 60_000,
   });
-
-  useEffect(() => {
-    if (!selectedCourseId && coursesQuery.data?.length) {
-      setSelectedCourseId(coursesQuery.data[0].id);
-    }
-  }, [coursesQuery.data, selectedCourseId]);
 
   const columns = useMemo<ColumnsType<InstructorStudentProgressItem>>(
     () => [
@@ -76,11 +75,11 @@ export function InstructorActivityReportPage() {
     <ClientLayout>
       <ClientPageContainer
         title="Instructor Activity Report"
-        subtitle="Review course activity, engagement signals, and student momentum in a teaching-focused report view."
+        subtitle="Review course activity, student status, and progress momentum in a teaching-focused report view."
         actions={
           <Select
             placeholder="Select course"
-            value={selectedCourseId}
+            value={effectiveSelectedCourseId}
             className="report-page__select"
             options={(coursesQuery.data ?? []).map((course) => ({ label: course.title, value: course.id }))}
             onChange={(value) => setSelectedCourseId(value)}
@@ -89,9 +88,39 @@ export function InstructorActivityReportPage() {
       >
         <main className="instructor-report-page">
           {coursesQuery.isLoading ? <Spin tip="Loading instructor activity..." /> : null}
+          {coursesQuery.error ? (
+            <Alert
+              type="error"
+              showIcon
+              message="Failed to load courses"
+              description={coursesQuery.error instanceof Error ? coursesQuery.error.message : 'Unexpected error'}
+            />
+          ) : null}
+          {progressQuery.error ? (
+            <Alert
+              type="error"
+              showIcon
+              message="Failed to load progress data"
+              description={progressQuery.error instanceof Error ? progressQuery.error.message : 'Unexpected error'}
+            />
+          ) : null}
 
           {progressQuery.data ? (
             <>
+              <Card className="instructor-report-page__hero-card">
+                <div>
+                  <Typography.Text className="instructor-report-page__eyebrow">Selected report scope</Typography.Text>
+                  <Typography.Title level={3}>{selectedCourse?.title ?? progressQuery.data.course.title}</Typography.Title>
+                  <Typography.Paragraph type="secondary">
+                    Student status, last activity, and weighted progress are loaded from the instructor progress API.
+                  </Typography.Paragraph>
+                </div>
+                <div className="instructor-report-page__hero-meter">
+                  <Typography.Text type="secondary">Average weighted progress</Typography.Text>
+                  <Progress percent={progressQuery.data.course.averageWeightedProgress} />
+                </div>
+              </Card>
+
               <Row gutter={[16, 16]} className="instructor-report-page__summary">
                 <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Students" value={progressQuery.data.course.totalStudents} /></Card></Col>
                 <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Active" value={progressQuery.data.course.activeStudents} /></Card></Col>
@@ -100,12 +129,22 @@ export function InstructorActivityReportPage() {
               </Row>
 
               <Card className="instructor-report-page__table-card">
+                <div className="instructor-report-page__section-heading">
+                  <div>
+                    <Typography.Title level={4}>Student momentum</Typography.Title>
+                    <Typography.Text type="secondary">
+                      Sorted by latest learner activity from the progress endpoint.
+                    </Typography.Text>
+                  </div>
+                </div>
                 <Table
                   rowKey="studentId"
                   columns={columns}
                   dataSource={progressQuery.data.students}
                   loading={progressQuery.isLoading}
                   pagination={false}
+                  scroll={{ x: 820 }}
+                  locale={{ emptyText: 'No student progress records found for this course.' }}
                 />
               </Card>
             </>

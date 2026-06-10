@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, Col, Empty, Row, Select, Spin, Statistic, Table, Tag } from 'antd';
+import { Alert, Card, Col, Empty, Row, Select, Spin, Statistic, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
 import { listCoursesRequest } from '../../../services/api/courseApi';
@@ -18,19 +18,18 @@ export function QuizReportPage() {
     },
     staleTime: 60_000,
   });
+  const effectiveSelectedCourseId = selectedCourseId ?? coursesQuery.data?.[0]?.id;
+  const selectedCourse = useMemo(
+    () => coursesQuery.data?.find((course) => course.id === effectiveSelectedCourseId),
+    [coursesQuery.data, effectiveSelectedCourseId],
+  );
 
   const quizzesQuery = useQuery({
-    queryKey: ['reports', 'quiz', 'list', selectedCourseId],
-    queryFn: () => listCourseQuizzesRequest(selectedCourseId!),
-    enabled: Boolean(selectedCourseId),
+    queryKey: ['reports', 'quiz', 'list', effectiveSelectedCourseId],
+    queryFn: () => listCourseQuizzesRequest(effectiveSelectedCourseId!),
+    enabled: Boolean(effectiveSelectedCourseId),
     staleTime: 60_000,
   });
-
-  useEffect(() => {
-    if (!selectedCourseId && coursesQuery.data?.length) {
-      setSelectedCourseId(coursesQuery.data[0].id);
-    }
-  }, [coursesQuery.data, selectedCourseId]);
 
   const summary = useMemo(() => {
     const quizzes = quizzesQuery.data ?? [];
@@ -39,10 +38,11 @@ export function QuizReportPage() {
     const totalAttempts = quizzes.reduce((total, quiz) => total + (quiz._count?.attempts ?? quiz.attempts?.length ?? 0), 0);
 
     return {
+      totalQuizzes: quizzes.length,
       published,
+      draft: quizzes.length - published,
       totalQuestions,
       totalAttempts,
-      averageAttempts: quizzes.length ? Number((totalAttempts / quizzes.length).toFixed(1)) : 0,
     };
   }, [quizzesQuery.data]);
 
@@ -86,7 +86,7 @@ export function QuizReportPage() {
         actions={
           <Select
             placeholder="Select course"
-            value={selectedCourseId}
+            value={effectiveSelectedCourseId}
             className="report-page__select"
             options={(coursesQuery.data ?? []).map((course) => ({ label: course.title, value: course.id }))}
             onChange={(value) => setSelectedCourseId(value)}
@@ -95,23 +95,62 @@ export function QuizReportPage() {
       >
         <main className="instructor-report-page">
           {coursesQuery.isLoading ? <Spin tip="Loading quiz reports..." /> : null}
+          {coursesQuery.error ? (
+            <Alert
+              type="error"
+              showIcon
+              message="Failed to load courses"
+              description={coursesQuery.error instanceof Error ? coursesQuery.error.message : 'Unexpected error'}
+            />
+          ) : null}
+          {quizzesQuery.error ? (
+            <Alert
+              type="error"
+              showIcon
+              message="Failed to load quizzes"
+              description={quizzesQuery.error instanceof Error ? quizzesQuery.error.message : 'Unexpected error'}
+            />
+          ) : null}
 
-          {selectedCourseId ? (
+          {effectiveSelectedCourseId ? (
             <>
+              <Card className="instructor-report-page__hero-card">
+                <div>
+                  <Typography.Text className="instructor-report-page__eyebrow">Selected report scope</Typography.Text>
+                  <Typography.Title level={3}>{selectedCourse?.title ?? 'Selected course'}</Typography.Title>
+                  <Typography.Paragraph type="secondary">
+                    Quiz readiness and attempt volume are derived from the selected course quiz API response.
+                  </Typography.Paragraph>
+                </div>
+                <Tag color={selectedCourse?.status === 'PUBLISHED' ? 'green' : 'default'}>
+                  {selectedCourse?.status ?? 'COURSE'}
+                </Tag>
+              </Card>
+
               <Row gutter={[16, 16]} className="instructor-report-page__summary">
-                <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Published Quizzes" value={summary.published} /></Card></Col>
+                <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Quizzes" value={summary.totalQuizzes} /></Card></Col>
+                <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Published / Draft" value={`${summary.published} / ${summary.draft}`} /></Card></Col>
                 <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Question Bank Size" value={summary.totalQuestions} /></Card></Col>
                 <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Attempt Volume" value={summary.totalAttempts} /></Card></Col>
-                <Col xs={24} md={12} xl={6}><Card className="instructor-report-page__summary-card"><Statistic title="Avg Attempts / Quiz" value={summary.averageAttempts} /></Card></Col>
               </Row>
 
               <Card className="instructor-report-page__table-card">
+                <div className="instructor-report-page__section-heading">
+                  <div>
+                    <Typography.Title level={4}>Quiz readiness</Typography.Title>
+                    <Typography.Text type="secondary">
+                      Attempts are shown only when returned by the quiz API.
+                    </Typography.Text>
+                  </div>
+                </div>
                 <Table
                   rowKey="id"
                   columns={columns}
                   dataSource={quizzesQuery.data ?? []}
                   loading={quizzesQuery.isLoading}
                   pagination={false}
+                  scroll={{ x: 820 }}
+                  locale={{ emptyText: 'No quizzes found for this course.' }}
                 />
               </Card>
             </>

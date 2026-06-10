@@ -35,7 +35,7 @@ export async function listNotificationsRequest(): Promise<NotificationItem[]> {
     const response = await apiClient.get<ApiEnvelope<NotificationItem[]>>('/notifications');
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load notifications.'));
+    throw new Error(getErrorMessage(error, 'Failed to load notifications.'), { cause: error });
   }
 }
 
@@ -43,7 +43,7 @@ export async function markNotificationAsReadRequest(notificationId: string): Pro
   try {
     await apiClient.patch<ApiEnvelope<null>>(`/notifications/${notificationId}/read`);
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to update notification.'));
+    throw new Error(getErrorMessage(error, 'Failed to update notification.'), { cause: error });
   }
 }
 
@@ -52,6 +52,6 @@ export async function markAllNotificationsAsReadRequest(): Promise<number> {
     const response = await apiClient.patch<ApiEnvelope<{ updatedCount: number }>>('/notifications/read-all');
     return response.data.data.updatedCount;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to mark all notifications as read.'));
+    throw new Error(getErrorMessage(error, 'Failed to mark all notifications as read.'), { cause: error });
   }
 }

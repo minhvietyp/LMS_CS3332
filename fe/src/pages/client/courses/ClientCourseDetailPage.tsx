@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Typography } from 'antd';
 import {
@@ -34,6 +34,10 @@ import {
 import { CourseDetailSkeleton } from './components/CourseDetailSkeleton';
 import { CourseDetailStatePanel } from './components/CourseDetailStatePanel';
 import './ClientCourseDetailPage.css';
+
+function getCurrentTimestamp() {
+  return Date.now();
+}
 
 type LessonState = 'completed' | 'in-progress' | 'not-started' | 'locked';
 type CourseState = 'available' | 'enrolled' | 'in-progress' | 'completed' | 'draft' | 'archived';
@@ -117,10 +121,10 @@ function getLessonPresentation(state: LessonState): { label: string; tone: Statu
   }
 }
 
-function getAssignmentPresentation(assignment: StudentAssignmentListItem): AssessmentTone {
+function getAssignmentPresentation(assignment: StudentAssignmentListItem, now: number): AssessmentTone {
   const latestSubmission = assignment.submissions[0] ?? null;
   const dueTime = assignment.dueDate ? new Date(assignment.dueDate).getTime() : null;
-  const isOverdue = dueTime !== null && dueTime < Date.now() && !latestSubmission;
+  const isOverdue = dueTime !== null && dueTime < now && !latestSubmission;
 
   if (latestSubmission?.status === 'GRADED' || latestSubmission?.status === 'RETURNED') {
     return {
@@ -158,6 +162,7 @@ export function ClientCourseDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isStudent = user?.role === 'STUDENT';
+  const [now] = useState(getCurrentTimestamp);
 
   const courseQuery = useQuery({
     queryKey: ['courses', 'client-detail', courseId],
@@ -431,7 +436,7 @@ export function ClientCourseDetailPage() {
                   {(assignmentsQuery.data ?? []).length ? (
                     <div className="course-detail-shell__work-list">
                       {(assignmentsQuery.data ?? []).map((assignment) => {
-                        const presentation = getAssignmentPresentation(assignment);
+                        const presentation = getAssignmentPresentation(assignment, now);
                         const latestSubmission = assignment.submissions[0] ?? null;
 
                         return (

@@ -5,6 +5,7 @@ import {
   CalendarDays,
   ChartColumnIncreasing,
   ClipboardList,
+  FileText,
   MessagesSquare,
   FolderKanban,
   GraduationCap,
@@ -31,7 +32,7 @@ export type ClientMenuSection = {
 
 const clientMenuSections: ClientMenuSection[] = [
   {
-    key: 'learning',
+    key: 'student-learning',
     title: 'Learning',
     items: [
       {
@@ -40,13 +41,6 @@ const clientMenuSections: ClientMenuSection[] = [
         path: '/dashboard',
         icon: LayoutDashboard,
         roles: ['STUDENT'],
-      },
-      {
-        key: 'instructor-dashboard',
-        label: 'Dashboard',
-        path: '/instructor/dashboard',
-        icon: LayoutDashboard,
-        roles: ['INSTRUCTOR'],
       },
       {
         key: 'student-courses',
@@ -65,7 +59,20 @@ const clientMenuSections: ClientMenuSection[] = [
     ],
   },
   {
-    key: 'academic',
+    key: 'instructor-overview',
+    title: 'Overview',
+    items: [
+      {
+        key: 'instructor-dashboard',
+        label: 'Dashboard',
+        path: '/instructor/dashboard',
+        icon: LayoutDashboard,
+        roles: ['INSTRUCTOR'],
+      },
+    ],
+  },
+  {
+    key: 'student-academic',
     title: 'Academic',
     items: [
       {
@@ -89,13 +96,6 @@ const clientMenuSections: ClientMenuSection[] = [
     title: 'Teaching',
     items: [
       {
-        key: 'instructor-progress',
-        label: 'Student Progress',
-        path: '/instructor/progress',
-        icon: ChartColumnIncreasing,
-        roles: ['INSTRUCTOR'],
-      },
-      {
         key: 'instructor-courses',
         label: 'My Courses',
         path: '/instructor/courses',
@@ -104,7 +104,7 @@ const clientMenuSections: ClientMenuSection[] = [
       },
       {
         key: 'instructor-lessons',
-        label: 'Lessons',
+        label: 'Lessons & Modules',
         path: '/instructor/lessons',
         icon: NotebookPen,
         roles: ['INSTRUCTOR'],
@@ -119,8 +119,48 @@ const clientMenuSections: ClientMenuSection[] = [
     ],
   },
   {
+    key: 'students',
+    title: 'Students',
+    items: [
+      {
+        key: 'instructor-progress',
+        label: 'Student Progress',
+        path: '/instructor/progress',
+        icon: ChartColumnIncreasing,
+        roles: ['INSTRUCTOR'],
+      },
+    ],
+  },
+  {
+    key: 'reports',
+    title: 'Reports',
+    items: [
+      {
+        key: 'assignment-reports',
+        label: 'Assignment Reports',
+        path: '/reports/assignments',
+        icon: FileText,
+        roles: ['INSTRUCTOR'],
+      },
+      {
+        key: 'quiz-reports',
+        label: 'Quiz Reports',
+        path: '/reports/quizzes',
+        icon: ClipboardList,
+        roles: ['INSTRUCTOR'],
+      },
+      {
+        key: 'activity-reports',
+        label: 'Activity Reports',
+        path: '/reports/instructor-activity',
+        icon: ChartColumnIncreasing,
+        roles: ['INSTRUCTOR'],
+      },
+    ],
+  },
+  {
     key: 'communication',
-    title: 'Community',
+    title: 'Communication',
     items: [
       {
         key: 'student-community',
@@ -130,11 +170,18 @@ const clientMenuSections: ClientMenuSection[] = [
         roles: ['STUDENT'],
       },
       {
-        key: 'direct-chat',
+        key: 'student-direct-chat',
         label: 'Direct Chat',
         path: '/chat',
         icon: MessagesSquare,
-        roles: ['STUDENT', 'INSTRUCTOR'],
+        roles: ['STUDENT'],
+      },
+      {
+        key: 'instructor-messages',
+        label: 'Messages',
+        path: '/chat',
+        icon: MessagesSquare,
+        roles: ['INSTRUCTOR'],
       },
       {
         key: 'notifications',
@@ -182,6 +229,10 @@ export function getVisibleClientMenu(role: UserRole | undefined): ClientMenuSect
 
 export function getClientMenuMatch(pathname: string, role: UserRole | undefined) {
   const items = getVisibleClientMenu(role).flatMap((section) => section.items);
+
+  if (role === 'INSTRUCTOR' && /^\/courses\/[^/]+\/analytics$/.test(pathname)) {
+    return items.find((item) => item.key === 'instructor-courses');
+  }
 
   return items.find((item) => pathname === item.path || pathname.startsWith(`${item.path}/`));
 }

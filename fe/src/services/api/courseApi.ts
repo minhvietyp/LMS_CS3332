@@ -122,7 +122,7 @@ export async function listCoursesRequest(params?: {
       meta: response.data.meta,
     };
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load courses.'));
+    throw new Error(getErrorMessage(error, 'Failed to load courses.'), { cause: error });
   }
 }
 
@@ -131,7 +131,7 @@ export async function getCourseByIdRequest(courseId: string): Promise<CourseDeta
     const response = await apiClient.get<ApiEnvelope<CourseDetail>>(`/courses/${courseId}`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load course details.'));
+    throw new Error(getErrorMessage(error, 'Failed to load course details.'), { cause: error });
   }
 }
 
@@ -140,7 +140,7 @@ export async function listPublishedCourseModulesRequest(courseId: string): Promi
     const response = await apiClient.get<ApiEnvelope<CourseModuleItem[]>>(`/courses/${courseId}/modules`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load published course modules.'));
+    throw new Error(getErrorMessage(error, 'Failed to load published course modules.'), { cause: error });
   }
 }
 
@@ -149,7 +149,7 @@ export async function listCourseResourcesRequest(courseId: string): Promise<{ ma
     const response = await apiClient.get<ApiEnvelope<{ materials: CourseResourceItem[] }>>(`/courses/${courseId}/resources`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load course resources.'));
+    throw new Error(getErrorMessage(error, 'Failed to load course resources.'), { cause: error });
   }
 }
 
@@ -158,7 +158,7 @@ export async function createCourseRequest(payload: CoursePayload): Promise<Cours
     const response = await apiClient.post<ApiEnvelope<CourseListItem>>('/courses', payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to create course.'));
+    throw new Error(getErrorMessage(error, 'Failed to create course.'), { cause: error });
   }
 }
 
@@ -167,7 +167,7 @@ export async function updateCourseRequest(courseId: string, payload: CourseUpdat
     const response = await apiClient.patch<ApiEnvelope<CourseListItem>>(`/courses/${courseId}`, payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to update course.'));
+    throw new Error(getErrorMessage(error, 'Failed to update course.'), { cause: error });
   }
 }
 
@@ -184,7 +184,7 @@ export async function updateCourseThumbnailRequest(courseId: string, file: File)
 
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to upload course thumbnail.'));
+    throw new Error(getErrorMessage(error, 'Failed to upload course thumbnail.'), { cause: error });
   }
 }
 
@@ -193,7 +193,7 @@ export async function publishCourseRequest(courseId: string): Promise<CourseList
     const response = await apiClient.post<ApiEnvelope<CourseListItem>>(`/courses/${courseId}/publish`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to publish course.'));
+    throw new Error(getErrorMessage(error, 'Failed to publish course.'), { cause: error });
   }
 }
 
@@ -202,7 +202,7 @@ export async function archiveCourseRequest(courseId: string): Promise<CourseList
     const response = await apiClient.post<ApiEnvelope<CourseListItem>>(`/courses/${courseId}/archive`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to archive course.'));
+    throw new Error(getErrorMessage(error, 'Failed to archive course.'), { cause: error });
   }
 }
 
@@ -210,7 +210,7 @@ export async function deleteCourseRequest(courseId: string): Promise<void> {
   try {
     await apiClient.delete(`/courses/${courseId}`);
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to delete course.'));
+    throw new Error(getErrorMessage(error, 'Failed to delete course.'), { cause: error });
   }
 }
 
@@ -219,7 +219,7 @@ export async function restoreCourseRequest(courseId: string): Promise<CourseList
     const response = await apiClient.post<ApiEnvelope<CourseListItem>>(`/courses/${courseId}/restore`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to restore course.'));
+    throw new Error(getErrorMessage(error, 'Failed to restore course.'), { cause: error });
   }
 }
 
@@ -235,7 +235,7 @@ export async function listPublicCoursesRequest(params?: {
       meta: response.data.meta,
     };
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load public courses.'));
+    throw new Error(getErrorMessage(error, 'Failed to load public courses.'), { cause: error });
   }
 }
 
@@ -244,6 +244,6 @@ export async function getPublicCourseByIdRequest(courseId: string): Promise<Publ
     const response = await apiClient.get<ApiEnvelope<PublicCourseDetail>>(`/courses/public/${courseId}`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load public course details.'));
+    throw new Error(getErrorMessage(error, 'Failed to load public course details.'), { cause: error });
   }
 }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Alert, Avatar, Button, Card, Form, Input, InputNumber, Space, Spin, Tabs, Typography, message } from 'antd';
+import type { FormInstance } from 'antd';
 import {
   updateMeRequest,
   updateMyContactRequest,
@@ -39,7 +40,11 @@ type ContactFormValues = {
   githubUrl?: string;
 };
 
-function syncProfile(profile: AuthUser | null, form: any, contactForm: any) {
+function syncProfile(
+  profile: AuthUser | null,
+  form: FormInstance<ProfileFormValues>,
+  contactForm: FormInstance<ContactFormValues>,
+) {
   if (!profile) {
     return;
   }

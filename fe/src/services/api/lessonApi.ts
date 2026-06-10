@@ -81,7 +81,7 @@ export async function listCourseModulesRequest(courseId: string): Promise<Module
     const response = await apiClient.get<ApiEnvelope<ModuleWithLessons[]>>(`/lessons/courses/${courseId}/modules`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load modules.'));
+    throw new Error(getErrorMessage(error, 'Failed to load modules.'), { cause: error });
   }
 }
 
@@ -90,7 +90,7 @@ export async function createModuleRequest(courseId: string, payload: ModulePaylo
     const response = await apiClient.post<ApiEnvelope<ModuleWithLessons>>(`/lessons/courses/${courseId}/modules`, payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to create module.'));
+    throw new Error(getErrorMessage(error, 'Failed to create module.'), { cause: error });
   }
 }
 
@@ -99,7 +99,7 @@ export async function updateModuleRequest(moduleId: string, payload: Partial<Mod
     const response = await apiClient.patch<ApiEnvelope<ModuleWithLessons>>(`/lessons/modules/${moduleId}`, payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to update module.'));
+    throw new Error(getErrorMessage(error, 'Failed to update module.'), { cause: error });
   }
 }
 
@@ -107,7 +107,7 @@ export async function deleteModuleRequest(moduleId: string): Promise<void> {
   try {
     await apiClient.delete(`/lessons/modules/${moduleId}`);
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to delete module.'));
+    throw new Error(getErrorMessage(error, 'Failed to delete module.'), { cause: error });
   }
 }
 
@@ -116,7 +116,7 @@ export async function createLessonRequest(moduleId: string, payload: LessonPaylo
     const response = await apiClient.post<ApiEnvelope<LessonListItem>>(`/lessons/modules/${moduleId}/lessons`, payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to create lesson.'));
+    throw new Error(getErrorMessage(error, 'Failed to create lesson.'), { cause: error });
   }
 }
 
@@ -125,7 +125,7 @@ export async function updateLessonRequest(lessonId: string, payload: LessonUpdat
     const response = await apiClient.patch<ApiEnvelope<LessonListItem>>(`/lessons/lessons/${lessonId}`, payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to update lesson.'));
+    throw new Error(getErrorMessage(error, 'Failed to update lesson.'), { cause: error });
   }
 }
 
@@ -133,7 +133,7 @@ export async function deleteLessonRequest(lessonId: string): Promise<void> {
   try {
     await apiClient.delete(`/lessons/lessons/${lessonId}`);
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to delete lesson.'));
+    throw new Error(getErrorMessage(error, 'Failed to delete lesson.'), { cause: error });
   }
 }
 
@@ -142,7 +142,7 @@ export async function listLessonMaterialsRequest(lessonId: string): Promise<Less
     const response = await apiClient.get<ApiEnvelope<LessonMaterialItem[]>>(`/lessons/lessons/${lessonId}/materials`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load lesson materials.'));
+    throw new Error(getErrorMessage(error, 'Failed to load lesson materials.'), { cause: error });
   }
 }
 
@@ -151,7 +151,7 @@ export async function createLessonMaterialRequest(lessonId: string, payload: Mat
     const response = await apiClient.post<ApiEnvelope<LessonMaterialItem>>(`/lessons/lessons/${lessonId}/materials`, payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to create lesson material.'));
+    throw new Error(getErrorMessage(error, 'Failed to create lesson material.'), { cause: error });
   }
 }
 
@@ -177,7 +177,7 @@ export async function uploadLessonMaterialRequest(
     );
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to upload lesson material.'));
+    throw new Error(getErrorMessage(error, 'Failed to upload lesson material.'), { cause: error });
   }
 }
 
@@ -185,6 +185,6 @@ export async function deleteLessonMaterialRequest(materialId: string): Promise<v
   try {
     await apiClient.delete(`/lessons/materials/${materialId}`);
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to delete lesson material.'));
+    throw new Error(getErrorMessage(error, 'Failed to delete lesson material.'), { cause: error });
   }
 }

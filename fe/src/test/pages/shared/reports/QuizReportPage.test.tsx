@@ -30,6 +30,8 @@ vi.mock('../../../../services/api/quizApi', () => ({
 
 const listCoursesRequestMock = vi.mocked(listCoursesRequest);
 const listCourseQuizzesRequestMock = vi.mocked(listCourseQuizzesRequest);
+type ListCoursesResult = Awaited<ReturnType<typeof listCoursesRequest>>;
+type CourseQuizzesResult = Awaited<ReturnType<typeof listCourseQuizzesRequest>>;
 
 describe('QuizReportPage', () => {
   afterEach(() => {
@@ -43,8 +45,8 @@ describe('QuizReportPage', () => {
 
   it('renders quiz report summaries and quiz table', async () => {
     listCoursesRequestMock.mockResolvedValue({
-      data: [{ id: 'course-1', title: 'React Basics' } as any],
-    });
+      data: [{ id: 'course-1', title: 'React Basics' }],
+    } as ListCoursesResult);
     listCourseQuizzesRequestMock.mockResolvedValue([
       {
         id: 'quiz-1',
@@ -53,8 +55,8 @@ describe('QuizReportPage', () => {
         passingScore: 70,
         isPublished: true,
         _count: { attempts: 6 },
-      } as any,
-    ]);
+      },
+    ] as CourseQuizzesResult);
 
     renderWithQueryClient(
       <MemoryRouter>

@@ -36,6 +36,8 @@ vi.mock('../../../../services/api/progressService', async () => {
 
 const listCoursesRequestMock = vi.mocked(listCoursesRequest);
 const getInstructorCourseProgressMock = vi.mocked(progressService.getInstructorCourseProgress);
+type ListCoursesResult = Awaited<ReturnType<typeof listCoursesRequest>>;
+type InstructorCourseProgressResult = Awaited<ReturnType<typeof progressService.getInstructorCourseProgress>>;
 
 describe('InstructorActivityReportPage', () => {
   afterEach(() => {
@@ -49,8 +51,8 @@ describe('InstructorActivityReportPage', () => {
 
   it('renders instructor activity metrics and student rows', async () => {
     listCoursesRequestMock.mockResolvedValue({
-      data: [{ id: 'course-1', title: 'React Basics' } as any],
-    });
+      data: [{ id: 'course-1', title: 'React Basics' }],
+    } as ListCoursesResult);
     getInstructorCourseProgressMock.mockResolvedValue({
       course: {
         totalStudents: 10,
@@ -68,7 +70,7 @@ describe('InstructorActivityReportPage', () => {
           lastProgressAt: '2026-01-10T00:00:00.000Z',
         },
       ],
-    } as any);
+    } as InstructorCourseProgressResult);
 
     renderWithQueryClient(
       <MemoryRouter>

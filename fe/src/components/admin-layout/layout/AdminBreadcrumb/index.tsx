@@ -1,5 +1,6 @@
 import { Breadcrumb } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { Link, matchPath, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { getUserByIdRequest } from '../../../../services/api/authApi';
@@ -9,8 +10,6 @@ import './AdminBreadcrumb.css';
 
 export function AdminBreadcrumb() {
   const location = useLocation();
-  const [userLabel, setUserLabel] = useState<string | null>(null);
-  const [courseLabel, setCourseLabel] = useState<string | null>(null);
   const editMatch = matchPath('/admin/users/:id/edit', location.pathname);
   const detailMatch = matchPath('/admin/users/:id', location.pathname);
   const userId = editMatch?.params.id ?? detailMatch?.params.id ?? null;
@@ -18,59 +17,24 @@ export function AdminBreadcrumb() {
   const courseDetailMatch = matchPath('/admin/courses/:id', location.pathname);
   const courseId = courseEditMatch?.params.id ?? courseDetailMatch?.params.id ?? null;
 
-  useEffect(() => {
-    let isActive = true;
+  const userLabelQuery = useQuery({
+    queryKey: ['admin-breadcrumb', 'user', userId],
+    queryFn: () => getUserByIdRequest(userId!),
+    enabled: Boolean(userId && location.pathname !== '/admin/users/create'),
+    retry: 1,
+    staleTime: 60 * 1000,
+  });
 
-    if (!userId || location.pathname === '/admin/users/create') {
-      setUserLabel(null);
-      return () => {
-        isActive = false;
-      };
-    }
+  const courseLabelQuery = useQuery({
+    queryKey: ['admin-breadcrumb', 'course', courseId],
+    queryFn: () => getCourseByIdRequest(courseId!),
+    enabled: Boolean(courseId),
+    retry: 1,
+    staleTime: 60 * 1000,
+  });
 
-    void getUserByIdRequest(userId)
-      .then((user) => {
-        if (isActive) {
-          setUserLabel(user.name);
-        }
-      })
-      .catch(() => {
-        if (isActive) {
-          setUserLabel(userId);
-        }
-      });
-
-    return () => {
-      isActive = false;
-    };
-  }, [location.pathname, userId]);
-
-  useEffect(() => {
-    let isActive = true;
-
-    if (!courseId) {
-      setCourseLabel(null);
-      return () => {
-        isActive = false;
-      };
-    }
-
-    void getCourseByIdRequest(courseId)
-      .then((course) => {
-        if (isActive) {
-          setCourseLabel(course.title);
-        }
-      })
-      .catch(() => {
-        if (isActive) {
-          setCourseLabel(courseId);
-        }
-      });
-
-    return () => {
-      isActive = false;
-    };
-  }, [courseId]);
+  const userLabel = userLabelQuery.data?.name ?? null;
+  const courseLabel = courseLabelQuery.data?.title ?? null;
 
   const items = useMemo<Array<{ title: ReactNode }>>(() => {
     const current = getAdminNavigationMatch(location.pathname);

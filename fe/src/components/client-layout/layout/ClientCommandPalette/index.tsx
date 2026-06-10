@@ -4,14 +4,19 @@ import {
   Bell,
   BookOpen,
   CalendarDays,
+  ChartColumnIncreasing,
   ClipboardList,
+  FileText,
   FolderKanban,
+  LayoutDashboard,
   MessageSquare,
+  NotebookPen,
   Search,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { KeyboardEventHandler } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../../context/AuthContext';
 import {
   collectWorkspaceSearchItems,
   filterWorkspaceSearchItems,
@@ -93,6 +98,99 @@ const QUICK_ACTIONS: CommandPaletteItem[] = [
   },
 ];
 
+const INSTRUCTOR_QUICK_ACTIONS: CommandPaletteItem[] = [
+  {
+    id: 'qa-instructor-dashboard',
+    type: 'Quick Action',
+    title: 'Go to Instructor Dashboard',
+    subtitle: 'Open your teaching overview',
+    route: '/instructor/dashboard',
+    keywords: ['dashboard', 'overview', 'instructor'],
+    label: 'Page',
+  },
+  {
+    id: 'qa-instructor-courses',
+    type: 'Quick Action',
+    title: 'Manage Courses',
+    subtitle: 'Create, publish, and maintain your courses',
+    route: '/instructor/courses',
+    keywords: ['courses', 'manage', 'teaching'],
+    label: 'Page',
+  },
+  {
+    id: 'qa-instructor-lessons',
+    type: 'Quick Action',
+    title: 'Manage Lessons',
+    subtitle: 'Organize modules, lessons, and materials',
+    route: '/instructor/lessons',
+    keywords: ['lessons', 'modules', 'materials'],
+    label: 'Page',
+  },
+  {
+    id: 'qa-instructor-assessments',
+    type: 'Quick Action',
+    title: 'Manage Assessments',
+    subtitle: 'Review assignments, quizzes, and grading',
+    route: '/instructor/assessments',
+    keywords: ['assessments', 'assignments', 'quizzes', 'grading'],
+    label: 'Page',
+  },
+  {
+    id: 'qa-instructor-progress',
+    type: 'Quick Action',
+    title: 'View Student Progress',
+    subtitle: 'Track student completion and activity',
+    route: '/instructor/progress',
+    keywords: ['students', 'progress', 'activity'],
+    label: 'Page',
+  },
+  {
+    id: 'qa-assignment-reports',
+    type: 'Quick Action',
+    title: 'Open Assignment Reports',
+    subtitle: 'Review submission and grading reports',
+    route: '/reports/assignments',
+    keywords: ['reports', 'assignments', 'submissions'],
+    label: 'Report',
+  },
+  {
+    id: 'qa-quiz-reports',
+    type: 'Quick Action',
+    title: 'Open Quiz Reports',
+    subtitle: 'Review quiz publishing and attempt reports',
+    route: '/reports/quizzes',
+    keywords: ['reports', 'quizzes', 'attempts'],
+    label: 'Report',
+  },
+  {
+    id: 'qa-activity-reports',
+    type: 'Quick Action',
+    title: 'Open Activity Reports',
+    subtitle: 'Review course activity and learner momentum',
+    route: '/reports/instructor-activity',
+    keywords: ['reports', 'activity', 'students'],
+    label: 'Report',
+  },
+  {
+    id: 'qa-instructor-messages',
+    type: 'Quick Action',
+    title: 'Open Messages',
+    subtitle: 'Continue direct conversations',
+    route: '/chat',
+    keywords: ['messages', 'chat', 'communication'],
+    label: 'Page',
+  },
+  {
+    id: 'qa-instructor-notifications',
+    type: 'Quick Action',
+    title: 'Open Notifications',
+    subtitle: 'View recent teaching updates',
+    route: '/notifications',
+    keywords: ['notifications', 'alerts', 'updates'],
+    label: 'Page',
+  },
+];
+
 function getItemIcon(type: WorkspaceSearchItemType) {
   switch (type) {
     case 'Course':
@@ -116,10 +214,26 @@ function getItemIcon(type: WorkspaceSearchItemType) {
 
 function getQuickActionIcon(title: string) {
   switch (title) {
+    case 'Go to Instructor Dashboard':
+      return LayoutDashboard;
+    case 'Manage Courses':
     case 'Courses':
       return FolderKanban;
+    case 'Manage Lessons':
+      return NotebookPen;
+    case 'Manage Assessments':
     case 'Calendar':
-      return CalendarDays;
+      return title === 'Calendar' ? CalendarDays : ClipboardList;
+    case 'View Student Progress':
+    case 'Open Activity Reports':
+      return ChartColumnIncreasing;
+    case 'Open Assignment Reports':
+    case 'Open Quiz Reports':
+      return FileText;
+    case 'Open Messages':
+      return MessageSquare;
+    case 'Open Notifications':
+      return Bell;
     case 'Progress':
       return BookOpen;
     case 'Grades':
@@ -170,6 +284,7 @@ function uniqueById(items: CommandPaletteItem[]) {
 }
 
 export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
+  const { user } = useAuth();
   const screens = Grid.useBreakpoint();
   const isMobile = Boolean(screens.xs) && !screens.md;
   const navigate = useNavigate();
@@ -189,21 +304,25 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
   }, [queryClient]);
 
   useEffect(() => {
-    if (!open) {
-      setQuery('');
-      setActiveIndex(0);
-      return;
-    }
+    if (!open) return undefined;
 
     const timeout = window.setTimeout(() => {
       inputRef.current?.focus();
     }, 30);
-
     return () => window.clearTimeout(timeout);
   }, [open]);
 
-  const searchItems = useMemo(() => uniqueById(collectWorkspaceSearchItems(queryClient) as CommandPaletteItem[]), [queryClient, cacheVersion]);
-  const quickActions = useMemo(() => QUICK_ACTIONS.filter((item) => item.route !== location.pathname), [location.pathname]);
+  const searchItems = useMemo(() => {
+    const items = uniqueById(collectWorkspaceSearchItems(queryClient) as CommandPaletteItem[]);
+
+    if (user?.role !== 'INSTRUCTOR') {
+      return items;
+    }
+
+    return items.filter((item) => !/^\/courses\/[^/]+\/(learn|assignments|quizzes)(?:\/|$)/.test(item.route));
+  }, [queryClient, cacheVersion, user?.role]);
+  const roleQuickActions = user?.role === 'INSTRUCTOR' ? INSTRUCTOR_QUICK_ACTIONS : QUICK_ACTIONS;
+  const quickActions = useMemo(() => roleQuickActions.filter((item) => item.route !== location.pathname), [location.pathname, roleQuickActions]);
 
   const filteredResults = useMemo(() => {
     return filterWorkspaceSearchItems(searchItems, query) as CommandPaletteItem[];
@@ -250,10 +369,17 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
   }, [filteredQuickActions, filteredResults, quickActions, query]);
 
   const flatItems = useMemo(() => sections.flatMap((section) => section.items), [sections]);
+  const safeActiveIndex = flatItems.length ? Math.min(activeIndex, flatItems.length - 1) : 0;
 
-  useEffect(() => {
+  const resetPalette = () => {
+    setQuery('');
     setActiveIndex(0);
-  }, [query, open]);
+  };
+
+  const handleClose = () => {
+    resetPalette();
+    onClose();
+  };
 
   const handleSelect = (item: CommandPaletteItem) => {
     recordFrequentWorkspace({
@@ -282,14 +408,14 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
                   : 'discussion',
       });
     }
-    onClose();
+    handleClose();
     navigate(item.route);
   };
 
   const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (event) => {
     if (event.key === 'Escape') {
       event.preventDefault();
-      onClose();
+      handleClose();
       return;
     }
 
@@ -311,7 +437,7 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
 
     if (event.key === 'Enter') {
       event.preventDefault();
-      const activeItem = flatItems[activeIndex];
+      const activeItem = flatItems[safeActiveIndex];
       if (activeItem) {
         handleSelect(activeItem);
       }
@@ -327,7 +453,10 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
           className="client-command-palette__input"
           placeholder="Search courses, assignments, quizzes..."
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => {
+            setActiveIndex(0);
+            setQuery(event.target.value);
+          }}
           onKeyDown={handleKeyDown}
           aria-label="Search command palette"
         />
@@ -344,7 +473,7 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
               <div className="client-command-palette__list" role="listbox" aria-label={section.title}>
                 {section.items.map((item, itemIndex) => {
                   const currentIndex = flatItems.findIndex((flatItem) => flatItem.id === item.id);
-                  const isActive = currentIndex === activeIndex;
+                  const isActive = currentIndex === safeActiveIndex;
                   const Icon = item.type === 'Quick Action' ? getQuickActionIcon(item.title) : getItemIcon(item.type);
 
                   return (
@@ -378,14 +507,18 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
         ) : (
           <div className="client-command-palette__empty">
             <strong>No matching results found.</strong>
-            <span>Try Courses, Calendar, Progress, Grades, Community, or Notifications.</span>
+            <span>
+              {user?.role === 'INSTRUCTOR'
+                ? 'Try Courses, Lessons, Assessments, Reports, Messages, or Notifications.'
+                : 'Try Courses, Calendar, Progress, Grades, Community, or Notifications.'}
+            </span>
           </div>
         )}
       </div>
 
       <div className="client-command-palette__footer">
         <span>
-          Navigate with <kbd>↑</kbd> <kbd>↓</kbd> and open with <kbd>Enter</kbd>
+          Navigate with <kbd>Up</kbd> <kbd>Down</kbd> and open with <kbd>Enter</kbd>
         </span>
         <span>Loaded workspace data only</span>
       </div>
@@ -396,7 +529,7 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
     return (
       <Drawer
         open={open}
-        onClose={onClose}
+        onClose={handleClose}
         placement="top"
         height="100dvh"
         className="client-command-palette__drawer"
@@ -410,7 +543,7 @@ export function ClientCommandPalette({ open, onClose }: CommandPaletteProps) {
   return (
     <Modal
       open={open}
-      onCancel={onClose}
+      onCancel={handleClose}
       footer={null}
       centered
       width="min(720px, calc(100vw - 24px))"

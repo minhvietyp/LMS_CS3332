@@ -72,7 +72,7 @@ export async function listMyChatRoomsRequest(): Promise<ChatRoomItem[]> {
     const response = await apiClient.get<ApiEnvelope<ChatRoomItem[]>>('/chat/rooms');
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load chat rooms.'));
+    throw new Error(getErrorMessage(error, 'Failed to load chat rooms.'), { cause: error });
   }
 }
 
@@ -81,7 +81,7 @@ export async function getChatRoomMessagesRequest(roomId: string): Promise<ChatMe
     const response = await apiClient.get<ApiEnvelope<ChatMessageItem[]>>(`/chat/rooms/${roomId}/messages`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to load messages.'));
+    throw new Error(getErrorMessage(error, 'Failed to load messages.'), { cause: error });
   }
 }
 
@@ -90,7 +90,7 @@ export async function createDirectRoomRequest(userId: string): Promise<ChatRoomI
     const response = await apiClient.post<ApiEnvelope<ChatRoomItem>>('/chat/direct-rooms', { userId });
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to start a direct conversation.'));
+    throw new Error(getErrorMessage(error, 'Failed to start a direct conversation.'), { cause: error });
   }
 }
 
@@ -101,6 +101,6 @@ export async function sendChatMessageRequest(roomId: string, content: string): P
     });
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, 'Failed to send the message.'));
+    throw new Error(getErrorMessage(error, 'Failed to send the message.'), { cause: error });
   }
 }

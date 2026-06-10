@@ -32,6 +32,7 @@ vi.mock('../../../../services/api/progressService', async () => {
 
 const getOverviewMock = vi.mocked(progressService.getOverview);
 const getMyProgressHistoryMock = vi.mocked(progressService.getMyProgressHistory);
+type ProgressHistoryResult = Awaited<ReturnType<typeof progressService.getMyProgressHistory>>;
 
 describe('StudentProgressReportPage', () => {
   afterEach(() => {
@@ -66,7 +67,7 @@ describe('StudentProgressReportPage', () => {
         },
       ],
       pagination: { page: 1, pageSize: 10, total: 1, totalPages: 1 },
-    } as any);
+    } as ProgressHistoryResult);
 
     renderWithQueryClient(
       <MemoryRouter>

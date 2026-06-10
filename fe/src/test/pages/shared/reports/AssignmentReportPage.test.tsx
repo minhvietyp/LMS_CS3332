@@ -34,6 +34,9 @@ vi.mock('../../../../services/api/assignmentApi', () => ({
 const listCoursesRequestMock = vi.mocked(listCoursesRequest);
 const listCourseAssignmentsRequestMock = vi.mocked(listCourseAssignmentsRequest);
 const listAssignmentSubmissionsRequestMock = vi.mocked(listAssignmentSubmissionsRequest);
+type ListCoursesResult = Awaited<ReturnType<typeof listCoursesRequest>>;
+type CourseAssignmentsResult = Awaited<ReturnType<typeof listCourseAssignmentsRequest>>;
+type AssignmentSubmissionsResult = Awaited<ReturnType<typeof listAssignmentSubmissionsRequest>>;
 
 describe('AssignmentReportPage', () => {
   afterEach(() => {
@@ -48,11 +51,11 @@ describe('AssignmentReportPage', () => {
 
   it('renders assignment report summaries and submissions', async () => {
     listCoursesRequestMock.mockResolvedValue({
-      data: [{ id: 'course-1', title: 'React Basics' } as any],
-    });
+      data: [{ id: 'course-1', title: 'React Basics' }],
+    } as ListCoursesResult);
     listCourseAssignmentsRequestMock.mockResolvedValue([
-      { id: 'assignment-1', title: 'Landing Page', allowLateSubmission: true } as any,
-    ]);
+      { id: 'assignment-1', title: 'Landing Page', allowLateSubmission: true },
+    ] as CourseAssignmentsResult);
     listAssignmentSubmissionsRequestMock.mockResolvedValue([
       {
         id: 'submission-1',
@@ -60,8 +63,8 @@ describe('AssignmentReportPage', () => {
         grade: 92,
         textContent: 'My answer',
         student: { name: 'Student One', email: 'one@example.com' },
-      } as any,
-    ]);
+      },
+    ] as AssignmentSubmissionsResult);
 
     renderWithQueryClient(
       <MemoryRouter>

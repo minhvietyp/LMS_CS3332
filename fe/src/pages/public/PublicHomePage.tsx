@@ -1,23 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Avatar, Button, Col, Empty, Row, Skeleton, Typography } from 'antd';
 import {
-  BarChart3,
   Bell,
   BookOpen,
-  CalendarDays,
   CheckCircle2,
   ClipboardCheck,
-  Code2,
-  Database,
   GraduationCap,
-  HelpCircle,
   Layers3,
   MessageSquare,
-  Network,
   NotebookTabs,
-  ShieldCheck,
-  Star,
+  PenTool,
+  RadioTower,
+  Route,
+  Sparkles,
   TrendingUp,
+  UsersRound,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MarketingLayout } from '../../components/public/MarketingLayout';
@@ -25,104 +22,66 @@ import { PublicCourseCard } from '../../components/public/PublicCourseCard';
 import { listPublicInstructorsRequest } from '../../services/api/authApi';
 import { listPublicCoursesRequest } from '../../services/api/courseApi';
 
-const featureCards = [
+const benefitCards = [
   {
-    icon: <BookOpen size={20} />,
-    title: 'Course learning',
-    description: 'Browse published courses, follow modules, and keep lesson work organized in one focused place.',
+    icon: <BookOpen size={22} />,
+    title: 'Structured course learning',
+    description: 'Guide learners through published courses, organized modules, lesson materials, and clear next steps.',
   },
   {
-    icon: <ClipboardCheck size={20} />,
+    icon: <ClipboardCheck size={22} />,
     title: 'Assignments and quizzes',
-    description: 'Review tasks, submit coursework, attempt quizzes, and return to instructor feedback quickly.',
+    description: 'Keep coursework, submissions, quiz attempts, and instructor feedback connected to each course.',
   },
   {
-    icon: <TrendingUp size={20} />,
-    title: 'Progress and grades',
-    description: 'Track completion, grades, deadlines, and course progress without switching tools.',
+    icon: <TrendingUp size={22} />,
+    title: 'Progress tracking',
+    description: 'Help students understand completion, grades, activity, and learning history without switching tools.',
   },
   {
-    icon: <MessageSquare size={20} />,
-    title: 'Community and notifications',
-    description: 'Stay close to announcements, discussion rooms, support threads, and unread updates.',
+    icon: <MessageSquare size={22} />,
+    title: 'Academic communication',
+    description: 'Bring announcements, discussion rooms, notifications, and course conversations into one platform.',
   },
 ];
 
-const learningPaths = [
+const studentBenefits = [
+  'Browse enrolled courses and public course details',
+  'Learn through modules, lessons, and materials',
+  'Submit assignments and review feedback',
+  'Take quizzes and review results',
+  'Track grades, progress, and notifications',
+];
+
+const instructorBenefits = [
   {
-    icon: <Code2 size={20} />,
-    title: 'Frontend Developer',
-    description: 'Build interface fundamentals, component thinking, and client-side workflows.',
-    chips: ['React', 'UI systems', 'Accessibility'],
+    icon: <PenTool size={20} />,
+    title: 'Publish courses',
+    description: 'Prepare course shells, descriptions, thumbnails, and public catalog entries.',
   },
   {
-    icon: <Database size={20} />,
-    title: 'Backend Developer',
-    description: 'Practice APIs, data models, authentication, and production service design.',
-    chips: ['Node.js', 'PostgreSQL', 'Prisma'],
+    icon: <Layers3 size={20} />,
+    title: 'Organize lessons',
+    description: 'Build modules, sequence lessons, and attach learning materials.',
   },
   {
-    icon: <BarChart3 size={20} />,
-    title: 'Data Science',
-    description: 'Move from data foundations to analysis, visualization, and decision support.',
-    chips: ['Python', 'Analytics', 'Reports'],
+    icon: <NotebookTabs size={20} />,
+    title: 'Manage assessments',
+    description: 'Create assignments and quizzes that stay connected to course work.',
   },
   {
-    icon: <ShieldCheck size={20} />,
-    title: 'Cyber Security',
-    description: 'Study secure systems, network concepts, and defensive engineering habits.',
-    chips: ['Security', 'Networks', 'Risk'],
+    icon: <UsersRound size={20} />,
+    title: 'Monitor progress',
+    description: 'Review student progress and course activity from instructor workflows.',
   },
 ];
 
-const workflowSteps = [
-  {
-    icon: <BookOpen size={18} />,
-    title: 'Browse courses',
-    description: 'Explore the public catalog and review course outlines before creating an account.',
-  },
-  {
-    icon: <Layers3 size={18} />,
-    title: 'Learn through modules',
-    description: 'Move through structured lessons, materials, and learning checkpoints.',
-  },
-  {
-    icon: <NotebookTabs size={18} />,
-    title: 'Submit assignments and quizzes',
-    description: 'Complete coursework and return to instructor feedback from the course context.',
-  },
-  {
-    icon: <TrendingUp size={18} />,
-    title: 'Track progress and grades',
-    description: 'Review completion history, grades, deadlines, and course notifications.',
-  },
-];
-
-const stats = [
-  ['500+', 'Courses'],
-  ['120+', 'Instructors'],
-  ['15k+', 'Learners'],
-  ['95%', 'Completion support'],
-];
-
-const workspaceItems = ['Dashboard', 'Courses', 'Calendar', 'Grades', 'Community'];
-
-const testimonials = [
-  {
-    quote: 'EduFlow keeps course work, deadlines, and progress signals easy to understand.',
-    name: 'Academic learner',
-    role: 'Student feedback example',
-  },
-  {
-    quote: 'The catalog and workspace structure make it easier to move from discovery into learning.',
-    name: 'Course participant',
-    role: 'Public LMS feedback example',
-  },
-  {
-    quote: 'Notifications and course context help reduce missed updates during a busy semester.',
-    name: 'Program member',
-    role: 'Generic public testimonial',
-  },
+const learningFlow = [
+  { icon: <Route size={18} />, label: 'Course catalog' },
+  { icon: <BookOpen size={18} />, label: 'Lessons' },
+  { icon: <ClipboardCheck size={18} />, label: 'Assignment submission' },
+  { icon: <NotebookTabs size={18} />, label: 'Quiz attempt' },
+  { icon: <TrendingUp size={18} />, label: 'Progress overview' },
 ];
 
 const faqs = [
@@ -140,11 +99,11 @@ const faqs = [
   },
   {
     question: 'Can I track my progress?',
-    answer: 'Yes. Student dashboards show lesson completion, course progress, grade signals, and recent learning activity.',
+    answer: 'Yes. Student workspaces show lesson completion, course progress, grade signals, and recent learning activity.',
   },
   {
-    question: 'How do certificates work?',
-    answer: 'Certificate behavior depends on course configuration. This public page does not claim certificate availability for every course.',
+    question: 'Are certificates available?',
+    answer: 'Certificates are not currently enabled in this version. Students can still track course progress, grades, assignments, and quiz results.',
   },
 ];
 
@@ -168,104 +127,59 @@ export function PublicHomePage() {
   return (
     <MarketingLayout
       hero={
-        <section className="marketing-hero marketing-hero--premium">
-          <article className="marketing-hero__panel">
-            <span className="marketing-hero__eyebrow">EduFlow Academic LMS</span>
-            <Typography.Title className="marketing-hero__title">
-              Learn, manage coursework, and track progress in one academic portal.
+        <section className="public-home-hero" aria-labelledby="public-home-hero-title">
+          <article className="public-home-hero__content">
+            <span className="public-home-badge">
+              <Sparkles size={16} />
+              EduFlow Academic LMS
+            </span>
+            <Typography.Title id="public-home-hero-title" className="public-home-hero__title">
+              Build a focused learning workspace for courses, assignments, quizzes, and progress.
             </Typography.Title>
-            <Typography.Paragraph className="marketing-hero__copy">
-              EduFlow brings courses, lessons, assignments, quizzes, grades, notifications, and academic communication into one focused workspace.
+            <Typography.Paragraph className="public-home-hero__copy">
+              EduFlow helps students and instructors manage coursework, learning materials, assessments, communication, and progress in one clean academic platform.
             </Typography.Paragraph>
-            <div className="marketing-hero__actions">
+            <div className="public-home-hero__actions">
               <Link to="/register">
                 <Button type="primary" size="large">Create account</Button>
               </Link>
               <Link to="/catalog">
-                <Button size="large">Explore catalog</Button>
+                <Button size="large">Browse courses</Button>
               </Link>
-            </div>
-            <div className="marketing-hero__proof" aria-label="EduFlow platform highlights">
-              <span><strong>15,000+</strong> learners</span>
-              <span><strong>Expert-led</strong> courses</span>
-              <span><strong>Progress</strong> tracking</span>
             </div>
           </article>
 
-          <aside className="marketing-product-card marketing-dashboard-preview" aria-label="EduFlow dashboard preview">
-            <div className="marketing-product-card__topbar">
-              <span />
-              <strong>Academic dashboard</strong>
+          <aside className="public-home-flow" aria-label="EduFlow learning flow illustration">
+            <div className="public-home-flow__glow" />
+            <div className="public-home-flow__header">
+              <GraduationCap size={22} />
+              <span>Academic learning flow</span>
             </div>
-            <div className="marketing-product-card__body">
-              <div className="marketing-product-card__status">
-                <span><GraduationCap size={16} /> Current course progress</span>
-                <strong>68%</strong>
-              </div>
-              <div className="marketing-product-card__course">
-                <span>Active course</span>
-                <strong>Intro to Academic Computing</strong>
-                <div className="marketing-product-card__progress">
-                  <span className="marketing-product-card__progress-value" />
+            <div className="public-home-flow__track">
+              {learningFlow.map((item) => (
+                <div className="public-home-flow__item" key={item.label}>
+                  <span>{item.icon}</span>
+                  <strong>{item.label}</strong>
                 </div>
-              </div>
-              <div className="marketing-product-card__grid">
-                <div>
-                  <span>Assignments open</span>
-                  <strong>2 tasks</strong>
-                </div>
-                <div>
-                  <span>Grade trend</span>
-                  <strong>B+</strong>
-                </div>
-              </div>
-              <div className="marketing-product-card__deadline">
-                <span>
-                  <strong>Upcoming deadline</strong>
-                  <small>Research summary due Friday</small>
-                </span>
-                <span className="marketing-product-card__badge"><CalendarDays size={14} /> 3d</span>
-              </div>
-              <div className="marketing-product-card__message">
-                <span>
-                  <strong>New course update</strong>
-                  <small>Instructor posted module notes</small>
-                </span>
-                <span className="marketing-product-card__badge"><Bell size={14} /></span>
-              </div>
+              ))}
+            </div>
+            <div className="public-home-flow__footer">
+              <span>One connected path from discovery to coursework.</span>
             </div>
           </aside>
         </section>
       }
     >
-      <section className="marketing-section marketing-section--spacious" aria-labelledby="features-title">
-        <div className="marketing-section__header">
-          <div>
-            <span className="marketing-kicker">Learning platform</span>
-            <Typography.Title id="features-title" level={2}>Built for focused academic work</Typography.Title>
-          </div>
-        </div>
-        <div className="marketing-feature-grid">
-          {featureCards.map((feature) => (
-            <article key={feature.title}>
-              <span>{feature.icon}</span>
-              <Typography.Title level={4}>{feature.title}</Typography.Title>
-              <Typography.Paragraph type="secondary">{feature.description}</Typography.Paragraph>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="marketing-section marketing-section--spacious" aria-labelledby="courses-title">
-        <div className="marketing-section__header">
+      <section className="public-home-section public-home-courses" aria-labelledby="courses-title">
+        <div className="public-home-section__header">
           <div>
             <span className="marketing-kicker">Featured courses</span>
-            <Typography.Title id="courses-title" level={2}>Start with published courses</Typography.Title>
+            <Typography.Title id="courses-title" level={2}>Explore real published courses</Typography.Title>
             <Typography.Paragraph type="secondary">
-              Course cards use the public course API and only show counts returned by the backend.
+              These course cards are loaded from the public course API and use only fields returned by the backend.
             </Typography.Paragraph>
           </div>
-          <Link to="/catalog">View all courses</Link>
+          <Link to="/catalog">Explore catalog</Link>
         </div>
         {coursesQuery.isLoading ? <Skeleton active paragraph={{ rows: 6 }} /> : null}
         {coursesQuery.error ? <Alert type="error" showIcon message="Failed to load featured courses" /> : null}
@@ -279,176 +193,124 @@ export function PublicHomePage() {
         </Row>
       </section>
 
-      <section id="learning-paths" className="marketing-section marketing-section--spacious" aria-labelledby="paths-title">
-        <div className="marketing-section__header">
+      <section className="public-home-section" aria-labelledby="benefits-title">
+        <div className="public-home-section__header public-home-section__header--centered">
           <div>
-            <span className="marketing-kicker">Popular learning paths</span>
-            <Typography.Title id="paths-title" level={2}>Choose a direction and keep moving</Typography.Title>
+            <span className="marketing-kicker">Core platform</span>
+            <Typography.Title id="benefits-title" level={2}>Learning workflows without dashboard noise</Typography.Title>
             <Typography.Paragraph type="secondary">
-              Static marketing paths that group common skills without claiming live enrollment data.
+              EduFlow focuses on the academic work that matters: learning content, assessment, communication, and progress.
             </Typography.Paragraph>
           </div>
         </div>
-        <div className="marketing-path-grid">
-          {learningPaths.map((path) => (
-            <article className="marketing-path-card" key={path.title}>
-              <span className="marketing-feature-icon">{path.icon}</span>
-              <Typography.Title level={4}>{path.title}</Typography.Title>
-              <Typography.Paragraph type="secondary">{path.description}</Typography.Paragraph>
-              <div className="marketing-chip-row">
-                {path.chips.map((chip) => <span key={chip}>{chip}</span>)}
-              </div>
-              <Link to="/catalog">Explore path</Link>
+        <div className="public-home-benefit-grid">
+          {benefitCards.map((benefit) => (
+            <article className="public-home-benefit-card" key={benefit.title}>
+              <span className="public-home-icon">{benefit.icon}</span>
+              <Typography.Title level={4}>{benefit.title}</Typography.Title>
+              <Typography.Paragraph type="secondary">{benefit.description}</Typography.Paragraph>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="marketing-section marketing-section--spacious" aria-labelledby="works-title">
-        <div className="marketing-section__header">
-          <div>
-            <span className="marketing-kicker">How it works</span>
-            <Typography.Title id="works-title" level={2}>From catalog to coursework in four steps</Typography.Title>
-          </div>
+      <section className="public-home-section public-home-split" aria-labelledby="student-title">
+        <div className="public-home-split__copy">
+          <span className="marketing-kicker">For students</span>
+          <Typography.Title id="student-title" level={2}>A calmer place to follow coursework.</Typography.Title>
+          <Typography.Paragraph type="secondary">
+            Students can move from course discovery into lessons, assignments, quizzes, progress, and notifications without losing context.
+          </Typography.Paragraph>
+          <Link to="/register">
+            <Button type="primary" size="large">Create account</Button>
+          </Link>
         </div>
-        <div className="marketing-workflow-grid marketing-workflow-grid--connected">
-          {workflowSteps.map((step, index) => (
-            <article key={step.title}>
-              <span>{String(index + 1).padStart(2, '0')}</span>
-              <div className="marketing-workflow-grid__icon">{step.icon}</div>
-              <Typography.Title level={4}>{step.title}</Typography.Title>
-              <Typography.Paragraph type="secondary">{step.description}</Typography.Paragraph>
-            </article>
+        <div className="public-home-check-panel">
+          {studentBenefits.map((item) => (
+            <div className="public-home-check-row" key={item}>
+              <CheckCircle2 size={18} />
+              <span>{item}</span>
+            </div>
           ))}
         </div>
       </section>
 
-      <section className="marketing-section marketing-stat-row" aria-label="EduFlow public platform statistics">
-        {stats.map(([value, label]) => (
-          <article key={label}>
-            <strong>{value}</strong>
-            <span>{label}</span>
-          </article>
-        ))}
-      </section>
-
-      <section className="marketing-section marketing-surface marketing-section--spacious">
-        <div className="marketing-workspace-preview">
+      <section className="public-home-section public-home-instructor-section" aria-labelledby="instructor-title">
+        <div className="public-home-section__header">
           <div>
-            <span className="marketing-kicker">Academic workspace</span>
-            <Typography.Title level={2}>Everything students see after sign-in.</Typography.Title>
+            <span className="marketing-kicker">For instructors</span>
+            <Typography.Title id="instructor-title" level={2}>Teach with structure from course shell to assessment.</Typography.Title>
             <Typography.Paragraph type="secondary">
-              The authenticated workspace brings dashboard summaries, courses, calendar deadlines, grades, and community updates into one learning flow.
-            </Typography.Paragraph>
-            <div className="marketing-workspace-preview__nav">
-              {workspaceItems.map((item) => (
-                <span key={item}><CheckCircle2 size={16} /> {item}</span>
-              ))}
-            </div>
-          </div>
-          <div className="marketing-workspace-preview__panel" aria-label="Workspace capability preview">
-            <Typography.Title level={4}>Student dashboard preview</Typography.Title>
-            <div className="marketing-product-card__course">
-              <span>Current module</span>
-              <strong>Structured HTML and accessibility</strong>
-              <div className="marketing-product-card__progress">
-                <span className="marketing-product-card__progress-value" />
-              </div>
-            </div>
-            <div className="marketing-preview-stack">
-              <div><CalendarDays size={16} /><span>Upcoming assignment</span><strong>Case study draft</strong></div>
-              <div><Star size={16} /><span>Quiz score</span><strong>86%</strong></div>
-              <div><MessageSquare size={16} /><span>Community reply</span><strong>New response</strong></div>
-            </div>
-            <span className="marketing-notification-pill"><Bell size={14} /> 4 updates</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="marketing-section marketing-section--spacious" aria-labelledby="instructors-title">
-        <div className="marketing-section__header">
-          <div>
-            <span className="marketing-kicker">Instructors</span>
-            <Typography.Title id="instructors-title" level={2}>Learn from expert instructors</Typography.Title>
-            <Typography.Paragraph type="secondary">
-              Instructor cards use the public instructor API when profiles are available.
+              Instructor workflows support course publishing, lesson organization, assignments, quizzes, progress review, and learner communication.
             </Typography.Paragraph>
           </div>
           <Link to="/instructors">View instructors</Link>
         </div>
-        {instructorsQuery.isLoading ? <Skeleton active paragraph={{ rows: 4 }} /> : null}
-        {instructorsQuery.error ? <Alert type="error" showIcon message="Failed to load instructors" /> : null}
-        {!instructorsQuery.isLoading && !instructorsQuery.error && !featuredInstructors.length ? (
-          <Empty description="No instructors are publicly listed yet." />
-        ) : null}
-        <div className="marketing-instructor-showcase">
-          {featuredInstructors.map((instructor) => (
-            <article className="marketing-instructor-mini" key={instructor.id}>
-              <Avatar size={58} src={instructor.avatarUrl ?? undefined}>
-                {instructor.name.slice(0, 1).toUpperCase()}
-              </Avatar>
-              <div>
-                <Typography.Title level={4}>{instructor.name}</Typography.Title>
-                <Typography.Text type="secondary">{instructor.occupation || 'Instructor'}</Typography.Text>
-              </div>
-              <div className="marketing-chip-row">
-                {typeof instructor.courseCount === 'number' ? <span>{instructor.courseCount} courses</span> : null}
-              </div>
-              <Link to={`/instructors/${instructor.id}`}>View profile</Link>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="marketing-section marketing-section--spacious" aria-labelledby="testimonials-title">
-        <div className="marketing-section__header">
-          <div>
-            <span className="marketing-kicker">Generic public feedback</span>
-            <Typography.Title id="testimonials-title" level={2}>Designed for calmer learning days</Typography.Title>
+        <div className="public-home-instructor-grid">
+          <div className="public-home-instructor-benefits">
+            {instructorBenefits.map((benefit) => (
+              <article className="public-home-instructor-card" key={benefit.title}>
+                <span className="public-home-icon">{benefit.icon}</span>
+                <div>
+                  <Typography.Title level={4}>{benefit.title}</Typography.Title>
+                  <Typography.Paragraph type="secondary">{benefit.description}</Typography.Paragraph>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="public-home-instructor-preview">
+            <Typography.Title level={4}>Public instructor preview</Typography.Title>
+            {instructorsQuery.isLoading ? <Skeleton active paragraph={{ rows: 4 }} /> : null}
+            {instructorsQuery.error ? <Alert type="error" showIcon message="Failed to load instructors" /> : null}
+            {!instructorsQuery.isLoading && !instructorsQuery.error && !featuredInstructors.length ? (
+              <Typography.Paragraph type="secondary">
+                Instructor profiles will appear here when public profiles are available.
+              </Typography.Paragraph>
+            ) : null}
+            <div className="public-home-instructor-list">
+              {featuredInstructors.map((instructor) => (
+                <Link className="public-home-instructor-person" to={`/instructors/${instructor.id}`} key={instructor.id}>
+                  <Avatar size={48} src={instructor.avatarUrl ?? undefined}>
+                    {instructor.name.slice(0, 1).toUpperCase()}
+                  </Avatar>
+                  <span>
+                    <strong>{instructor.name}</strong>
+                    <small>{instructor.occupation || 'Instructor'}</small>
+                  </span>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="marketing-testimonial-grid">
-          {testimonials.map((testimonial) => (
-            <article key={testimonial.name}>
-              <div className="marketing-stars" aria-label="Visual five star rating">
-                <Star size={16} /><Star size={16} /><Star size={16} /><Star size={16} /><Star size={16} />
-              </div>
-              <blockquote>{testimonial.quote}</blockquote>
-              <strong>{testimonial.name}</strong>
-              <span>{testimonial.role}</span>
-            </article>
-          ))}
-        </div>
       </section>
 
-      <section className="marketing-section marketing-community-band">
+      <section className="public-home-section public-home-community" aria-labelledby="community-title">
         <div>
           <span className="marketing-kicker">Community</span>
-          <Typography.Title level={2}>Learn together with your academic community.</Typography.Title>
+          <Typography.Title id="community-title" level={2}>Keep academic conversations close to the course.</Typography.Title>
           <Typography.Paragraph>
-            Course discussion rooms, announcements, direct support, and study conversations keep academic communication close to learning work.
+            Course discussion rooms, announcements, academic conversations, and communication tools help students and instructors stay aligned.
           </Typography.Paragraph>
         </div>
-        <div className="marketing-community-band__items">
+        <div className="public-home-community__items">
           <span><MessageSquare size={16} /> Course discussion rooms</span>
           <span><Bell size={16} /> Announcements</span>
-          <span><HelpCircle size={16} /> Direct support</span>
-          <span><Network size={16} /> Study conversations</span>
+          <span><RadioTower size={16} /> Communication tools</span>
         </div>
         <Link to="/community">
-          <Button size="large">Explore Community</Button>
+          <Button size="large">Explore community</Button>
         </Link>
       </section>
 
-      <section className="marketing-section marketing-section--spacious" aria-labelledby="faq-title">
-        <div className="marketing-section__header">
+      <section className="public-home-section" aria-labelledby="faq-title">
+        <div className="public-home-section__header">
           <div>
             <span className="marketing-kicker">FAQ</span>
             <Typography.Title id="faq-title" level={2}>Questions before you begin</Typography.Title>
           </div>
           <Link to="/faq">Open full FAQ</Link>
         </div>
-        <div className="marketing-home-faq">
+        <div className="public-home-faq">
           {faqs.map((item) => (
             <details key={item.question}>
               <summary>{item.question}</summary>
@@ -458,19 +320,19 @@ export function PublicHomePage() {
         </div>
       </section>
 
-      <section className="marketing-section marketing-cta marketing-cta--premium">
+      <section className="public-home-section public-home-cta">
         <div>
-          <Typography.Title level={2}>Ready to start learning?</Typography.Title>
+          <Typography.Title level={2}>Ready to start learning with EduFlow?</Typography.Title>
           <Typography.Paragraph>
-            Create your account and continue your academic journey with EduFlow.
+            Create your account or explore the public course catalog.
           </Typography.Paragraph>
         </div>
-        <div className="marketing-cta__actions">
+        <div className="public-home-cta__actions">
           <Link to="/register">
-            <Button size="large">Register</Button>
+            <Button size="large">Create account</Button>
           </Link>
-          <Link to="/login">
-            <Button size="large">Sign in</Button>
+          <Link to="/catalog">
+            <Button size="large">Browse catalog</Button>
           </Link>
         </div>
       </section>

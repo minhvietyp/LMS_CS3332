@@ -48,6 +48,10 @@ const getCourseByIdRequestMock = vi.mocked(getCourseByIdRequest);
 const listCourseAssignmentsRequestMock = vi.mocked(listCourseAssignmentsRequest);
 const listCourseQuizzesRequestMock = vi.mocked(listCourseQuizzesRequest);
 const getInstructorCourseProgressMock = vi.mocked(progressService.getInstructorCourseProgress);
+type CourseDetailResult = Awaited<ReturnType<typeof getCourseByIdRequest>>;
+type InstructorCourseProgressResult = Awaited<ReturnType<typeof progressService.getInstructorCourseProgress>>;
+type CourseAssignmentsResult = Awaited<ReturnType<typeof listCourseAssignmentsRequest>>;
+type CourseQuizzesResult = Awaited<ReturnType<typeof listCourseQuizzesRequest>>;
 
 describe('CourseAnalyticsPage', () => {
   afterEach(() => {
@@ -68,20 +72,45 @@ describe('CourseAnalyticsPage', () => {
       modules: [
         { id: 'module-1', lessons: [{ id: 'lesson-1' }, { id: 'lesson-2' }] },
       ],
-    } as any);
+    } as CourseDetailResult);
     getInstructorCourseProgressMock.mockResolvedValue({
       course: {
+        id: 'course-1',
+        title: 'React Basics',
+        totalLessons: 2,
         totalStudents: 12,
+        activeStudents: 10,
+        completedStudents: 2,
+        droppedStudents: 0,
+        averageProgress: 70,
         averageWeightedProgress: 74,
       },
       students: [],
-    } as any);
+      pagination: {
+        page: 1,
+        pageSize: 10,
+        total: 0,
+        totalPages: 0,
+      },
+    } as InstructorCourseProgressResult);
     listCourseAssignmentsRequestMock.mockResolvedValue([
-      { id: 'assignment-1', title: 'Landing Page', allowLateSubmission: true } as any,
-    ]);
+      { id: 'assignment-1', title: 'Landing Page', allowLateSubmission: true },
+    ] as CourseAssignmentsResult);
     listCourseQuizzesRequestMock.mockResolvedValue([
-      { id: 'quiz-1', title: 'Module 1 Quiz', passingScore: 70, _count: { attempts: 6 }, attempts: [], questions: [] } as any,
-    ]);
+      {
+        id: 'quiz-1',
+        title: 'Module 1 Quiz',
+        description: null,
+        passingScore: 70,
+        maxAttempts: 3,
+        isPublished: true,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+        _count: { attempts: 6 },
+        attempts: [],
+        questions: [],
+      },
+    ] as CourseQuizzesResult);
 
     renderWithQueryClient(
       <MemoryRouter initialEntries={['/courses/course-1/analytics']}>

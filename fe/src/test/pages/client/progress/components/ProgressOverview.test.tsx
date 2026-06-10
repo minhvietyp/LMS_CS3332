@@ -1,11 +1,19 @@
 import { screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProgressOverview } from '../../../../../pages/client/progress/components/ProgressOverview';
+import type { ProgressOverviewData } from '../../../../../types/progress';
 import { renderWithQueryClient } from '../../../../utils/renderWithQueryClient';
 
 const refetch = vi.fn();
 
-const mockOverviewState = {
+type MockOverviewState = {
+  data: ProgressOverviewData;
+  isLoading: boolean;
+  error: Error | null;
+  refetch: typeof refetch;
+};
+
+const mockOverviewState: MockOverviewState = {
   data: {
     summary: {
       totalCourses: 2,
@@ -35,6 +43,18 @@ const mockOverviewState = {
   isLoading: false,
   error: null,
   refetch,
+};
+
+const emptyProgressOverviewData: ProgressOverviewData = {
+  summary: {
+    totalCourses: 0,
+    activeCourses: 0,
+    completedCourses: 0,
+    droppedCourses: 0,
+    overallProgress: 0,
+    lastActivityAt: null,
+  },
+  courses: [],
 };
 
 vi.mock('../../../../../hooks/useProgressOverview', () => ({
@@ -89,7 +109,7 @@ describe('ProgressOverview', () => {
   }, 15000);
 
   it('renders loading state', () => {
-    mockOverviewState.data = undefined as any;
+    mockOverviewState.data = emptyProgressOverviewData;
     mockOverviewState.isLoading = true;
 
     renderWithQueryClient(<ProgressOverview />);

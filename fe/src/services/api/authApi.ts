@@ -189,7 +189,7 @@ export async function loginRequest(payload: LoginRequest): Promise<LoginResponse
     const response = await apiClient.post<ApiEnvelope<LoginResponse>>('/auth/login', payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -198,7 +198,7 @@ export async function registerRequest(payload: RegisterRequest): Promise<Registe
     const response = await apiClient.post<ApiEnvelope<RegisterResponse>>('/auth/register', payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -206,7 +206,7 @@ export async function logoutRequest(refreshToken: string): Promise<void> {
   try {
     await apiClient.post<ApiEnvelope<null>>('/auth/logout', { refreshToken });
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -214,7 +214,7 @@ export async function forgotPasswordRequest(payload: ForgotPasswordRequest): Pro
   try {
     await apiClient.post<ApiEnvelope<null>>('/auth/forgot-password', payload);
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -222,7 +222,7 @@ export async function resetPasswordRequest(payload: ResetPasswordRequest): Promi
   try {
     await apiClient.post<ApiEnvelope<null>>('/auth/reset-password', payload);
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -231,7 +231,7 @@ export async function getMeRequest(): Promise<AuthUser> {
     const response = await apiClient.get<ApiEnvelope<AuthUser>>('/users/me');
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -240,7 +240,7 @@ export async function getMyProfileRequest(): Promise<AuthUser> {
     const response = await apiClient.get<ApiEnvelope<AuthUser>>('/users/me/profile');
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -249,7 +249,7 @@ export async function updateMeRequest(payload: UpdateProfileRequest): Promise<Au
     const response = await apiClient.patch<ApiEnvelope<AuthUser>>('/users/me', payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -258,7 +258,7 @@ export async function updateMyContactRequest(payload: UpdateContactRequest): Pro
     const response = await apiClient.patch<ApiEnvelope<AuthUser>>('/users/me/contact', payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -266,7 +266,7 @@ export async function updateMyPasswordRequest(payload: ChangePasswordRequest): P
   try {
     await apiClient.patch<ApiEnvelope<null>>('/users/me/password', payload);
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -283,7 +283,7 @@ export async function uploadAvatarRequest(file: File): Promise<AuthUser> {
 
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -300,7 +300,7 @@ export async function uploadCoverImageRequest(file: File): Promise<AuthUser> {
 
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -325,7 +325,7 @@ export async function listUsersRequest(
       meta: response.data.meta,
     };
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -333,7 +333,7 @@ export async function softDeleteUserRequest(userId: string): Promise<void> {
   try {
     await apiClient.delete(`/users/${userId}`);
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -342,7 +342,7 @@ export async function createUserRequest(payload: CreateUserRequest): Promise<Use
     const response = await apiClient.post<ApiEnvelope<UserListItem>>('/users', payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -351,7 +351,7 @@ export async function getUserByIdRequest(userId: string): Promise<UserListItem> 
     const response = await apiClient.get<ApiEnvelope<UserListItem>>(`/users/${userId}`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -359,7 +359,7 @@ export async function restoreUserRequest(userId: string): Promise<void> {
   try {
     await apiClient.post(`/users/${userId}/restore`);
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -368,7 +368,7 @@ export async function updateUserRequest(userId: string, payload: UpdateUserReque
     const response = await apiClient.patch<ApiEnvelope<UserListItem>>(`/users/${userId}`, payload);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -377,7 +377,7 @@ export async function getRoleAccessMatrixRequest(): Promise<RoleAccessSummary[]>
     const response = await apiClient.get<ApiEnvelope<RoleAccessSummary[]>>('/access-control/roles');
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -386,7 +386,7 @@ export async function listPublicInstructorsRequest(): Promise<PublicInstructorPr
     const response = await apiClient.get<ApiEnvelope<PublicInstructorProfile[]>>('/users/public/instructors');
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 
@@ -395,7 +395,7 @@ export async function getPublicInstructorByIdRequest(userId: string): Promise<Pu
     const response = await apiClient.get<ApiEnvelope<PublicInstructorProfile>>(`/users/public/instructors/${userId}`);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error), { cause: error });
   }
 }
 

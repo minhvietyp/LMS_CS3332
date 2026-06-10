@@ -45,6 +45,10 @@
   margin: 0;
 }
 
+.instructor-progress-page__course-copy.ant-typography {
+  margin: 6px 0 0;
+}
+
 .instructor-progress-page__summary-grid {
   display: grid;
   gap: var(--client-space-md);
@@ -96,6 +100,18 @@
 
 .instructor-progress-page__toolbar-copy .ant-typography {
   margin: 0;
+}
+
+.instructor-progress-page__section-heading {
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--client-space-md);
+  margin-bottom: var(--client-space-md);
+}
+
+.instructor-progress-page__section-heading .ant-typography {
+  margin-bottom: 0;
 }
 
 .instructor-progress-page__search {

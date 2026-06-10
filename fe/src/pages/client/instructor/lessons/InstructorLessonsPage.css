@@ -1,0 +1,298 @@
+.instructor-lessons-page {
+  display: grid;
+  gap: var(--client-space-lg);
+}
+
+.instructor-lessons-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--client-space-lg);
+  align-items: end;
+  padding: var(--client-space-xl);
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-xl);
+  background:
+    linear-gradient(135deg, rgba(0, 40, 142, 0.08), rgba(248, 249, 255, 0.9)),
+    var(--client-bg-surface);
+  box-shadow: var(--client-shadow-card);
+}
+
+.instructor-lessons-hero h1.ant-typography {
+  margin-bottom: 0;
+  color: var(--client-text-primary);
+  font-family: var(--client-font-heading);
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.instructor-lessons-hero p.ant-typography {
+  max-width: 720px;
+  margin-bottom: 0;
+  color: var(--client-text-secondary);
+}
+
+.instructor-lessons-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--client-space-sm);
+}
+
+.instructor-lessons-eyebrow {
+  color: var(--client-color-primary);
+  font-size: var(--client-type-caption-size);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.instructor-lessons-course-picker.ant-card,
+.lesson-builder-summary .ant-card,
+.lesson-builder-modules-panel.ant-card,
+.lesson-builder-lessons-panel.ant-card,
+.lesson-builder-empty-card.ant-card {
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-xl);
+  background: var(--client-bg-surface);
+  box-shadow: var(--client-shadow-card);
+}
+
+.instructor-lessons-course-picker__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  gap: var(--client-space-md);
+  align-items: center;
+}
+
+.instructor-lessons-course-picker h3.ant-typography {
+  margin-bottom: 0;
+  color: var(--client-text-primary);
+  font-family: var(--client-font-heading);
+}
+
+.instructor-lessons-course-picker__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--client-space-sm);
+  align-items: center;
+  color: var(--client-text-secondary);
+}
+
+.lesson-builder-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--client-space-md);
+}
+
+.lesson-builder-summary .ant-card-body {
+  display: grid;
+  gap: 4px;
+  min-height: 116px;
+}
+
+.lesson-builder-summary span {
+  color: var(--client-text-muted);
+  font-weight: 700;
+}
+
+.lesson-builder-summary strong {
+  align-self: end;
+  color: var(--client-text-primary);
+  font-family: var(--client-font-heading);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.lesson-builder-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1.28fr);
+  gap: var(--client-space-md);
+  align-items: start;
+}
+
+.lesson-builder-modules-panel .ant-card-body,
+.lesson-builder-lessons-panel .ant-card-body {
+  display: grid;
+  gap: var(--client-space-md);
+}
+
+.lesson-builder-section-header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--client-space-md);
+  align-items: center;
+}
+
+.lesson-builder-section-header h3.ant-typography {
+  margin-bottom: 0;
+  color: var(--client-text-primary);
+  font-family: var(--client-font-heading);
+}
+
+.lesson-builder-module-list,
+.lesson-builder-lesson-list,
+.lesson-builder-material-list {
+  display: grid;
+  gap: var(--client-space-sm);
+}
+
+.lesson-builder-module-card,
+.lesson-builder-lesson-card,
+.lesson-builder-material-item {
+  border: 1px solid var(--client-border-soft);
+  border-radius: var(--client-radius-lg);
+  background: var(--client-bg-surface-low);
+}
+
+.lesson-builder-module-card {
+  display: grid;
+  overflow: hidden;
+}
+
+.lesson-builder-module-card--active {
+  border-color: rgba(0, 40, 142, 0.42);
+  box-shadow: 0 0 0 3px rgba(0, 40, 142, 0.08);
+}
+
+.lesson-builder-module-card > button {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  padding: var(--client-space-md);
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lesson-builder-module-card > button span,
+.lesson-builder-lesson-card__main > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--client-color-primary);
+  font-size: var(--client-type-small-size);
+  font-weight: 800;
+}
+
+.lesson-builder-module-card strong,
+.lesson-builder-lesson-card strong,
+.lesson-builder-material-item strong {
+  color: var(--client-text-primary);
+  line-height: 1.25;
+}
+
+.lesson-builder-module-card small,
+.lesson-builder-lesson-card small,
+.lesson-builder-material-item span {
+  color: var(--client-text-muted);
+  line-height: 1.45;
+}
+
+.lesson-builder-module-card__actions,
+.lesson-builder-lesson-card__actions,
+.lesson-builder-material-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--client-space-sm);
+  align-items: center;
+  padding: var(--client-space-sm) var(--client-space-md);
+  border-top: 1px solid var(--client-border-soft);
+}
+
+.lesson-builder-lesson-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--client-space-md);
+  align-items: center;
+  padding: var(--client-space-md);
+}
+
+.lesson-builder-lesson-card__main {
+  display: grid;
+  gap: 6px;
+}
+
+.lesson-builder-lesson-card__actions {
+  padding: 0;
+  border-top: 0;
+  justify-content: flex-end;
+}
+
+.lesson-builder-empty-card .ant-card-body {
+  padding: var(--client-space-xl);
+}
+
+.lesson-builder-material-modal {
+  display: grid;
+  gap: var(--client-space-lg);
+}
+
+.lesson-builder-material-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--client-space-md);
+  align-items: center;
+  padding: var(--client-space-md);
+}
+
+.lesson-builder-material-item > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.lesson-builder-material-item__actions {
+  padding: 0;
+  border-top: 0;
+}
+
+.lesson-builder-material-item__actions a {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--client-color-primary);
+  font-weight: 800;
+}
+
+@media (max-width: 1180px) {
+  .lesson-builder-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lesson-builder-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .instructor-lessons-hero,
+  .instructor-lessons-course-picker__inner,
+  .lesson-builder-summary,
+  .lesson-builder-lesson-card,
+  .lesson-builder-material-item {
+    grid-template-columns: 1fr;
+  }
+
+  .instructor-lessons-hero {
+    padding: var(--client-space-lg);
+  }
+
+  .instructor-lessons-hero__actions,
+  .lesson-builder-section-header,
+  .lesson-builder-lesson-card__actions,
+  .lesson-builder-material-item__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .instructor-lessons-hero__actions .ant-btn,
+  .lesson-builder-section-header .ant-btn,
+  .instructor-lessons-course-picker .ant-select,
+  .lesson-builder-module-card__actions .ant-btn,
+  .lesson-builder-lesson-card__actions .ant-btn,
+  .lesson-builder-material-item__actions .ant-btn {
+    width: 100%;
+  }
+}
