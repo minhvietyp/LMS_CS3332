@@ -35,7 +35,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ClientLayout, ClientPageContainer } from '../../../../components/client-layout';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import {
   archiveCourseRequest,
   createCourseRequest,

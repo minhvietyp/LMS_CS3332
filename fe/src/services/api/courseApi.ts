@@ -80,7 +80,7 @@ export interface CoursePayload {
   description?: string;
 }
 
-export interface CourseUpdatePayload extends Partial<CoursePayload> {}
+export type CourseUpdatePayload = Partial<CoursePayload>;
 
 interface ApiEnvelope<T> {
   success: boolean;

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Button,
@@ -32,7 +32,7 @@ import {
   Upload as UploadIcon,
 } from 'lucide-react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import { canAccess, PERMISSIONS } from '../../../../utils/rbac';
 import {
   archiveCourseRequest,
@@ -194,39 +194,44 @@ export function CourseManagementForm({
   useEffect(() => {
     if (mode !== 'edit' || !courseId) {
       form.setFieldsValue({ title: '', description: '' });
-      setCourse(null);
-      return;
+      const timeoutId = window.setTimeout(() => {
+        setCourse(null);
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
 
     let isActive = true;
-    setIsLoading(true);
-    setErrorMessage(null);
+    const timeoutId = window.setTimeout(() => {
+      setIsLoading(true);
+      setErrorMessage(null);
 
-    void getCourseByIdRequest(courseId)
-      .then((result) => {
-        if (!isActive) {
-          return;
-        }
+      void getCourseByIdRequest(courseId)
+        .then((result) => {
+          if (!isActive) {
+            return;
+          }
 
-        setCourse(result);
-        form.setFieldsValue({
-          title: result.title,
-          description: result.description ?? '',
+          setCourse(result);
+          form.setFieldsValue({
+            title: result.title,
+            description: result.description ?? '',
+          });
+        })
+        .catch((error) => {
+          if (isActive) {
+            setErrorMessage(error instanceof Error ? error.message : 'Failed to load course details.');
+          }
+        })
+        .finally(() => {
+          if (isActive) {
+            setIsLoading(false);
+          }
         });
-      })
-      .catch((error) => {
-        if (isActive) {
-          setErrorMessage(error instanceof Error ? error.message : 'Failed to load course details.');
-        }
-      })
-      .finally(() => {
-        if (isActive) {
-          setIsLoading(false);
-        }
-      });
+    }, 0);
 
     return () => {
       isActive = false;
+      window.clearTimeout(timeoutId);
     };
   }, [courseId, form, mode]);
 
@@ -339,7 +344,10 @@ export function CourseManagement({ basePath = '/admin/courses' }: CourseManageme
   const statusParam = statusFilter === 'ALL' || statusFilter === 'DELETED' ? undefined : statusFilter;
 
   useEffect(() => {
-    setSearchInput(search);
+    const timeoutId = window.setTimeout(() => {
+      setSearchInput(search);
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
   }, [search]);
 
   useEffect(() => {
@@ -362,7 +370,7 @@ export function CourseManagement({ basePath = '/admin/courses' }: CourseManageme
     return () => window.clearTimeout(timeoutId);
   }, [search, searchInput, searchParams, setSearchParams]);
 
-  const loadCourses = async () => {
+  const loadCourses = useCallback(async () => {
     setIsLoading(true);
     setErrorMessage(null);
 
@@ -382,15 +390,16 @@ export function CourseManagement({ basePath = '/admin/courses' }: CourseManageme
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [limit, page, search, statusFilter, statusParam]);
 
   useEffect(() => {
     if (canViewCourses) {
-      void loadCourses();
-    } else {
-      setIsLoading(false);
+      const timeoutId = window.setTimeout(() => {
+        void loadCourses();
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
-  }, [canViewCourses, limit, page, search, statusFilter, statusParam]);
+  }, [canViewCourses, loadCourses]);
 
   const updateQuery = (patch: Record<string, string | undefined>) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -696,7 +705,7 @@ export function CourseManagementDetail({
       (user?.role === 'ADMIN' || course.instructorId === user?.id)
     : false;
 
-  const loadCourse = async () => {
+  const loadCourse = useCallback(async () => {
     setIsLoading(true);
     setErrorMessage(null);
 
@@ -708,15 +717,16 @@ export function CourseManagementDetail({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [courseId]);
 
   useEffect(() => {
     if (canViewCourses) {
-      void loadCourse();
-    } else {
-      setIsLoading(false);
+      const timeoutId = window.setTimeout(() => {
+        void loadCourse();
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
-  }, [canViewCourses, courseId]);
+  }, [canViewCourses, loadCourse]);
 
   const handleDelete = async () => {
     if (!course) {

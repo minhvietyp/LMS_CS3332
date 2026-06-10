@@ -14,7 +14,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
 import { EmptyState, StatusBadge, type StatusTone } from '../../../components/client-ui';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../context/useAuth';
 import {
   listStudentCourseAssignmentsRequest,
   type StudentAssignmentListItem,

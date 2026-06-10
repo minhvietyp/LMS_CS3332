@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { ProfileDetailsView } from './components';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../context/useAuth';
 
 export function ProfilePage() {
   const { user } = useAuth();

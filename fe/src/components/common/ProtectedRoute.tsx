@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import type { UserRole } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
+import type { UserRole } from '../../context/authTypes';
 import { canAccess } from '../../utils/rbac';
 import { getDefaultRouteForRole } from '../../utils/authRedirect';
 

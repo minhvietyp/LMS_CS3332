@@ -4,7 +4,7 @@ import { Button, Input, Typography } from 'antd';
 import { BookOpen, MessageCircle, Search, Send, Users } from 'lucide-react';
 import { EmptyState } from '../../../components/client-ui';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../context/useAuth';
 import {
   getChatRoomMessagesRequest,
   listMyChatRoomsRequest,

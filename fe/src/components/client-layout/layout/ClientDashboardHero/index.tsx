@@ -3,7 +3,7 @@ import { Card, Col, Row, Skeleton, Typography } from 'antd';
 import { listCoursesRequest } from '../../../../services/api/courseApi';
 import { useInstructorCourseProgress } from '../../../../hooks/useProgressOverview';
 import { progressService } from '../../../../services/api/progressService';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import './ClientDashboardHero.css';
 
 function StatCard({

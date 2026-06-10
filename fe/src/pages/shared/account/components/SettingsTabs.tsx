@@ -9,7 +9,7 @@ import {
   uploadCoverImageRequest,
   type AuthUser,
 } from '../../../../services/api/authApi';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import { useAccountProfile } from './useAccountProfile';
 import './account.css';
 

@@ -8,7 +8,7 @@ import {
   ShieldCheck,
   Users,
 } from 'lucide-react';
-import type { UserRole } from '../../../context/AuthContext';
+import type { UserRole } from '../../../context/authTypes';
 import { canAccess, PERMISSIONS } from '../../../utils/rbac';
 
 export type AdminNavigationItem = {

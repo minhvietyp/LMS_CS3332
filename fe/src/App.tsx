@@ -1,6 +1,6 @@
 import { Navigate, Routes } from 'react-router-dom';
 import { Layout } from 'antd';
-import { useAuth } from './context/AuthContext';
+import { useAuth } from './context/useAuth';
 import { getDefaultRouteForRole } from './utils/authRedirect';
 import { AdminRoutes } from './routes/adminRoutes';
 import { AuthRoutes } from './routes/authRoutes';

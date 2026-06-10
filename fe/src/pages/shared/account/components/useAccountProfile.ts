@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import { getMyProfileRequest, type AuthUser } from '../../../../services/api/authApi';
 
 export function useAccountProfile() {

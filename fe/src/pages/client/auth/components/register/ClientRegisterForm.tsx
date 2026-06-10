@@ -3,7 +3,7 @@ import { Alert, Button, Card, Form, Input, Typography } from 'antd';
 import { ClipboardCheck, GraduationCap, TrendingUp } from 'lucide-react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { registerRequest } from '../../../../../services/api/authApi';
-import { useAuth } from '../../../../../context/AuthContext';
+import { useAuth } from '../../../../../context/useAuth';
 import { getDefaultRouteForRole, isClientRole } from '../../../../../utils/authRedirect';
 import '../login/ClientLoginForm.css';
 import './ClientRegisterForm.css';

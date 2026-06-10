@@ -5,7 +5,7 @@ import { LoaderCircle } from 'lucide-react';
 import { type CourseListItem, listCoursesRequest } from '../../../services/api/courseApi';
 import { progressService } from '../../../services/api/progressService';
 import type { CourseProgressItem } from '../../../types/progress';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../context/useAuth';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
 import { EmptyState } from '../../../components/client-ui';
 import { CourseCatalogCard, type CourseCatalogStatus } from './components/CourseCatalogCard';

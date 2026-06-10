@@ -14,7 +14,7 @@ import {
   Settings,
   UserRound,
 } from 'lucide-react';
-import type { UserRole } from '../../../../context/AuthContext';
+import type { UserRole } from '../../../../context/authTypes';
 
 export type ClientMenuItem = {
   key: string;

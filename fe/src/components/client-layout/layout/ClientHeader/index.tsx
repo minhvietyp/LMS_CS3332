@@ -17,7 +17,7 @@ import { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { logoutRequest } from '../../../../services/api/authApi';
 import { listNotificationsRequest, markAllNotificationsAsReadRequest } from '../../../../services/api/notificationApi';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import { clientRoleLabels } from '../ClientRoleMenu/clientMenu.config';
 import type { ActiveHeaderPanel } from '../ClientLayout';
 import {

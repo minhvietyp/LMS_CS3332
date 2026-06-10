@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert, Button, Card, Form, Input, Typography } from 'antd';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { resetPasswordRequest } from '../../../services/api/authApi';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../context/useAuth';
 import { getDefaultRouteForRole } from '../../../utils/authRedirect';
 import '../../../pages/client/auth/components/login/ClientLoginForm.css';
 import './PasswordResetForm.css';

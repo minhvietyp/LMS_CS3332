@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ClientLayout, ClientPageContainer } from '../../../../components/client-layout';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import { listCoursesRequest } from '../../../../services/api/courseApi';
 import type { CourseStatus } from '../../../../services/api/courseApi';
 import {

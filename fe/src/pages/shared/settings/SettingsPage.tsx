@@ -1,7 +1,7 @@
 import { AdminLayout, AdminPageContainer } from '../../../components/admin-layout';
 import { SettingsTabs } from '../account/components';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../context/useAuth';
 
 export function SettingsPage() {
   const { user } = useAuth();

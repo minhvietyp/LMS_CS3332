@@ -2,7 +2,7 @@ import { Drawer, Layout, Menu, Typography } from 'antd';
 import type { MenuProps } from 'antd';
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import { getAdminNavigationMatch, getVisibleAdminNavigation } from '../adminNavigation';
 import './AdminSidebar.css';
 

@@ -12,7 +12,7 @@ import {
 } from 'antd';
 import { MessageSquare, Send } from 'lucide-react';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../context/useAuth';
 import {
   createDirectRoomRequest,
   getChatRoomMessagesRequest,

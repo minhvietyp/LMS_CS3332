@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Avatar,
@@ -52,7 +52,7 @@ import {
   type UserListItem,
 } from '../../../../services/api/authApi';
 import { ACCESS_CONTROL_PERMISSION_LABELS, PERMISSIONS } from '../../../../utils/rbac';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import './index.css';
 
 type UserRoleOption = UserListItem['role'];
@@ -360,7 +360,7 @@ export function UserManagement() {
     return () => window.clearTimeout(timeoutId);
   }, [search, searchInput, searchParams, setSearchParams]);
 
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     setIsLoading(true);
     setErrorMessage(null);
 
@@ -381,15 +381,18 @@ export function UserManagement() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [limit, page, role, search, status]);
 
   useEffect(() => {
     if (!isAdmin) {
       return;
     }
 
-    void loadUsers();
-  }, [isAdmin, limit, page, refreshKey, role, search, status]);
+    const timeoutId = window.setTimeout(() => {
+      void loadUsers();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [isAdmin, loadUsers, refreshKey]);
 
   const updateQuery = (patch: Record<string, string | undefined>) => {
     const nextParams = new URLSearchParams(searchParams);
@@ -913,7 +916,7 @@ export function UserManagementDetail({ userId }: { userId: string }) {
 
   const isAdmin = user?.role === 'ADMIN';
 
-  const loadUser = async () => {
+  const loadUser = useCallback(async () => {
     setIsLoading(true);
     setErrorMessage(null);
 
@@ -925,15 +928,18 @@ export function UserManagementDetail({ userId }: { userId: string }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     if (!isAdmin) {
       return;
     }
 
-    void loadUser();
-  }, [isAdmin, userId]);
+    const timeoutId = window.setTimeout(() => {
+      void loadUser();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [isAdmin, loadUser]);
 
   useEffect(() => {
     let active = true;

@@ -1,56 +1,8 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: UserRole;
-  avatarUrl?: string | null;
-  coverImageUrl?: string | null;
-  firstName?: string | null;
-  lastName?: string | null;
-  displayName?: string | null;
-  phone?: string | null;
-  age?: number | null;
-  occupation?: string | null;
-  bio?: string | null;
-  facebookUrl?: string | null;
-  twitterUrl?: string | null;
-  linkedinUrl?: string | null;
-  websiteUrl?: string | null;
-  githubUrl?: string | null;
-  isActive?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export type UserRole = 'ADMIN' | 'INSTRUCTOR' | 'STUDENT';
-
-interface StoredAuth {
-  user: User;
-  token: string;
-  refreshToken?: string;
-}
-
-interface LoginPayload {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  token: string | null;
-  refreshToken: string | null;
-  login: (payload: LoginPayload) => void;
-  updateUser: (user: User) => void;
-  logout: () => void;
-  isAuthenticated: boolean;
-}
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { AuthContext } from './authContextValue';
+import type { LoginPayload, StoredAuth, User } from './authTypes';
 
 const STORAGE_KEY = 'lms.auth';
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function decodeJwtPayload(token: string): { exp?: number } | null {
   const parts = token.split('.');
@@ -150,10 +102,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}

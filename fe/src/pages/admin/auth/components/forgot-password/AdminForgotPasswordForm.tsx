@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert, Button, Card, Form, Input, Typography } from 'antd';
 import { Link, Navigate } from 'react-router-dom';
 import { forgotPasswordRequest } from '../../../../../services/api/authApi';
-import { useAuth } from '../../../../../context/AuthContext';
+import { useAuth } from '../../../../../context/useAuth';
 import { getDefaultRouteForRole } from '../../../../../utils/authRedirect';
 import '../login/AdminLoginForm.css';
 import './AdminForgotPasswordForm.css';

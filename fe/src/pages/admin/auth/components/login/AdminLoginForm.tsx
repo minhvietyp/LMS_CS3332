@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert, Button, Card, Form, Input, Typography } from 'antd';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { loginRequest } from '../../../../../services/api/authApi';
-import { useAuth } from '../../../../../context/AuthContext';
+import { useAuth } from '../../../../../context/useAuth';
 import { getDefaultRouteForRole, isAdminRole } from '../../../../../utils/authRedirect';
 import './AdminLoginForm.css';
 

@@ -13,7 +13,7 @@ import { useAdminCourseProgressList, useAdminProgressOverview } from '../../../.
 import { listUsersRequest } from '../../../../services/api/authApi';
 import { listCoursesRequest } from '../../../../services/api/courseApi';
 import { canAccess, PERMISSIONS } from '../../../../utils/rbac';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import './index.css';
 
 function formatDate(value: string | null) {

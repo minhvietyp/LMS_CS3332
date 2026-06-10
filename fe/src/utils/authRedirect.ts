@@ -1,4 +1,4 @@
-import type { UserRole } from '../context/AuthContext';
+import type { UserRole } from '../context/authTypes';
 
 export function getDefaultRouteForRole(role: UserRole | undefined) {
   if (role === 'ADMIN') {

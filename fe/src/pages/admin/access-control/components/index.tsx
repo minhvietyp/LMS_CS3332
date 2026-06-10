@@ -3,7 +3,7 @@ import { Alert, Card, Space, Spin, Tag, Typography } from 'antd';
 import { Navigate } from 'react-router-dom';
 import { getRoleAccessMatrixRequest, type RoleAccessSummary } from '../../../../services/api/authApi';
 import { ACCESS_CONTROL_PERMISSION_LABELS } from '../../../../utils/rbac';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import './index.css';
 
 export function AccessControl() {
@@ -36,8 +36,6 @@ export function AccessControl() {
 
     if (isAdmin) {
       void loadMatrix();
-    } else {
-      setIsLoading(false);
     }
 
     return () => {

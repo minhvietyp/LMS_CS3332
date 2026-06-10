@@ -3,7 +3,7 @@ import { InstructorDashboard } from './components/InstructorDashboard';
 import { StudentDashboard } from './components/StudentDashboard';
 import { AdminLayout, AdminPageContainer } from '../../../components/admin-layout';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../context/useAuth';
 import './DashboardPage.css';
 
 export function DashboardPage() {

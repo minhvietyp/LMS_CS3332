@@ -6,7 +6,7 @@ import { ArrowLeft, MessageSquare, Send } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { EmptyState, SectionHeader } from '../../../components/client-ui';
 import { ClientLayout, ClientPageContainer } from '../../../components/client-layout';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../context/useAuth';
 import { getChatRoomMessagesRequest, listMyChatRoomsRequest, sendChatMessageRequest } from '../../../services/api/chatApi';
 import { getCourseByIdRequest } from '../../../services/api/courseApi';
 import { connectChatSocket, joinChatRoom, subscribeToRoomMessages } from '../../../services/sockets/chatSocket';

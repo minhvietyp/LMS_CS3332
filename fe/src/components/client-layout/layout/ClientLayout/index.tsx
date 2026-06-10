@@ -24,19 +24,10 @@ export function ClientLayout({ children }: ClientLayoutProps) {
   const isMobile = Boolean(screens.xs) && !screens.md;
   const isTablet = Boolean(screens.md) && !screens.xl;
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => window.localStorage.getItem(CLIENT_SIDEBAR_STORAGE_KEY) === 'true',
+  );
   const [activeHeaderPanel, setActiveHeaderPanel] = useState<ActiveHeaderPanel>(null);
-
-  useEffect(() => {
-    if (isMobile || isTablet) {
-      return;
-    }
-
-    const savedState = window.localStorage.getItem(CLIENT_SIDEBAR_STORAGE_KEY);
-    if (savedState === 'true') {
-      setSidebarCollapsed(true);
-    }
-  }, [isMobile, isTablet]);
 
   const handleToggleSidebar = () => {
     if (isMobile || isTablet) {

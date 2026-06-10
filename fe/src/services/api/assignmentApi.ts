@@ -50,7 +50,7 @@ export interface StudentAssignmentListItem extends AssignmentListItem {
   submissions: AssignmentSubmissionRecord[];
 }
 
-export interface StudentAssignmentDetail extends StudentAssignmentListItem {}
+export type StudentAssignmentDetail = StudentAssignmentListItem;
 
 export interface AssignmentSubmissionPayload {
   textContent?: string;

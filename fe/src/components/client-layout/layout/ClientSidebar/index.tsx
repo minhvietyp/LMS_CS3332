@@ -3,7 +3,7 @@ import { ArrowRight, LogOut } from 'lucide-react';
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { logoutRequest } from '../../../../services/api/authApi';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import { useClientContinueLearning } from '../../../../hooks/useClientContinueLearning';
 import { clientRoleLabels, getClientMenuMatch, getVisibleClientMenu } from '../ClientRoleMenu/clientMenu.config';
 import './ClientSidebar.css';

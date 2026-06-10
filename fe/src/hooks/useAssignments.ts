@@ -39,7 +39,10 @@ export const useAssignments = ({
 
   useEffect(() => {
     if (autoFetch && courseId) {
-      fetchAssignments();
+      const timeoutId = window.setTimeout(() => {
+        void fetchAssignments();
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
   }, [courseId, autoFetch, fetchAssignments]);
 
@@ -76,7 +79,10 @@ export const useAssignment = ({
 
   useEffect(() => {
     if (autoFetch && assignmentId) {
-      fetchAssignment();
+      const timeoutId = window.setTimeout(() => {
+        void fetchAssignment();
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
   }, [assignmentId, autoFetch, fetchAssignment]);
 
@@ -115,7 +121,10 @@ export const useSubmissions = ({
 
   useEffect(() => {
     if (autoFetch && assignmentId) {
-      fetchSubmissions();
+      const timeoutId = window.setTimeout(() => {
+        void fetchSubmissions();
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
   }, [assignmentId, autoFetch, fetchSubmissions]);
 
@@ -152,7 +161,10 @@ export const useStudentSubmissions = ({
 
   useEffect(() => {
     if (autoFetch && courseId) {
-      fetchSubmissions();
+      const timeoutId = window.setTimeout(() => {
+        void fetchSubmissions();
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
   }, [courseId, autoFetch, fetchSubmissions]);
 
@@ -189,7 +201,10 @@ export const useSubmission = ({
 
   useEffect(() => {
     if (autoFetch && submissionId) {
-      fetchSubmission();
+      const timeoutId = window.setTimeout(() => {
+        void fetchSubmission();
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
   }, [submissionId, autoFetch, fetchSubmission]);
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Button,
@@ -29,7 +29,7 @@ import {
   RefreshCw,
   Trash2,
 } from 'lucide-react';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import { listCoursesRequest, type CourseListItem } from '../../../../services/api/courseApi';
 import {
   createAssignmentRequest,
@@ -144,8 +144,14 @@ export function QuizManagement() {
   const selectedCourseExists = selectedCourseId ? courses.some((course) => course.id === selectedCourseId) : false;
   const effectiveSelectedCourseId = selectedCourseExists ? selectedCourseId : courses[0]?.id ?? null;
   const selectedCourse = courses.find((course) => course.id === effectiveSelectedCourseId) ?? null;
-  const visibleQuizzes = effectiveSelectedCourseId ? quizzes : [];
-  const visibleAssignments = effectiveSelectedCourseId ? assignments : [];
+  const visibleQuizzes = useMemo(
+    () => (effectiveSelectedCourseId ? quizzes : []),
+    [effectiveSelectedCourseId, quizzes],
+  );
+  const visibleAssignments = useMemo(
+    () => (effectiveSelectedCourseId ? assignments : []),
+    [assignments, effectiveSelectedCourseId],
+  );
 
   const totalQuestions = visibleQuizzes.reduce((sum, quiz) => sum + quiz.questions.length, 0);
   const publishedQuizzes = visibleQuizzes.filter((quiz) => quiz.isPublished).length;
@@ -157,7 +163,7 @@ export function QuizManagement() {
   );
   const totalGradedSubmissions = assignmentSubmissions.filter((submission) => submission.status === 'GRADED').length;
   const totalReturnedSubmissions = assignmentSubmissions.filter((submission) => submission.status === 'RETURNED').length;
-  const loadCourses = async () => {
+  const loadCourses = useCallback(async () => {
     setIsLoadingCourses(true);
     setErrorMessage(null);
 
@@ -170,26 +176,26 @@ export function QuizManagement() {
     } finally {
       setIsLoadingCourses(false);
     }
-  };
+  }, [user?.id, user?.role]);
 
-  const loadQuizzes = async (courseId: string) => {
+  const loadQuizzes = useCallback(async (courseId: string) => {
     setIsLoadingQuizzes(true);
     setErrorMessage(null);
 
     try {
       const result = await listCourseQuizzesRequest(courseId);
       setQuizzes(result);
-      if (activeQuiz) {
-        setActiveQuiz(result.find((quiz) => quiz.id === activeQuiz.id) ?? null);
-      }
+      setActiveQuiz((currentQuiz) =>
+        currentQuiz ? (result.find((quiz) => quiz.id === currentQuiz.id) ?? null) : null,
+      );
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Failed to load quizzes.');
     } finally {
       setIsLoadingQuizzes(false);
     }
-  };
+  }, []);
 
-  const loadAssignments = async (courseId: string) => {
+  const loadAssignments = useCallback(async (courseId: string) => {
     setIsLoadingAssignments(true);
     setErrorMessage(null);
 
@@ -201,18 +207,24 @@ export function QuizManagement() {
     } finally {
       setIsLoadingAssignments(false);
     }
-  };
-
-  useEffect(() => {
-    void loadCourses();
   }, []);
 
   useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadCourses();
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [loadCourses]);
+
+  useEffect(() => {
     if (effectiveSelectedCourseId) {
-      void loadQuizzes(effectiveSelectedCourseId);
-      void loadAssignments(effectiveSelectedCourseId);
+      const timeoutId = window.setTimeout(() => {
+        void loadQuizzes(effectiveSelectedCourseId);
+        void loadAssignments(effectiveSelectedCourseId);
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
-  }, [effectiveSelectedCourseId]);
+  }, [effectiveSelectedCourseId, loadAssignments, loadQuizzes]);
 
   const openCreateQuizModal = () => {
     setEditingQuiz(null);

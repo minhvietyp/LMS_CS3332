@@ -3,7 +3,7 @@ import type { MenuProps } from 'antd';
 import { Menu, PanelLeftClose, PanelLeftOpen, UserRound } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useMemo } from 'react';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import { logoutRequest } from '../../../../services/api/authApi';
 import { getAdminNavigationMatch } from '../adminNavigation';
 import './AdminHeader.css';

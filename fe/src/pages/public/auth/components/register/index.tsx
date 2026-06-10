@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert, Button, Card, Form, Input, Typography } from 'antd';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { registerRequest } from '../../../../../services/api/authApi';
-import { useAuth } from '../../../../../context/AuthContext';
+import { useAuth } from '../../../../../context/useAuth';
 import '../login/index.css';
 import './index.css';
 

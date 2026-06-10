@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Card, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag, Typography, Upload } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { Navigate } from 'react-router-dom';
 import { BookOpenCheck, Link2, Plus, RefreshCw, Trash2, Upload as UploadIcon } from 'lucide-react';
-import { useAuth } from '../../../../context/AuthContext';
+import { useAuth } from '../../../../context/useAuth';
 import { canAccess, PERMISSIONS } from '../../../../utils/rbac';
 import { listCoursesRequest, type CourseListItem } from '../../../../services/api/courseApi';
 import {
@@ -110,7 +110,10 @@ export function LessonManagement() {
   );
   const selectedCourseExists = selectedCourseId ? courses.some((course) => course.id === selectedCourseId) : false;
   const effectiveSelectedCourseId = selectedCourseExists ? selectedCourseId : courses[0]?.id ?? null;
-  const visibleModules = effectiveSelectedCourseId ? modules : [];
+  const visibleModules = useMemo(
+    () => (effectiveSelectedCourseId ? modules : []),
+    [effectiveSelectedCourseId, modules],
+  );
 
   const moduleOptions = useMemo(
     () =>
@@ -123,7 +126,7 @@ export function LessonManagement() {
 
   const lessonRows = useMemo(() => flattenLessons(visibleModules), [visibleModules]);
 
-  const loadCourses = async () => {
+  const loadCourses = useCallback(async () => {
     setIsLoadingCourses(true);
     setErrorMessage(null);
 
@@ -136,9 +139,9 @@ export function LessonManagement() {
     } finally {
       setIsLoadingCourses(false);
     }
-  };
+  }, [user?.id, user?.role]);
 
-  const loadModules = async (courseId: string) => {
+  const loadModules = useCallback(async (courseId: string) => {
     setIsLoadingModules(true);
     setErrorMessage(null);
 
@@ -150,19 +153,25 @@ export function LessonManagement() {
     } finally {
       setIsLoadingModules(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (canManageLessons) {
-      void loadCourses();
+      const timeoutId = window.setTimeout(() => {
+        void loadCourses();
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
-  }, [canManageLessons]);
+  }, [canManageLessons, loadCourses]);
 
   useEffect(() => {
     if (effectiveSelectedCourseId && canManageLessons) {
-      void loadModules(effectiveSelectedCourseId);
+      const timeoutId = window.setTimeout(() => {
+        void loadModules(effectiveSelectedCourseId);
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
-  }, [effectiveSelectedCourseId, canManageLessons]);
+  }, [effectiveSelectedCourseId, canManageLessons, loadModules]);
 
   const openCreateModuleModal = () => {
     setEditingModule(null);
