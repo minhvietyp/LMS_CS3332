@@ -4,7 +4,7 @@ const moduleTitleSchema = z.string().trim().min(1).max(200);
 const lessonTitleSchema = z.string().trim().min(1).max(200);
 const moduleOrderIndexSchema = z.coerce.number().int().min(0);
 const lessonOrderIndexSchema = z.coerce.number().int().min(0);
-const materialTypeSchema = z.enum(['pdf', 'slide', 'link', 'reading']);
+const materialTypeSchema = z.enum(['pdf', 'slide', 'link', 'reading', 'video']);
 
 export const courseIdParamsSchema = z.object({
   courseId: z.string().uuid(),

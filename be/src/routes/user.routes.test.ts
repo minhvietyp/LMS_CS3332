@@ -22,6 +22,9 @@ vi.mock('@config/index', () => ({
       apiKey: '',
       apiSecret: '',
     },
+    upload: {
+      materialMaxSizeMb: 100,
+    },
   },
 }));
 

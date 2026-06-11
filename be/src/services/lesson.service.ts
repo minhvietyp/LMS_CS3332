@@ -3,7 +3,7 @@ import { NotFoundError, ForbiddenError } from '@shared/errors/AppError';
 import { CourseModule, Lesson, LessonMaterial } from '@prisma/client';
 import { pickDefined } from '@shared/utils/helpers';
 import { USER_ROLES } from '@shared/constants';
-import { uploadRawBuffer } from '@shared/utils/cloudinary';
+import { uploadAutoBuffer } from '@shared/utils/cloudinary';
 
 type MaterialFile = Express.Multer.File;
 type CourseModuleWithLessons = CourseModule & {
@@ -300,7 +300,7 @@ export class LessonService {
     if (!lesson) throw NotFoundError('Lesson not found');
     await this.checkCourseOwnership(lesson.module.courseId, userId, userRole);
 
-    const uploaded = await uploadRawBuffer(file.buffer, 'lms/lesson-materials');
+    const uploaded = await uploadAutoBuffer(file.buffer, 'lms/lesson-materials');
 
     return prisma.lessonMaterial.create({
       data: {

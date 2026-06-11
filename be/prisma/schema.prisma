@@ -217,7 +217,7 @@ model LessonMaterial {
   id        String   @id @default(uuid())
   lessonId  String
   title     String
-  type      String   // pdf | slide | link | reading
+  type      String   // pdf | slide | link | reading | video
   url       String
 
   createdAt DateTime @default(now())

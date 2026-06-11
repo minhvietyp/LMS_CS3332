@@ -1,8 +1,9 @@
 import multer from 'multer';
+import { config } from '@config/index';
 
 const memoryStorage = multer.memoryStorage();
 
-const materialMimeTypes = new Set([
+export const materialMimeTypes = new Set([
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -15,7 +16,15 @@ const materialMimeTypes = new Set([
   'application/x-zip-compressed',
   'image/jpeg',
   'image/png',
+  'video/mp4',
+  'video/webm',
+  'video/quicktime',
+  'video/x-matroska',
 ]);
+
+export function isAllowedMaterialMimeType(mimetype: string): boolean {
+  return materialMimeTypes.has(mimetype);
+}
 
 function createImageUpload() {
   return multer({
@@ -38,10 +47,10 @@ function createMaterialUpload() {
   return multer({
     storage: memoryStorage,
     limits: {
-      fileSize: 20 * 1024 * 1024,
+      fileSize: config.upload.materialMaxSizeMb * 1024 * 1024,
     },
     fileFilter: (_req, file, cb) => {
-      if (!materialMimeTypes.has(file.mimetype)) {
+      if (!isAllowedMaterialMimeType(file.mimetype)) {
         cb(new multer.MulterError('LIMIT_UNEXPECTED_FILE', file.fieldname));
         return;
       }

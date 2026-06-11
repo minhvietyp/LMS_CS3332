@@ -75,3 +75,34 @@ export async function uploadRawBuffer(
     stream.end(buffer);
   });
 }
+
+export async function uploadAutoBuffer(
+  buffer: Buffer,
+  folder: string,
+): Promise<{ secureUrl: string; publicId: string }> {
+  if (!isConfigured) {
+    throw new Error('Cloudinary is not configured');
+  }
+
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: 'auto',
+      },
+      (error, result) => {
+        if (error || !result) {
+          reject(error ?? new Error('Cloudinary upload failed'));
+          return;
+        }
+
+        resolve({
+          secureUrl: result.secure_url,
+          publicId: result.public_id,
+        });
+      },
+    );
+
+    stream.end(buffer);
+  });
+}

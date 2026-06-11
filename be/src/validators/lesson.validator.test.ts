@@ -114,4 +114,24 @@ describe('lesson.validator', () => {
       type: 'pdf',
     });
   });
+
+  it('accepts video material payloads and rejects unsupported material types', () => {
+    expect(
+      createUploadedMaterialSchema.parse({
+        title: 'Lecture video',
+        type: 'video',
+      }),
+    ).toEqual({
+      title: 'Lecture video',
+      type: 'video',
+    });
+
+    expect(() =>
+      createMaterialSchema.parse({
+        title: 'Executable',
+        type: 'exe',
+        url: 'https://cdn.example.com/file.exe',
+      }),
+    ).toThrow();
+  });
 });

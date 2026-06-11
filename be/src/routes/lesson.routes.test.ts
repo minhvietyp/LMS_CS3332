@@ -11,6 +11,9 @@ vi.mock('@config/index', () => ({
     bcrypt: {
       rounds: 12,
     },
+    upload: {
+      materialMaxSizeMb: 100,
+    },
     jwt: {
       accessSecret: 'test-secret',
       accessExpiresIn: '15m',
@@ -62,18 +65,18 @@ vi.mock('@shared/utils/jwt', () => ({
 }));
 
 vi.mock('@shared/utils/cloudinary', () => ({
-  uploadRawBuffer: vi.fn(),
+  uploadAutoBuffer: vi.fn(),
 }));
 
 import prisma from '@config/prisma';
 import { errorHandler } from '@shared/middlewares/errorHandler';
 import { verifyAccessToken } from '@shared/utils/jwt';
-import { uploadRawBuffer } from '@shared/utils/cloudinary';
+import { uploadAutoBuffer } from '@shared/utils/cloudinary';
 import { lessonsRouter } from './lesson.routes';
 
 const mockedPrisma = prisma as any;
 const mockedVerifyAccessToken = vi.mocked(verifyAccessToken);
-const mockedUploadRawBuffer = vi.mocked(uploadRawBuffer);
+const mockedUploadAutoBuffer = vi.mocked(uploadAutoBuffer);
 
 function createApp() {
   const app = express();
@@ -386,7 +389,7 @@ describe('lesson routes', () => {
       id: courseId,
       instructorId: 'instructor-1',
     });
-    mockedUploadRawBuffer.mockResolvedValue({
+    mockedUploadAutoBuffer.mockResolvedValue({
       secureUrl: 'https://cdn.example.com/material.pdf',
       publicId: 'lms/lesson-materials/material-1',
     });
@@ -413,6 +416,44 @@ describe('lesson routes', () => {
     expect(response.body.data.url).toBe('https://cdn.example.com/material.pdf');
   });
 
+  it('uploads a video lesson material for an owned lesson', async () => {
+    mockedPrisma.lesson.findFirst.mockResolvedValue({
+      id: lessonId,
+      moduleId,
+      module: { id: moduleId, courseId },
+      deletedAt: null,
+    });
+    mockedPrisma.course.findUnique.mockResolvedValue({
+      id: courseId,
+      instructorId: 'instructor-1',
+    });
+    mockedUploadAutoBuffer.mockResolvedValue({
+      secureUrl: 'https://res.cloudinary.com/demo/video/upload/lecture.mp4',
+      publicId: 'lms/lesson-materials/lecture',
+    });
+    mockedPrisma.lessonMaterial.create.mockResolvedValue({
+      id: '55555555-5555-5555-5555-555555555556',
+      lessonId,
+      title: 'Lecture video',
+      type: 'video',
+      url: 'https://res.cloudinary.com/demo/video/upload/lecture.mp4',
+    });
+
+    const response = await request(createApp())
+      .post(`/api/v1/lessons/lessons/${lessonId}/materials/upload`)
+      .set('Authorization', 'Bearer valid-token')
+      .field('title', 'Lecture video')
+      .field('type', 'video')
+      .attach('file', Buffer.from('video-bytes'), {
+        filename: 'lecture.mp4',
+        contentType: 'video/mp4',
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.data.type).toBe('video');
+    expect(response.body.data.url).toBe('https://res.cloudinary.com/demo/video/upload/lecture.mp4');
+  });
+
   it('rejects lesson material upload when file is missing', async () => {
     const response = await request(createApp())
       .post(`/api/v1/lessons/lessons/${lessonId}/materials/upload`)
@@ -436,7 +477,7 @@ describe('lesson routes', () => {
       });
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe('Only image uploads are allowed');
+    expect(response.body.message).toBe('Unsupported file type for this upload');
   });
 
   it('rejects module creation for a non-owner instructor', async () => {

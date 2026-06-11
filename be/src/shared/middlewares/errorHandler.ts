@@ -41,8 +41,8 @@ export function errorHandler(
   if (err instanceof MulterError) {
     const message =
       err.code === 'LIMIT_FILE_SIZE'
-        ? 'Avatar image must be 5 MB or smaller'
-        : 'Only image uploads are allowed';
+        ? 'Uploaded file exceeds the configured size limit'
+        : 'Unsupported file type for this upload';
 
     res.status(400).json({
       success: false,

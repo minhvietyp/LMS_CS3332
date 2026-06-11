@@ -72,6 +72,10 @@ export const config = {
     apiSecret: optionalEnv('CLOUDINARY_API_SECRET', ''),
   },
 
+  upload: {
+    materialMaxSizeMb: parseInt(optionalEnv('MATERIAL_UPLOAD_MAX_MB', '100'), 10),
+  },
+
   email: {
     host: optionalEnv('SMTP_HOST', ''),
     port: parseInt(optionalEnv('SMTP_PORT', '587'), 10),

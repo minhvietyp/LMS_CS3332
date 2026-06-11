@@ -29,17 +29,17 @@ vi.mock('@config/prisma', () => ({
 }));
 
 vi.mock('@shared/utils/cloudinary', () => ({
-  uploadRawBuffer: vi.fn(),
+  uploadAutoBuffer: vi.fn(),
 }));
 
 import prisma from '@config/prisma';
 import { COURSE_STATUS, USER_ROLES } from '@shared/constants';
 import { LessonService } from './lesson.service';
-import { uploadRawBuffer } from '@shared/utils/cloudinary';
+import { uploadAutoBuffer } from '@shared/utils/cloudinary';
 
 const lessonService = new LessonService();
 const mockedPrisma = prisma as any;
-const mockedUploadRawBuffer = vi.mocked(uploadRawBuffer);
+const mockedUploadAutoBuffer = vi.mocked(uploadAutoBuffer);
 
 describe('LessonService module management', () => {
   beforeEach(() => {
@@ -407,7 +407,7 @@ describe('LessonService module management', () => {
       instructorId: 'instructor-1',
       status: COURSE_STATUS.DRAFT,
     });
-    mockedUploadRawBuffer.mockResolvedValue({
+    mockedUploadAutoBuffer.mockResolvedValue({
       secureUrl: 'https://cdn.example.com/material.pdf',
       publicId: 'lms/lesson-materials/material-1',
     });
@@ -427,7 +427,7 @@ describe('LessonService module management', () => {
       USER_ROLES.INSTRUCTOR,
     );
 
-    expect(mockedUploadRawBuffer).toHaveBeenCalledWith(
+    expect(mockedUploadAutoBuffer).toHaveBeenCalledWith(
       Buffer.from('pdf-bytes'),
       'lms/lesson-materials',
     );
@@ -440,5 +440,52 @@ describe('LessonService module management', () => {
       },
     });
     expect(result.url).toBe('https://cdn.example.com/material.pdf');
+  });
+
+  it('uploads a video material and stores the video type with uploaded url', async () => {
+    mockedPrisma.lesson.findFirst.mockResolvedValue({
+      id: 'lesson-1',
+      moduleId: 'module-1',
+      module: { id: 'module-1', courseId: 'course-1' },
+      deletedAt: null,
+    });
+    mockedPrisma.course.findUnique.mockResolvedValue({
+      id: 'course-1',
+      instructorId: 'instructor-1',
+      status: COURSE_STATUS.DRAFT,
+    });
+    mockedUploadAutoBuffer.mockResolvedValue({
+      secureUrl: 'https://res.cloudinary.com/demo/video/upload/lesson-video.mp4',
+      publicId: 'lms/lesson-materials/video-1',
+    });
+    mockedPrisma.lessonMaterial.create.mockResolvedValue({
+      id: 'material-video-1',
+      lessonId: 'lesson-1',
+      title: 'Lecture recording',
+      type: 'video',
+      url: 'https://res.cloudinary.com/demo/video/upload/lesson-video.mp4',
+    });
+
+    const result = await lessonService.uploadMaterial(
+      'lesson-1',
+      { buffer: Buffer.from('video-bytes'), mimetype: 'video/mp4' } as any,
+      { title: ' Lecture recording ', type: 'video' },
+      'instructor-1',
+      USER_ROLES.INSTRUCTOR,
+    );
+
+    expect(mockedUploadAutoBuffer).toHaveBeenCalledWith(
+      Buffer.from('video-bytes'),
+      'lms/lesson-materials',
+    );
+    expect(mockedPrisma.lessonMaterial.create).toHaveBeenCalledWith({
+      data: {
+        lessonId: 'lesson-1',
+        title: 'Lecture recording',
+        type: 'video',
+        url: 'https://res.cloudinary.com/demo/video/upload/lesson-video.mp4',
+      },
+    });
+    expect(result.type).toBe('video');
   });
 });

@@ -7,6 +7,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   ClipboardList,
+  LoaderCircle,
   Menu,
   MessagesSquare,
   Search,
@@ -61,6 +62,12 @@ function getNotificationIcon(type: string) {
     default:
       return Bell;
   }
+}
+
+function getNotificationPreviewTitle(message: string) {
+  const trimmed = message.trim();
+  if (trimmed.length <= 88) return trimmed;
+  return `${trimmed.slice(0, 85).trimEnd()}...`;
 }
 
 export function ClientHeader({
@@ -236,7 +243,17 @@ export function ClientHeader({
                   Mark all read
                 </Button>
               </div>
-              {notificationsQuery.isError ? (
+              {notificationsQuery.isLoading ? (
+                <div className="client-header__dropdown-state client-header__dropdown-state--loading" role="status" aria-live="polite">
+                  <span className="client-header__dropdown-spinner" aria-hidden="true">
+                    <LoaderCircle size={18} />
+                  </span>
+                  <span className="client-header__dropdown-state-copy">
+                    <Typography.Text strong>Loading notifications</Typography.Text>
+                    <Typography.Text>Checking the latest updates from your LMS workspace.</Typography.Text>
+                  </span>
+                </div>
+              ) : notificationsQuery.isError ? (
                 <div className="client-header__dropdown-empty">
                   <Typography.Text strong>Unable to load notifications</Typography.Text>
                   <Typography.Text>Open the full notifications center to retry.</Typography.Text>
@@ -252,29 +269,31 @@ export function ClientHeader({
                         role="listitem"
                         className={`client-header__notification-preview${notification.isRead ? '' : ' client-header__notification-preview--unread'}`}
                       >
-                        <div className="client-header__notification-preview-top">
-                          <span className="client-header__notification-meta">
-                            <span className="client-header__notification-icon">
-                              <Icon size={15} />
+                        <span className="client-header__notification-icon" aria-hidden="true">
+                          <Icon size={16} />
+                        </span>
+                        <div className="client-header__notification-preview-main">
+                          <div className="client-header__notification-preview-top">
+                            <span className="client-header__notification-meta">
+                              <span className="client-badge">{getNotificationTypeLabel(notification)}</span>
+                              {!notification.isRead ? <span className="client-header__notification-status">Unread</span> : null}
                             </span>
-                            <span className="client-badge">{getNotificationTypeLabel(notification)}</span>
-                            {!notification.isRead ? <span className="client-header__notification-unread-dot" aria-hidden="true" /> : null}
-                          </span>
-                          <span className="client-header__notification-time">{formatNotificationTime(notification.createdAt)}</span>
+                            <span className="client-header__notification-time">{formatNotificationTime(notification.createdAt)}</span>
+                          </div>
+                          <div className="client-header__notification-preview-copy">
+                            <strong>{getNotificationPreviewTitle(notification.message)}</strong>
+                            <Typography.Text>{getNotificationSourceLabel(notification)}</Typography.Text>
+                          </div>
+                          <Button
+                            className="client-button client-button-secondary client-header__notification-action-button"
+                            onClick={() => {
+                              setActiveHeaderPanel(null);
+                              navigate(getNotificationDestination(notification));
+                            }}
+                          >
+                            {getNotificationActionLabel(notification)}
+                          </Button>
                         </div>
-                        <div className="client-header__notification-preview-copy">
-                          <strong>{notification.message}</strong>
-                          <Typography.Text>{getNotificationSourceLabel(notification)}</Typography.Text>
-                        </div>
-                        <Button
-                          className="client-button client-button-secondary client-header__notification-action-button"
-                          onClick={() => {
-                            setActiveHeaderPanel(null);
-                            navigate(getNotificationDestination(notification));
-                          }}
-                        >
-                          {getNotificationActionLabel(notification)}
-                        </Button>
                       </article>
                     );
                   })}
@@ -319,10 +338,13 @@ export function ClientHeader({
           popupRender={(menu) => (
             <div className="client-header__dropdown-card client-header__dropdown-card--profile">
               <div className="client-header__profile-panel">
-                <Avatar size={44} icon={<UserRound size={18} />} src={user?.avatarUrl ?? undefined} />
+                <Avatar size={48} icon={<UserRound size={18} />} src={user?.avatarUrl ?? undefined} />
                 <div className="client-header__profile-panel-copy">
                   <strong>{user?.name}</strong>
-                  <Typography.Text>{user?.role && user.role !== 'ADMIN' ? clientRoleLabels[user.role] : 'Client'}</Typography.Text>
+                  <Typography.Text className="client-header__profile-panel-role">
+                    {user?.role && user.role !== 'ADMIN' ? clientRoleLabels[user.role] : 'Client'}
+                  </Typography.Text>
+                  {user?.email ? <Typography.Text className="client-header__profile-panel-email">{user.email}</Typography.Text> : null}
                 </div>
               </div>
               {menu}

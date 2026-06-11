@@ -22,6 +22,9 @@ vi.mock('@config/index', () => ({
       apiKey: '',
       apiSecret: '',
     },
+    upload: {
+      materialMaxSizeMb: 100,
+    },
   },
 }));
 
@@ -371,7 +374,7 @@ describe('course routes', () => {
       });
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe('Only image uploads are allowed');
+    expect(response.body.message).toBe('Unsupported file type for this upload');
   });
 
   it('soft deletes a course through the delete endpoint', async () => {

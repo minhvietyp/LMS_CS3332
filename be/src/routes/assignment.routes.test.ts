@@ -8,6 +8,9 @@ vi.mock('@config/index', () => ({
       isProduction: false,
       isDevelopment: true,
     },
+    upload: {
+      materialMaxSizeMb: 100,
+    },
   },
 }));
 
@@ -794,6 +797,6 @@ describe('assignment routes', () => {
       });
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe('Only image uploads are allowed');
+    expect(response.body.message).toBe('Unsupported file type for this upload');
   });
 });
