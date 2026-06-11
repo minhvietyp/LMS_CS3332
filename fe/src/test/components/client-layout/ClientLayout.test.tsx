@@ -113,7 +113,7 @@ describe('ClientLayout', () => {
     renderWithRole('STUDENT');
 
     const menu = screen.getByRole('menu', { name: 'Client navigation' });
-    expect(screen.getByText('LMS Client')).toBeInTheDocument();
+    expect(screen.getByText('EduFlow LMS')).toBeInTheDocument();
     expect(within(menu).getByRole('button', { name: /Dashboard/i })).toBeInTheDocument();
     expect(within(menu).getByRole('button', { name: /Progress/i })).toBeInTheDocument();
     expect(within(menu).getByRole('button', { name: /Notifications/i })).toBeInTheDocument();

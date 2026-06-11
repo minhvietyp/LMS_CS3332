@@ -123,6 +123,7 @@ export function ClientHeader({
     [notificationsQuery.data],
   );
   const recentNotifications = useMemo(() => (notificationsQuery.data ?? []).slice(0, 8), [notificationsQuery.data]);
+  const searchPlaceholder = user?.role === 'INSTRUCTOR' ? 'Search teaching workspace...' : 'Search LMS...';
 
   const accountItems = useMemo<MenuProps['items']>(
     () => {
@@ -206,7 +207,7 @@ export function ClientHeader({
             <button type="button" className="client-header__search-trigger" aria-label="Open command palette" onClick={openSearch}>
               <span className="client-header__search-copy">
                 <Search size={16} />
-                <span>Search LMS...</span>
+                <span>{searchPlaceholder}</span>
               </span>
               <span className="client-header__search-kbd">Ctrl K</span>
             </button>

@@ -325,7 +325,7 @@ function MaterialsModal({
               <article className="lesson-builder-material-item" key={material.id}>
                 <div>
                   <strong>{material.title}</strong>
-                  <span>{material.type.toUpperCase()}</span>
+                  <span>{isVideoMaterial(material) ? 'Video material' : material.type.toUpperCase()}</span>
                   {isVideoMaterial(material) ? (
                     <video className="lesson-builder-material-item__video" src={material.url} controls preload="metadata" />
                   ) : null}

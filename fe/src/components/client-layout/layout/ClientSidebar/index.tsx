@@ -40,6 +40,8 @@ export function ClientSidebar({
   const activeItem = getClientMenuMatch(location.pathname, user?.role);
   const continueLearning = useClientContinueLearning();
   const isCollapsed = !isMobile && !isTablet && collapsed;
+  const brandLabel = user?.role === 'INSTRUCTOR' ? 'Instructor LMS' : 'EduFlow LMS';
+  const navigationLabel = isMobile || isTablet ? 'Mobile client navigation' : 'Client navigation';
 
   const { primarySections, settingsItem } = useMemo(() => {
     return {
@@ -104,11 +106,11 @@ export function ClientSidebar({
       <div className="client-sidebar__brand">
         <span className="client-sidebar__mark">L</span>
         <div className="client-sidebar__brand-copy" aria-hidden={isCollapsed}>
-          <Typography.Text strong>LMS Client</Typography.Text>
+          <Typography.Text strong>{brandLabel}</Typography.Text>
         </div>
       </div>
 
-      <nav className="client-sidebar__nav" role="menu" aria-label="Client navigation">
+      <nav className="client-sidebar__nav" role="menu" aria-label={navigationLabel}>
         {primarySections.map((section) => (
           <section key={section.key} className="client-sidebar__group" aria-label={section.title}>
             <Typography.Text className="client-sidebar__group-label" aria-hidden={isCollapsed}>
