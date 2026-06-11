@@ -78,6 +78,12 @@
     border-radius var(--client-sidebar-motion-duration) var(--client-sidebar-motion-ease);
 }
 
+.client-sidebar__brand:hover .client-sidebar__mark {
+  box-shadow:
+    var(--client-shell-shadow-soft),
+    0 0 0 4px rgba(15, 61, 222, 0.08);
+}
+
 .client-sidebar__brand-copy {
   max-width: 160px;
   min-width: 0;
@@ -280,6 +286,14 @@
   background: color-mix(in srgb, var(--client-shell-active-bg) 62%, transparent);
   color: var(--client-shell-active-text);
   transform: translateX(1px);
+}
+
+.client-sidebar__item:focus-visible,
+.client-sidebar__logout.ant-btn:focus-visible,
+.client-sidebar__resume-card:focus-visible,
+.client-sidebar__collapsed-resume:focus-visible {
+  outline: 3px solid rgba(15, 61, 222, 0.2);
+  outline-offset: 2px;
 }
 
 .client-sidebar__item--collapsed:hover {

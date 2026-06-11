@@ -303,7 +303,7 @@ describe('Client student and instructor sections', () => {
 
     const menu = screen.getByRole('menu', { name: 'Client navigation' });
 
-    expect(screen.getAllByText('LMS Client').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('EduFlow LMS').length).toBeGreaterThan(0);
     expect(screen.getByText('Mock student dashboard')).toBeInTheDocument();
     expect(within(menu).getByRole('button', { name: /Dashboard/i })).toBeInTheDocument();
     expect(within(menu).getByRole('button', { name: /Progress/i })).toBeInTheDocument();
@@ -316,7 +316,7 @@ describe('Client student and instructor sections', () => {
   it('renders the student progress page inside the shared client layout', () => {
     renderWithRole('STUDENT', <StudentProgressPage />, '/student/progress');
 
-    expect(screen.getAllByText('LMS Client').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('EduFlow LMS').length).toBeGreaterThan(0);
     expect(screen.getByRole('heading', { name: 'Progress' })).toBeInTheDocument();
     expect(screen.getByText('Overall progress')).toBeInTheDocument();
     expect(screen.getByText('Active courses')).toBeInTheDocument();
@@ -328,7 +328,7 @@ describe('Client student and instructor sections', () => {
 
     const menu = screen.getByRole('menu', { name: 'Client navigation' });
 
-    expect(screen.getAllByText('LMS Client').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Instructor LMS').length).toBeGreaterThan(0);
     expect(screen.getByRole('heading', { name: 'Instructor Dashboard' })).toBeInTheDocument();
     expect(screen.getByText('Instructor workspace')).toBeInTheDocument();
     expect(within(menu).getByRole('button', { name: /Student Progress/i })).toBeInTheDocument();
@@ -382,7 +382,7 @@ describe('Client student and instructor sections', () => {
   it('renders instructor course management inside the client layout instead of the admin shell', () => {
     renderWithRole('INSTRUCTOR', <InstructorCoursesPage />, '/instructor/courses');
 
-    expect(screen.getAllByText('LMS Client').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Instructor LMS').length).toBeGreaterThan(0);
     expect(screen.getByRole('heading', { name: 'My Courses' })).toBeInTheDocument();
     expect(screen.getByText('Teaching catalog')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Search by course title')).toBeInTheDocument();
@@ -392,7 +392,7 @@ describe('Client student and instructor sections', () => {
   it('renders instructor lesson management inside the client layout instead of the admin shell', async () => {
     renderWithRole('INSTRUCTOR', <InstructorLessonsPage />, '/instructor/lessons');
 
-    expect(screen.getAllByText('LMS Client').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Instructor LMS').length).toBeGreaterThan(0);
     expect(screen.getByRole('heading', { name: 'Lessons & Modules' })).toBeInTheDocument();
     expect(await screen.findByText('Selected course')).toBeInTheDocument();
     expect((await screen.findAllByText('React Foundations')).length).toBeGreaterThan(0);
