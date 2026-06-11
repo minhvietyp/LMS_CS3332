@@ -17,7 +17,7 @@ export interface LessonMaterialItem {
   id: string;
   lessonId: string;
   title: string;
-  type: 'pdf' | 'slide' | 'link' | 'reading';
+  type: 'pdf' | 'slide' | 'link' | 'reading' | 'video';
   url: string;
   createdAt?: string;
   updatedAt?: string;
@@ -52,13 +52,13 @@ export interface LessonUpdatePayload {
 
 export interface MaterialPayload {
   title: string;
-  type: 'pdf' | 'slide' | 'link' | 'reading';
+  type: 'pdf' | 'slide' | 'link' | 'reading' | 'video';
   url: string;
 }
 
 export interface UploadMaterialPayload {
   title: string;
-  type: 'pdf' | 'slide' | 'link' | 'reading';
+  type: 'pdf' | 'slide' | 'link' | 'reading' | 'video';
 }
 
 interface ApiEnvelope<T> {

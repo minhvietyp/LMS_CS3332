@@ -256,6 +256,13 @@
   font-weight: 800;
 }
 
+.lesson-builder-material-item__video {
+  width: min(360px, 100%);
+  aspect-ratio: 16 / 9;
+  border-radius: var(--client-radius-md);
+  background: #0b1c30;
+}
+
 @media (max-width: 1180px) {
   .lesson-builder-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));

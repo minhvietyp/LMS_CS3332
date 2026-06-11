@@ -129,7 +129,7 @@ describe('Client assignment pages', () => {
         courseId: 'course-1',
         title: 'Build a Landing Page',
         description: 'Create the first page layout.',
-        dueDate: '2026-01-10T08:00:00.000Z',
+        dueDate: '2026-12-10T08:00:00.000Z',
         allowLateSubmission: true,
         submissions: [],
       },

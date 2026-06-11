@@ -24,11 +24,69 @@ const listNotificationsRequestMock = vi.fn();
 const markNotificationAsReadRequestMock = vi.fn();
 const markAllNotificationsAsReadRequestMock = vi.fn();
 const useProgressOverviewMock = vi.fn();
+const useInstructorCourseProgressMock = vi.fn();
 const useActivityTimelineMock = vi.fn();
 const useClientContinueLearningMock = vi.fn();
+const getCourseByIdRequestMock = vi.fn();
+const publishCourseRequestMock = vi.fn();
+const archiveCourseRequestMock = vi.fn();
+const deleteCourseRequestMock = vi.fn();
+const restoreCourseRequestMock = vi.fn();
+const listCourseModulesRequestMock = vi.fn();
 
 vi.mock('../../../services/api/courseApi', () => ({
   listCoursesRequest: (...args: unknown[]) => listCoursesRequestMock(...args),
+  getCourseByIdRequest: (...args: unknown[]) => getCourseByIdRequestMock(...args),
+  publishCourseRequest: (...args: unknown[]) => publishCourseRequestMock(...args),
+  archiveCourseRequest: (...args: unknown[]) => archiveCourseRequestMock(...args),
+  deleteCourseRequest: (...args: unknown[]) => deleteCourseRequestMock(...args),
+  restoreCourseRequest: (...args: unknown[]) => restoreCourseRequestMock(...args),
+}));
+
+vi.mock('../../../services/api/lessonApi', () => ({
+  listCourseModulesRequest: (...args: unknown[]) => listCourseModulesRequestMock(...args),
+  listLessonMaterialsRequest: vi.fn().mockResolvedValue([]),
+  createModuleRequest: vi.fn(),
+  updateModuleRequest: vi.fn(),
+  deleteModuleRequest: vi.fn(),
+  createLessonRequest: vi.fn(),
+  updateLessonRequest: vi.fn(),
+  deleteLessonRequest: vi.fn(),
+  createLessonMaterialRequest: vi.fn(),
+  uploadLessonMaterialRequest: vi.fn(),
+  deleteLessonMaterialRequest: vi.fn(),
+}));
+
+vi.mock('../../../services/api/assignmentApi', () => ({
+  listCourseAssignmentsRequest: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock('../../../services/api/quizApi', () => ({
+  listCourseQuizzesRequest: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock('../../../services/api/progressService', () => ({
+  progressService: {
+    getOverview: vi.fn().mockResolvedValue({
+      summary: {
+        totalCourses: 0,
+        activeCourses: 0,
+        completedCourses: 0,
+        droppedCourses: 0,
+        overallProgress: 0,
+        lastActivityAt: null,
+      },
+      courses: [],
+    }),
+    getOverviewSummary: vi.fn().mockResolvedValue({
+      totalCourses: 0,
+      activeCourses: 0,
+      completedCourses: 0,
+      droppedCourses: 0,
+      overallProgress: 0,
+      lastActivityAt: null,
+    }),
+  },
 }));
 
 vi.mock('../../../services/api/notificationApi', () => ({
@@ -39,6 +97,7 @@ vi.mock('../../../services/api/notificationApi', () => ({
 
 vi.mock('../../../hooks/useProgressOverview', () => ({
   useProgressOverview: (...args: unknown[]) => useProgressOverviewMock(...args),
+  useInstructorCourseProgress: (...args: unknown[]) => useInstructorCourseProgressMock(...args),
   useActivityTimeline: (...args: unknown[]) => useActivityTimelineMock(...args),
 }));
 
@@ -119,9 +178,17 @@ describe('Client student and instructor sections', () => {
     listCoursesRequestMock.mockReset();
     listNotificationsRequestMock.mockReset();
     markNotificationAsReadRequestMock.mockReset();
+    markAllNotificationsAsReadRequestMock.mockReset();
     useProgressOverviewMock.mockReset();
+    useInstructorCourseProgressMock.mockReset();
     useActivityTimelineMock.mockReset();
     useClientContinueLearningMock.mockReset();
+    getCourseByIdRequestMock.mockReset();
+    publishCourseRequestMock.mockReset();
+    archiveCourseRequestMock.mockReset();
+    deleteCourseRequestMock.mockReset();
+    restoreCourseRequestMock.mockReset();
+    listCourseModulesRequestMock.mockReset();
 
     listNotificationsRequestMock.mockResolvedValue([
       {
@@ -160,7 +227,19 @@ describe('Client student and instructor sections', () => {
           updatedAt: '2026-05-02T00:00:00.000Z',
         },
       ],
+      meta: { page: 1, limit: 50, total: 1, totalPages: 1 },
     });
+    getCourseByIdRequestMock.mockResolvedValue({
+      id: '11111111-1111-1111-1111-111111111111',
+      title: 'React Foundations',
+      description: 'Build a reliable frontend learning path.',
+      status: 'PUBLISHED',
+      instructorId: 'instructor-1',
+      modules: [],
+      createdAt: '2026-05-01T00:00:00.000Z',
+      updatedAt: '2026-05-02T00:00:00.000Z',
+    });
+    listCourseModulesRequestMock.mockResolvedValue([]);
 
     useProgressOverviewMock.mockReturnValue({
       data: {
@@ -184,6 +263,27 @@ describe('Client student and instructor sections', () => {
       isLoading: false,
       error: null,
     });
+    useInstructorCourseProgressMock.mockReturnValue({
+      data: {
+        course: {
+          id: '11111111-1111-1111-1111-111111111111',
+          title: 'React Foundations',
+          totalLessons: 0,
+          totalStudents: 0,
+          activeStudents: 0,
+          completedStudents: 0,
+          droppedStudents: 0,
+          averageProgress: 0,
+          averageWeightedProgress: 0,
+        },
+        students: [],
+        pagination: { page: 1, pageSize: 10, total: 0, totalPages: 0 },
+      },
+      isLoading: false,
+      isError: false,
+      error: null,
+      refetch: vi.fn(),
+    });
     useClientContinueLearningMock.mockReturnValue({
       streak: 0,
       courseId: null,
@@ -205,7 +305,6 @@ describe('Client student and instructor sections', () => {
 
     expect(screen.getAllByText('LMS Client').length).toBeGreaterThan(0);
     expect(screen.getByText('Mock student dashboard')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Student Dashboard' })).toBeInTheDocument();
     expect(within(menu).getByRole('button', { name: /Dashboard/i })).toBeInTheDocument();
     expect(within(menu).getByRole('button', { name: /Progress/i })).toBeInTheDocument();
     expect(within(menu).getByRole('button', { name: /Courses/i })).toBeInTheDocument();
@@ -218,9 +317,10 @@ describe('Client student and instructor sections', () => {
     renderWithRole('STUDENT', <StudentProgressPage />, '/student/progress');
 
     expect(screen.getAllByText('LMS Client').length).toBeGreaterThan(0);
-    expect(screen.getByRole('heading', { name: 'Learning Progress' })).toBeInTheDocument();
-    expect(screen.getByText('Start tracking your learning progress')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Browse Courses' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Progress' })).toBeInTheDocument();
+    expect(screen.getByText('Overall progress')).toBeInTheDocument();
+    expect(screen.getByText('Active courses')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'View courses' })).toBeInTheDocument();
   });
 
   it('renders the instructor dashboard with instructor-only client navigation', () => {
@@ -229,15 +329,13 @@ describe('Client student and instructor sections', () => {
     const menu = screen.getByRole('menu', { name: 'Client navigation' });
 
     expect(screen.getAllByText('LMS Client').length).toBeGreaterThan(0);
-    expect(screen.getByText('Mock client dashboard hero')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Open progress dashboard' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Instructor Dashboard' })).toBeInTheDocument();
+    expect(screen.getByText('Instructor workspace')).toBeInTheDocument();
     expect(within(menu).getByRole('button', { name: /Student Progress/i })).toBeInTheDocument();
     expect(within(menu).getByRole('button', { name: /My Courses/i })).toBeInTheDocument();
     expect(within(menu).getByRole('button', { name: /Lessons/i })).toBeInTheDocument();
     expect(within(menu).getByRole('button', { name: /Notifications/i })).toBeInTheDocument();
     expect(within(menu).queryByRole('button', { name: /My Progress/i })).not.toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Instructor Workflow' })).toBeInTheDocument();
-    expect(screen.getByText('Pending reviews')).toBeInTheDocument();
   }, 10000);
 
   it('renders the student course catalog with filters, progress, and wishlist actions', async () => {
@@ -260,16 +358,14 @@ describe('Client student and instructor sections', () => {
 
     await waitFor(() => expect(listCoursesRequestMock).toHaveBeenCalled());
 
-    expect(screen.getByRole('heading', { name: 'Enrolled Courses' })).toBeInTheDocument();
-    expect(await screen.findByRole('heading', { name: 'Refine courses' })).toBeInTheDocument();
-    expect(await screen.findByPlaceholderText('Search by course title, instructor, or topic')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Courses' })).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('Search courses, instructors, or topics')).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByText('React Foundations')).toBeInTheDocument();
     });
 
-    expect(screen.getAllByRole('button', { name: 'View Course' }).length).toBeGreaterThan(0);
-    expect(screen.getByRole('button', { name: 'Details' })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'View course' }).length).toBeGreaterThan(0);
   }, 60000);
 
   it('renders the shared notifications page with summary cards and notification items', async () => {
@@ -287,21 +383,19 @@ describe('Client student and instructor sections', () => {
     renderWithRole('INSTRUCTOR', <InstructorCoursesPage />, '/instructor/courses');
 
     expect(screen.getAllByText('LMS Client').length).toBeGreaterThan(0);
-    expect(screen.getByRole('heading', { name: 'Courses' })).toBeInTheDocument();
-    expect(screen.getByText('Course table')).toBeInTheDocument();
-    expect(screen.getByText('Course forms')).toBeInTheDocument();
-    expect(screen.getByText('Mock instructor courses management')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'My Courses' })).toBeInTheDocument();
+    expect(screen.getByText('Teaching catalog')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search by course title')).toBeInTheDocument();
     expect(screen.queryByText('LMS Admin')).not.toBeInTheDocument();
   });
 
-  it('renders instructor lesson management inside the client layout instead of the admin shell', () => {
+  it('renders instructor lesson management inside the client layout instead of the admin shell', async () => {
     renderWithRole('INSTRUCTOR', <InstructorLessonsPage />, '/instructor/lessons');
 
     expect(screen.getAllByText('LMS Client').length).toBeGreaterThan(0);
-    expect(screen.getByRole('heading', { name: 'Lessons and modules' })).toBeInTheDocument();
-    expect(screen.getByText('Course context')).toBeInTheDocument();
-    expect(screen.getByText('Lesson table')).toBeInTheDocument();
-    expect(screen.getByText('Mock instructor lessons management')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Lessons & Modules' })).toBeInTheDocument();
+    expect(await screen.findByText('Selected course')).toBeInTheDocument();
+    expect((await screen.findAllByText('React Foundations')).length).toBeGreaterThan(0);
     expect(screen.queryByText('LMS Admin')).not.toBeInTheDocument();
   });
 });

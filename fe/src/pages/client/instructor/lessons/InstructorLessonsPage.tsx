@@ -74,9 +74,17 @@ type LessonWithModule = LessonListItem & {
 const materialTypeOptions: Array<{ label: string; value: MaterialPayload['type'] }> = [
   { value: 'pdf', label: 'PDF' },
   { value: 'slide', label: 'Slide deck' },
+  { value: 'video', label: 'Video' },
   { value: 'reading', label: 'Reading' },
   { value: 'link', label: 'Link' },
 ];
+
+const materialUploadAccept =
+  '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.jpg,.jpeg,.png,.mp4,.webm,.mov,.mkv,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain,application/zip,image/jpeg,image/png,video/mp4,video/webm,video/quicktime,video/x-matroska';
+
+function isVideoMaterial(material: Pick<LessonMaterialItem, 'type' | 'url'>) {
+  return material.type === 'video' || /\.(mp4|webm|mov|mkv)(\?.*)?$/i.test(material.url);
+}
 
 function getStatusColor(status: CourseStatus) {
   if (status === 'PUBLISHED') return 'green';
@@ -286,9 +294,13 @@ function MaterialsModal({
           </Form.Item>
           <Form.Item label="Upload file" extra="If no file is selected, the URL field will be used instead.">
             <Upload
+              accept={materialUploadAccept}
               maxCount={1}
               beforeUpload={(file) => {
                 onFileChange(file);
+                if (file.type.startsWith('video/')) {
+                  form.setFieldValue('type', 'video');
+                }
                 return false;
               }}
               onRemove={() => {
@@ -314,6 +326,9 @@ function MaterialsModal({
                 <div>
                   <strong>{material.title}</strong>
                   <span>{material.type.toUpperCase()}</span>
+                  {isVideoMaterial(material) ? (
+                    <video className="lesson-builder-material-item__video" src={material.url} controls preload="metadata" />
+                  ) : null}
                 </div>
                 <div className="lesson-builder-material-item__actions">
                   <a href={material.url} target="_blank" rel="noreferrer">

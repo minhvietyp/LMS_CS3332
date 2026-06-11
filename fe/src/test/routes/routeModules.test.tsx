@@ -38,7 +38,7 @@ describe('route modules', () => {
 
   it('renders public course catalog and detail routes', async () => {
     renderRoute('/catalog');
-    expect(await screen.findByText('Course catalog')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /course catalog/i })).toBeInTheDocument();
   });
 
   it('renders instructor and support routes', async () => {

@@ -37,9 +37,16 @@ type LessonFormValues = {
 
 type MaterialFormValues = {
   title: string;
-  type: 'pdf' | 'slide' | 'link' | 'reading';
+  type: 'pdf' | 'slide' | 'link' | 'reading' | 'video';
   url?: string;
 };
+
+const materialUploadAccept =
+  '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.jpg,.jpeg,.png,.mp4,.webm,.mov,.mkv,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain,application/zip,image/jpeg,image/png,video/mp4,video/webm,video/quicktime,video/x-matroska';
+
+function isVideoMaterial(material: Pick<LessonMaterialItem, 'type' | 'url'>) {
+  return material.type === 'video' || /\.(mp4|webm|mov|mkv)(\?.*)?$/i.test(material.url);
+}
 
 type LessonRow = {
   key: string;
@@ -501,6 +508,9 @@ export function LessonManagement() {
       render: (_, record) => (
         <Space direction="vertical" size={2}>
           <Typography.Text strong>{record.title}</Typography.Text>
+          {isVideoMaterial(record) ? (
+            <video src={record.url} controls preload="metadata" style={{ maxWidth: 320, width: '100%' }} />
+          ) : null}
           <Typography.Link href={record.url} target="_blank" rel="noreferrer">
             <Space size={4}>
               <Link2 size={14} />
@@ -687,6 +697,7 @@ export function LessonManagement() {
                 options={[
                   { value: 'pdf', label: 'PDF' },
                   { value: 'slide', label: 'Slide deck' },
+                  { value: 'video', label: 'Video' },
                   { value: 'reading', label: 'Reading' },
                   { value: 'link', label: 'Link' },
                 ]}
@@ -695,9 +706,13 @@ export function LessonManagement() {
 
             <Form.Item label="Upload file" extra="If no file is selected, URL will be used instead.">
               <Upload
+                accept={materialUploadAccept}
                 maxCount={1}
                 beforeUpload={(file) => {
                   setSelectedMaterialFile(file);
+                  if (file.type.startsWith('video/')) {
+                    materialForm.setFieldValue('type', 'video');
+                  }
                   return false;
                 }}
                 onRemove={() => {

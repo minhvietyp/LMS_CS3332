@@ -6,7 +6,7 @@ import { AuthProvider } from '../../../../context/AuthContext';
 import { StudentGradesPage } from '../../../../pages/client/progress/StudentGradesPage';
 
 const getOverview = vi.fn();
-const listMyAssignmentSubmissionsRequest = vi.fn();
+const listStudentCourseAssignmentsRequest = vi.fn();
 const listStudentCourseQuizzesRequest = vi.fn();
 const listMyQuizAttemptsRequest = vi.fn();
 
@@ -17,7 +17,7 @@ vi.mock('../../../../services/api/progressService', () => ({
 }));
 
 vi.mock('../../../../services/api/assignmentApi', () => ({
-  listMyAssignmentSubmissionsRequest: (...args: unknown[]) => listMyAssignmentSubmissionsRequest(...args),
+  listStudentCourseAssignmentsRequest: (...args: unknown[]) => listStudentCourseAssignmentsRequest(...args),
 }));
 
 vi.mock('../../../../services/api/quizApi', () => ({
@@ -57,7 +57,7 @@ function renderPage() {
 describe('StudentGradesPage', () => {
   beforeEach(() => {
     getOverview.mockReset();
-    listMyAssignmentSubmissionsRequest.mockReset();
+    listStudentCourseAssignmentsRequest.mockReset();
     listStudentCourseQuizzesRequest.mockReset();
     listMyQuizAttemptsRequest.mockReset();
 
@@ -88,16 +88,29 @@ describe('StudentGradesPage', () => {
       ],
     });
 
-    listMyAssignmentSubmissionsRequest.mockResolvedValue([
+    listStudentCourseAssignmentsRequest.mockResolvedValue([
       {
-        id: 'submission-1',
-        assignmentId: 'assignment-1',
-        studentId: 'student-1',
-        fileName: 'landing-page.pdf',
-        status: 'GRADED',
-        isLate: false,
-        submittedAt: '2026-01-10T00:00:00.000Z',
-        grade: 92,
+        id: 'assignment-1',
+        courseId: 'course-1',
+        title: 'Landing page project',
+        description: 'Build the public home page.',
+        dueDate: '2026-12-10T00:00:00.000Z',
+        allowLateSubmission: true,
+        submissions: [
+          {
+            id: 'submission-1',
+            assignmentId: 'assignment-1',
+            studentId: 'student-1',
+            fileName: 'landing-page.pdf',
+            fileUrl: 'https://cdn.example.com/landing-page.pdf',
+            textContent: null,
+            status: 'GRADED',
+            isLate: false,
+            submittedAt: '2026-01-10T00:00:00.000Z',
+            grade: 92,
+            feedback: 'Strong work',
+          },
+        ],
       },
     ]);
 
@@ -136,7 +149,7 @@ describe('StudentGradesPage', () => {
     renderPage();
 
     expect(await screen.findByRole('heading', { name: 'Grades' })).toBeInTheDocument();
-    expect(await screen.findByText('landing-page.pdf')).toBeInTheDocument();
+    expect(await screen.findByText('Landing page project')).toBeInTheDocument();
     expect(await screen.findByText('React Quiz')).toBeInTheDocument();
     expect(await screen.findByText('92%')).toBeInTheDocument();
     expect(await screen.findByText('88%')).toBeInTheDocument();

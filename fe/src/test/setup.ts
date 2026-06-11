@@ -1,6 +1,9 @@
 import '@testing-library/jest-dom/vitest';
 
 if (typeof window !== 'undefined') {
+  const originalGetComputedStyle = window.getComputedStyle.bind(window);
+  window.getComputedStyle = ((element: Element) => originalGetComputedStyle(element)) as typeof window.getComputedStyle;
+
   window.matchMedia = window.matchMedia ?? (() => ({
     matches: false,
     media: '',

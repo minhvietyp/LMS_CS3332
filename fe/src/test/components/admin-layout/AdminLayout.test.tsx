@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getUserByIdRequest } from '../../../services/api/authApi';
@@ -44,16 +45,26 @@ describe('AdminLayout', () => {
     );
   });
 
-  const renderWithAuth = (initialEntry = '/admin/users') =>
-    render(
+  const renderWithAuth = (initialEntry = '/admin/users') => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+
+    return render(
       <MemoryRouter initialEntries={[initialEntry]}>
-        <AuthProvider>
-          <AdminLayout>
-            <div>Page content</div>
-          </AdminLayout>
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <AdminLayout>
+              <div>Page content</div>
+            </AdminLayout>
+          </AuthProvider>
+        </QueryClientProvider>
       </MemoryRouter>,
     );
+  };
 
   it('renders shared admin navigation and page content', () => {
     renderWithAuth();

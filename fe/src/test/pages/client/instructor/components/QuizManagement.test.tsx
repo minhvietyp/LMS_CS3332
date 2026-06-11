@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider } from '../../../../../context/AuthContext';
 import { QuizManagement } from '../../../../../pages/client/instructor/quiz-management';
 
@@ -52,6 +52,10 @@ function renderComponent() {
 }
 
 describe('QuizManagement', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   beforeEach(() => {
     localStorage.clear();
     localStorage.setItem(
@@ -83,6 +87,7 @@ describe('QuizManagement', () => {
           id: 'course-1',
           title: 'React Basics',
           instructorId: 'instructor-1',
+          status: 'PUBLISHED',
         },
       ],
     });
@@ -172,6 +177,8 @@ describe('QuizManagement', () => {
       expect(listCourseAssignmentsRequest).toHaveBeenCalledWith('course-1');
     });
 
+    fireEvent.click(screen.getByRole('tab', { name: 'Quizzes' }));
+
     expect(await screen.findByText('Quiz 1')).toBeInTheDocument();
     expect(screen.getByText('Course introduction quiz')).toBeInTheDocument();
     expect(screen.getByText('1 passed')).toBeInTheDocument();
@@ -188,14 +195,18 @@ describe('QuizManagement', () => {
       maxAttempts: 2,
       isPublished: false,
       questions: [],
+      createdAt: '2026-01-05T00:00:00.000Z',
+      updatedAt: '2026-01-05T00:00:00.000Z',
       _count: { attempts: 0 },
     });
 
     renderComponent();
 
-    await screen.findAllByText('Quiz 1');
+    await waitFor(() => {
+      expect(listCourseQuizzesRequest).toHaveBeenCalledWith('course-1');
+    });
 
-    fireEvent.click(screen.getAllByRole('button', { name: /new quiz/i })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: /create quiz/i })[0]);
 
     const dialog = await screen.findByRole('dialog');
     fireEvent.change(within(dialog).getByPlaceholderText('Module 1 knowledge check'), {
@@ -225,8 +236,10 @@ describe('QuizManagement', () => {
   it('loads course assignments in the second tab', async () => {
     renderComponent();
 
-    await screen.findAllByText('Quiz 1');
-    fireEvent.click(screen.getAllByRole('tab', { name: 'Assignments' })[0]);
+    await waitFor(() => {
+      expect(listCourseAssignmentsRequest).toHaveBeenCalledWith('course-1');
+    });
+    fireEvent.click(screen.getByRole('tab', { name: 'Assignments' }));
 
     expect(await screen.findByText('Week 1 assignment')).toBeInTheDocument();
     expect(screen.getByText('Build a simple component')).toBeInTheDocument();
@@ -245,9 +258,12 @@ describe('QuizManagement', () => {
 
     renderComponent();
 
-    await screen.findAllByText('Quiz 1');
-    fireEvent.click(screen.getAllByRole('tab', { name: 'Assignments' })[0]);
-    fireEvent.click(await screen.findByRole('button', { name: /new assignment/i }));
+    await waitFor(() => {
+      expect(listCourseAssignmentsRequest).toHaveBeenCalledWith('course-1');
+    });
+    fireEvent.click(screen.getByRole('tab', { name: 'Assignments' }));
+    await screen.findByText('Assignment management');
+    fireEvent.click(screen.getAllByRole('button', { name: /create assignment/i })[0]);
 
     const dialogs = await screen.findAllByRole('dialog');
     const dialog = dialogs.find((candidate) => within(candidate).queryAllByText('Create assignment').length > 0);

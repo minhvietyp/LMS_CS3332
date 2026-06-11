@@ -221,12 +221,14 @@ describe('InstructorProgressPage', () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getAllByText('Instructor progress monitoring').length).toBeGreaterThan(0);
+      expect(screen.getByRole('heading', { name: 'Student Progress' })).toBeInTheDocument();
+      expect(screen.getByText('Monitor learner progress, completion status, and lesson activity by course.')).toBeInTheDocument();
     }, { timeout: 10000 });
     await waitFor(() => {
       expect(screen.getAllByText('React Basics').length).toBeGreaterThan(0);
-      expect(screen.getByText('Students')).toBeInTheDocument();
+      expect(screen.getByText('Enrolled Students')).toBeInTheDocument();
       expect(screen.getByText('Average Progress')).toBeInTheDocument();
+      expect(screen.getByText('Learner progress roster')).toBeInTheDocument();
       expect(screen.getByText('Student One')).toBeInTheDocument();
       expect(screen.getByText('one@example.com')).toBeInTheDocument();
     }, { timeout: 10000 });

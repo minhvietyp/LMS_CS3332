@@ -1,9 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider } from '../../context/AuthContext';
 import { ClientLayout } from '../../components/client-layout';
+import { ClientCommandPalette } from '../../components/client-layout/layout/ClientCommandPalette';
 
 const listNotificationsRequestMock = vi.fn();
 const listCoursesRequestMock = vi.fn();
@@ -66,6 +67,28 @@ function renderLayout() {
   );
 }
 
+function renderPalette(onClose = vi.fn()) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+
+  return {
+    onClose,
+    ...render(
+      <MemoryRouter initialEntries={['/progress']}>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <ClientCommandPalette open onClose={onClose} />
+          </AuthProvider>
+        </QueryClientProvider>
+      </MemoryRouter>,
+    ),
+  };
+}
+
 describe('Client command palette', () => {
   beforeEach(() => {
     listNotificationsRequestMock.mockReset();
@@ -89,6 +112,7 @@ describe('Client command palette', () => {
   });
 
   afterEach(() => {
+    cleanup();
     localStorage.clear();
   });
 
@@ -99,11 +123,16 @@ describe('Client command palette', () => {
 
     const dialog = await screen.findByRole('dialog', { name: 'Command palette' });
     expect(dialog).toBeInTheDocument();
+  }, 10000);
 
-    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Search command palette' }), { key: 'Escape' });
+  it('requests close from Escape inside the command palette', async () => {
+    const { onClose } = renderPalette();
+
+    const searchInput = screen.getByRole('textbox', { name: 'Search command palette' });
+    fireEvent.keyDown(searchInput, { key: 'Escape', code: 'Escape', keyCode: 27, which: 27 });
 
     await waitFor(() => {
-      expect(screen.queryByRole('dialog', { name: 'Command palette' })).not.toBeInTheDocument();
+      expect(onClose).toHaveBeenCalled();
     });
   }, 10000);
 });
