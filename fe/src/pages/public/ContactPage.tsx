@@ -1,5 +1,5 @@
-import { Button, Input, Typography } from 'antd';
-import { Headphones, Laptop, Mail, UserRound } from 'lucide-react';
+import { Input, Select } from 'antd';
+import { Headphones, Laptop, Mail, Send, UserRound } from 'lucide-react';
 import { MarketingLayout } from '../../components/public/MarketingLayout';
 
 const contactCards = [
@@ -23,41 +23,54 @@ const contactCards = [
 export function ContactPage() {
   return (
     <MarketingLayout>
-      <section className="marketing-section">
-        <div className="marketing-page-hero">
+      <section className="public-page public-page--contact">
+        <div className="public-page-hero public-page-hero--split">
           <div>
-            <span className="marketing-kicker">Support contact</span>
-            <Typography.Title level={1}>Contact</Typography.Title>
-            <Typography.Paragraph type="secondary">
+            <span className="public-kicker">Support Contact</span>
+            <h1 className="public-page-title">Contact</h1>
+            <p className="public-page-copy">
               Reach the EduFlow support path that matches your public account, course, or technical question.
-            </Typography.Paragraph>
+            </p>
           </div>
-          <div className="marketing-page-note">
-            General support email: <strong>support@eduflow.local</strong>
+          <div className="public-page-note">
+            <Mail size={18} />
+            <span>General support email: <strong>support@eduflow.local</strong></span>
           </div>
         </div>
-        <div className="marketing-contact-grid">
+        <div className="public-three-grid">
           {contactCards.map((card) => (
-            <article className="marketing-contact-card" key={card.title}>
-              <span className="marketing-feature-icon">{card.icon}</span>
-              <Typography.Title level={4}>{card.title}</Typography.Title>
-              <Typography.Paragraph type="secondary">{card.description}</Typography.Paragraph>
+            <article className="public-card" key={card.title}>
+              <span className="public-card__icon">{card.icon}</span>
+              <h2 className="public-card-title">{card.title}</h2>
+              <p className="public-card-text">{card.description}</p>
             </article>
           ))}
         </div>
-        <div className="marketing-surface marketing-contact-form" aria-label="Contact form preview">
+        <div className="public-card public-contact-form" aria-label="Contact form preview">
           <div>
-            <Typography.Title level={3}>Message preview</Typography.Title>
-            <Typography.Paragraph type="secondary">
+            <h2 className="public-section-title">Message Preview</h2>
+            <p className="public-card-text">
               This form is a non-submitting UI preview because no public contact API is configured. Use support@eduflow.local for support.
-            </Typography.Paragraph>
+            </p>
           </div>
-          <Input size="large" prefix={<Mail size={16} />} placeholder="Your email" disabled />
+          <div className="public-contact-form__grid">
+            <Input size="large" prefix={<Mail size={16} />} placeholder="Your email" disabled />
+            <Select
+              size="large"
+              value="student"
+              disabled
+              options={[
+                { value: 'student', label: 'Student support' },
+                { value: 'instructor', label: 'Instructor support' },
+                { value: 'technical', label: 'Technical help' },
+              ]}
+            />
+          </div>
           <Input size="large" placeholder="Subject" disabled />
           <Input.TextArea rows={4} placeholder="How can we help?" disabled />
-          <Button type="primary" disabled>
-            Send message
-          </Button>
+          <button className="public-btn public-btn--primary" type="button" disabled>
+            Send message <Send size={16} />
+          </button>
         </div>
       </section>
     </MarketingLayout>

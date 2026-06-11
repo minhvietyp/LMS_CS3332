@@ -1,4 +1,4 @@
-import { Button, Card, Space, Tag, Typography } from 'antd';
+import { Card, Space, Tag, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 import type { PublicCourseInstructorSummary } from '../../services/api/courseApi';
 
@@ -27,10 +27,10 @@ export function PublicCourseCard({ course }: PublicCourseCardProps) {
       >
         <span>{course.title.slice(0, 1).toUpperCase()}</span>
       </div>
-      <Typography.Title level={4} style={{ marginTop: 18 }}>
+      <Typography.Title className="public-card-title" level={4} style={{ marginTop: 18 }}>
         {course.title}
       </Typography.Title>
-      <Typography.Paragraph type="secondary">
+      <Typography.Paragraph className="public-card-text public-course-card__description" type="secondary">
         {course.description || 'Course details and module structure are available on the detail page.'}
       </Typography.Paragraph>
       <div className="marketing-course-card__meta">
@@ -39,11 +39,11 @@ export function PublicCourseCard({ course }: PublicCourseCardProps) {
         {hasLearnerCount ? <Tag color="green">{course.enrollmentCount} learners</Tag> : null}
       </div>
       <div className="marketing-course-card__actions">
-        <Link to={`/catalog/${course.id}`}>
-          <Button type="primary">View course</Button>
+        <Link className="public-btn public-btn--primary" role="button" to={`/catalog/${course.id}`}>
+          View course
         </Link>
-        <Link to="/register">
-          <Button>Get started</Button>
+        <Link className="public-btn public-btn--secondary" role="button" to="/register">
+          Get started
         </Link>
       </div>
       {course.instructor?.name ? (

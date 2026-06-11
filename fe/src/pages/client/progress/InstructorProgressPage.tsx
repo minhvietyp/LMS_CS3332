@@ -4,16 +4,13 @@ import {
   Alert,
   Button,
   Card,
-  Col,
   Drawer,
   Empty,
   Input,
   Progress,
-  Row,
   Select,
   Space,
   Spin,
-  Statistic,
   Table,
   Tag,
   Typography,
@@ -56,16 +53,20 @@ function statusColor(status: EnrollmentStatus) {
   return 'blue';
 }
 
+function statusLabel(status: EnrollmentStatus) {
+  return status.charAt(0) + status.slice(1).toLowerCase();
+}
+
 function progressStrokeColor(value: number) {
   if (value >= 67) {
-    return '#3EB75E';
+    return '#22C55E';
   }
 
   if (value >= 34) {
-    return '#FF8F3C';
+    return '#F59E0B';
   }
 
-  return '#FF0003';
+  return '#EF4444';
 }
 
 export function InstructorProgressPage() {
@@ -161,6 +162,96 @@ export function InstructorProgressPage() {
     [],
   );
 
+  const studentGroups = useMemo(() => {
+    const students = progressQuery.data?.students ?? [];
+    return {
+      atRisk: students.filter(
+        (student) => student.enrollmentStatus === 'DROPPED' || student.weightedPercentage < 34,
+      ),
+      active: students.filter(
+        (student) =>
+          student.enrollmentStatus === 'ACTIVE' &&
+          student.weightedPercentage >= 34 &&
+          student.weightedPercentage < 100,
+      ),
+      completed: students.filter(
+        (student) => student.enrollmentStatus === 'COMPLETED' || student.weightedPercentage >= 100,
+      ),
+    };
+  }, [progressQuery.data?.students]);
+
+  const renderStudentCard = (student: InstructorStudentProgressItem) => (
+    <article key={student.studentId} className="instructor-progress-page__student-card">
+      <div className="instructor-progress-page__student-head">
+        <div className="instructor-progress-page__student-identity">
+          <span className="instructor-progress-page__student-avatar" aria-hidden="true">
+            {student.studentName.slice(0, 2).toUpperCase()}
+          </span>
+          <div>
+            <strong>
+              {student.studentName.split(' ').map((part, index, parts) => (
+                <span key={`${student.studentId}-${part}-${index}`}>
+                  {part}
+                  {index < parts.length - 1 ? ' ' : ''}
+                </span>
+              ))}
+              <span className="instructor-progress-page__sr-only"> progress card</span>
+            </strong>
+            <span>
+              {student.studentEmail.split('@').map((part, index, parts) => (
+                <span key={`${student.studentId}-email-${part}-${index}`}>
+                  {part}
+                  {index < parts.length - 1 ? '@' : ''}
+                </span>
+              ))}
+              <span className="instructor-progress-page__sr-only"> progress card</span>
+            </span>
+          </div>
+        </div>
+        <Tag color={statusColor(student.enrollmentStatus)}>{statusLabel(student.enrollmentStatus)}</Tag>
+      </div>
+      <div className="instructor-progress-page__student-progress">
+        <div className="instructor-progress-page__progress-copy">
+          <span>{student.completedLessons}/{student.totalLessons} lessons</span>
+          <strong>{student.weightedPercentage}%</strong>
+        </div>
+        <Progress
+          percent={student.weightedPercentage}
+          size="small"
+          strokeColor={progressStrokeColor(student.weightedPercentage)}
+        />
+      </div>
+      <div className="instructor-progress-page__student-footer">
+        <span>Last activity: {formatDate(student.lastProgressAt)}</span>
+        <Button type="link" onClick={() => setSelectedStudentId(student.studentId)}>
+          View detail
+        </Button>
+      </div>
+    </article>
+  );
+
+  const renderStudentGroup = (
+    title: string,
+    description: string,
+    students: InstructorStudentProgressItem[],
+    tone: 'danger' | 'primary' | 'success',
+  ) => (
+    <section className={`instructor-progress-page__group instructor-progress-page__group--${tone}`}>
+      <header className="instructor-progress-page__group-header">
+        <div>
+          <h3 className="client-section-title">{title}</h3>
+          <p className="client-card-description">{description}</p>
+        </div>
+        <span>{students.length}</span>
+      </header>
+      {students.length ? (
+        <div className="instructor-progress-page__student-grid">{students.map(renderStudentCard)}</div>
+      ) : (
+        <div className="instructor-progress-page__group-empty">No students in this group.</div>
+      )}
+    </section>
+  );
+
   if (coursesQuery.isLoading) {
     return (
       <ClientLayout>
@@ -237,15 +328,15 @@ export function InstructorProgressPage() {
         }
       >
         <main className="instructor-progress-page">
-          <Card className="instructor-progress-page__course-card">
+          <Card className="instructor-progress-page__course-card client-workspace-card">
             <div>
               <Typography.Text className="instructor-progress-page__eyebrow">Selected course</Typography.Text>
               <Typography.Title level={4} className="instructor-progress-page__course-title">
                 {selectedCourse?.title}
               </Typography.Title>
-              <Typography.Paragraph type="secondary" className="instructor-progress-page__course-copy">
-                Progress values are loaded from the instructor progress endpoint for this course.
-              </Typography.Paragraph>
+            <Typography.Paragraph type="secondary" className="instructor-progress-page__course-copy">
+              Progress values are loaded from the instructor progress endpoint for this course.
+            </Typography.Paragraph>
             </div>
             <Tag color={selectedCourse?.status === 'PUBLISHED' ? 'green' : 'default'}>{selectedCourse?.status}</Tag>
           </Card>
@@ -267,34 +358,40 @@ export function InstructorProgressPage() {
 
           {progressQuery.data ? (
             <>
-              <Row gutter={[16, 16]} className="instructor-progress-page__summary-grid">
-                <Col xs={24} sm={12} lg={6}>
-                  <Card className="instructor-progress-page__summary-card">
-                    <Statistic title="Enrolled Students" value={progressQuery.data.course.totalStudents} />
-                  </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                  <Card className="instructor-progress-page__summary-card">
-                    <Statistic title="Active Students" value={progressQuery.data.course.activeStudents} />
-                  </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                  <Card className="instructor-progress-page__summary-card">
-                    <Statistic title="Completed Students" value={progressQuery.data.course.completedStudents} />
-                  </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                  <Card className="instructor-progress-page__summary-card">
-                    <Statistic title="Average Progress" value={progressQuery.data.course.averageWeightedProgress} suffix="%" />
-                  </Card>
-                </Col>
-              </Row>
+              <div className="instructor-progress__stats-grid">
+                <article className="instructor-progress__stat-card">
+                  <span className="instructor-progress__stat-label">Enrolled Students</span>
+                  <strong className="instructor-progress__stat-value">{progressQuery.data.course.totalStudents}</strong>
+                  <span className="instructor-progress__stat-caption">Enrolled learners</span>
+                </article>
+                <article className="instructor-progress__stat-card">
+                  <span className="instructor-progress__stat-label">Active Students</span>
+                  <strong className="instructor-progress__stat-value">{progressQuery.data.course.activeStudents}</strong>
+                  <span className="instructor-progress__stat-caption">Currently studying</span>
+                </article>
+                <article className="instructor-progress__stat-card">
+                  <span className="instructor-progress__stat-label">Completed Students</span>
+                  <strong className="instructor-progress__stat-value">{progressQuery.data.course.completedStudents}</strong>
+                  <span className="instructor-progress__stat-caption">Finished students</span>
+                </article>
+                <article className="instructor-progress__stat-card">
+                  <span className="instructor-progress__stat-label">Average Progress</span>
+                  <strong className="instructor-progress__stat-value">{progressQuery.data.course.averageWeightedProgress}%</strong>
+                  <span className="instructor-progress__stat-caption">Across all students</span>
+                </article>
+              </div>
 
-              <Card className="instructor-progress-page__table-card">
+              <div className="instructor-progress-page__groups">
+                {renderStudentGroup('At Risk', 'Low progress, dropped, or needs instructor attention.', studentGroups.atRisk, 'danger')}
+                {renderStudentGroup('Active', 'Learners with visible progress who are still moving through the course.', studentGroups.active, 'primary')}
+                {renderStudentGroup('Completed', 'Students who have finished the course requirements.', studentGroups.completed, 'success')}
+              </div>
+
+              <Card className="instructor-progress-page__table-card client-workspace-card">
                 <div className="instructor-progress-page__section-heading">
                   <div>
-                    <Typography.Title level={4}>Learner progress roster</Typography.Title>
-                    <Typography.Text type="secondary">
+                    <Typography.Title level={4} className="client-section-title">Learner progress roster</Typography.Title>
+                    <Typography.Text className="client-card-description">
                       Search, filter, and open lesson-level detail for students in the selected course.
                     </Typography.Text>
                   </div>

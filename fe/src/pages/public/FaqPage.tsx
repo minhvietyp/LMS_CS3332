@@ -1,4 +1,5 @@
-import { Typography } from 'antd';
+import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { MarketingLayout } from '../../components/public/MarketingLayout';
 
 const faqItems = [
@@ -25,23 +26,37 @@ const faqItems = [
 ];
 
 export function FaqPage() {
+  const [openIndex, setOpenIndex] = useState(0);
+
   return (
     <MarketingLayout>
-      <section className="marketing-section">
-        <div className="marketing-page-hero">
+      <section className="public-page public-page--faq">
+        <div className="public-page-hero">
           <div>
-            <span className="marketing-kicker">FAQ</span>
-            <Typography.Title level={1}>Frequently Asked Questions</Typography.Title>
-            <Typography.Paragraph type="secondary">
+            <span className="public-kicker">FAQ</span>
+            <h1 className="public-page-title">Frequently Asked Questions</h1>
+            <p className="public-page-copy">
               Practical answers about public browsing, accounts, course work, grades, and notifications.
-            </Typography.Paragraph>
+            </p>
           </div>
         </div>
-        <div className="marketing-faq-grid">
-          {faqItems.map((item) => (
-            <article className="marketing-faq-item" key={item.question}>
-              <Typography.Title level={4}>{item.question}</Typography.Title>
-              <Typography.Paragraph type="secondary">{item.answer}</Typography.Paragraph>
+        <div className="public-faq__list">
+          {faqItems.map((item, index) => (
+            <article className={`public-faq__item${openIndex === index ? ' is-open' : ''}`} key={item.question}>
+              <button
+                aria-expanded={openIndex === index}
+                className="public-faq__button"
+                type="button"
+                onClick={() => setOpenIndex(openIndex === index ? -1 : index)}
+              >
+                <span>{item.question}</span>
+                <ChevronDown size={18} />
+              </button>
+              <div className="public-faq__answer">
+                <div className="public-faq__answer-inner">
+                  <p>{item.answer}</p>
+                </div>
+              </div>
             </article>
           ))}
         </div>

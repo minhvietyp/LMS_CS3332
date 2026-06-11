@@ -22,11 +22,8 @@ export function MarketingLayout({ children, hero }: MarketingLayoutProps) {
           <nav className="marketing-nav" aria-label="Public navigation">
             <NavLink to="/" end>Home</NavLink>
             <NavLink to="/catalog">Catalog</NavLink>
-            <a href="/#learning-paths">Learning Paths</a>
+            <NavLink to="/learning-paths">Learning Paths</NavLink>
             <NavLink to="/community">Community</NavLink>
-            <NavLink to="/help">Help</NavLink>
-            <NavLink to="/faq">FAQ</NavLink>
-            <NavLink to="/contact">Contact</NavLink>
           </nav>
           <div className="marketing-nav__actions">
             <Link to="/login">
@@ -61,12 +58,12 @@ export function MarketingLayout({ children, hero }: MarketingLayoutProps) {
             <strong>Product</strong>
             <Link to="/">Home</Link>
             <Link to="/catalog">Catalog</Link>
-            <Link to="/catalog">Courses</Link>
+            <Link to="/learning-paths">Learning Paths</Link>
             <Link to="/community">Community</Link>
           </nav>
           <nav className="marketing-footer__links" aria-label="Support links">
             <strong>Support</strong>
-            <Link to="/help">Help Center</Link>
+            <Link to="/help-center">Help Center</Link>
             <Link to="/faq">FAQ</Link>
             <Link to="/contact">Contact</Link>
           </nav>
@@ -74,7 +71,6 @@ export function MarketingLayout({ children, hero }: MarketingLayoutProps) {
             <strong>Account</strong>
             <Link to="/login">Sign in</Link>
             <Link to="/register">Register</Link>
-            <Link to="/dashboard">Dashboard</Link>
           </nav>
           <nav className="marketing-footer__links" aria-label="Legal links">
             <strong>Legal</strong>

@@ -3,25 +3,38 @@
   --client-sidebar-motion-ease: cubic-bezier(0.2, 0, 0, 1);
 
   min-height: 100vh;
-  overflow-x: hidden;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  overflow: hidden;
   background:
     radial-gradient(circle at top left, rgba(119, 176, 255, 0.12), transparent 24%),
     linear-gradient(180deg, #f7fbff 0%, #eef4fb 100%);
 }
 
 .client-main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
   background: transparent;
   min-width: 0;
-  overflow-x: hidden;
+  min-height: 0;
+  overflow: hidden;
   transition:
     margin var(--client-sidebar-motion-duration) var(--client-sidebar-motion-ease),
     transform var(--client-sidebar-motion-duration) var(--client-sidebar-motion-ease);
 }
 
 .client-main__content {
-  min-height: calc(100vh - 80px);
+  flex: 1 1 auto;
+  min-height: 0;
   min-width: 0;
+  overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
 }
 
 .client-layout .ant-layout-sider,

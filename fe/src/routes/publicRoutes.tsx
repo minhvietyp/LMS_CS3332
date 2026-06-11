@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Navigate, Route } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import { AboutPage } from '../pages/public/AboutPage';
 import { CommunityPage } from '../pages/public/CommunityPage';
 import { ContactPage } from '../pages/public/ContactPage';
@@ -7,16 +7,20 @@ import { FaqPage } from '../pages/public/FaqPage';
 import { HelpCenterPage } from '../pages/public/HelpCenterPage';
 import { InstructorDetailPage } from '../pages/public/InstructorDetailPage';
 import { InstructorDirectoryPage } from '../pages/public/InstructorDirectoryPage';
+import { LearningPathsPage } from '../pages/public/LearningPathsPage';
 import { PublicCourseCatalogPage } from '../pages/public/PublicCourseCatalogPage';
 import { PublicCourseDetailPage } from '../pages/public/PublicCourseDetailPage';
 import { PublicHomePage } from '../pages/public/PublicHomePage';
+import { PublicNotFoundPage } from '../pages/public/PublicNotFoundPage';
+import { UnauthorizedPage } from '../pages/public/UnauthorizedPage';
 
-export function PublicRoutes({ fallbackElement }: { fallbackElement: ReactElement }) {
+export function PublicRoutes({ fallbackElement: _fallbackElement }: { fallbackElement: ReactElement }) {
   return (
     <>
       <Route path="/" element={<PublicHomePage />} />
       <Route path="/catalog" element={<PublicCourseCatalogPage />} />
       <Route path="/catalog/:courseId" element={<PublicCourseDetailPage />} />
+      <Route path="/learning-paths" element={<LearningPathsPage />} />
       <Route path="/instructors" element={<InstructorDirectoryPage />} />
       <Route path="/instructors/:instructorId" element={<InstructorDetailPage />} />
       <Route path="/about" element={<AboutPage />} />
@@ -25,7 +29,9 @@ export function PublicRoutes({ fallbackElement }: { fallbackElement: ReactElemen
       <Route path="/help" element={<HelpCenterPage />} />
       <Route path="/help-center" element={<HelpCenterPage />} />
       <Route path="/community" element={<CommunityPage />} />
-      <Route path="*" element={fallbackElement ?? <Navigate to="/" replace />} />
+      <Route path="/unauthorized" element={<UnauthorizedPage />} />
+      <Route path="/access-denied" element={<UnauthorizedPage />} />
+      <Route path="*" element={<PublicNotFoundPage />} />
     </>
   );
 }

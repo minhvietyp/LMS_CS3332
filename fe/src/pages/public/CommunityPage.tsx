@@ -1,44 +1,58 @@
-import { Col, Row, Typography } from 'antd';
+import { ArrowRight, Bell, MessageSquareText, Radio, UsersRound } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { MarketingLayout } from '../../components/public/MarketingLayout';
+
+const communityFeatures = [
+  {
+    icon: <Bell size={20} />,
+    title: 'Course announcements',
+    description: 'Review instructor updates, schedule changes, and academic reminders after joining a course workspace.',
+  },
+  {
+    icon: <MessageSquareText size={20} />,
+    title: 'Instructor guidance',
+    description: 'Ask questions, follow instructor replies, and keep topic-specific collaboration attached to each course.',
+  },
+  {
+    icon: <UsersRound size={20} />,
+    title: 'Learner support',
+    description: 'Learn alongside peers while course-specific participation stays scoped to enrolled learners.',
+  },
+];
 
 export function CommunityPage() {
   return (
     <MarketingLayout>
-      <section className="marketing-section">
-        <div className="marketing-section__header">
+      <section className="public-page public-page--community">
+        <div className="public-page-hero public-page-hero--split">
           <div>
-            <Typography.Title level={1}>Community</Typography.Title>
-            <Typography.Paragraph type="secondary">
-              Learn how discussion, announcements, academic support, and cohort interaction extend the core learning experience after enrollment.
-            </Typography.Paragraph>
+            <span className="public-kicker">Community</span>
+            <h1 className="public-page-title">Community</h1>
+            <p className="public-page-copy">
+              A learning community built around real course work, instructor guidance, and peer support after enrollment.
+            </p>
+            <div className="public-page-actions">
+              <Link className="public-btn public-btn--primary" to="/register">
+                Join EduFlow <ArrowRight size={16} />
+              </Link>
+              <Link className="public-btn public-btn--secondary" to="/help-center">Read support docs</Link>
+            </div>
           </div>
+          <aside className="public-highlight-panel">
+            <Radio size={22} />
+            <strong>Private by default</strong>
+            <span>Course discussions and announcements are available inside authenticated course spaces.</span>
+          </aside>
         </div>
-        <Row gutter={[16, 16]}>
-          <Col xs={24} md={8}>
-            <article className="marketing-stat-card">
-              <Typography.Title level={4}>Course announcements</Typography.Title>
-              <Typography.Paragraph type="secondary">
-                Enrolled learners receive structured updates about schedules, assignments, and learning milestones.
-              </Typography.Paragraph>
+        <div className="public-three-grid">
+          {communityFeatures.map((feature) => (
+            <article className="public-card" key={feature.title}>
+              <span className="public-card__icon">{feature.icon}</span>
+              <h2 className="public-card-title">{feature.title}</h2>
+              <p className="public-card-text">{feature.description}</p>
             </article>
-          </Col>
-          <Col xs={24} md={8}>
-            <article className="marketing-stat-card">
-              <Typography.Title level={4}>Instructor guidance</Typography.Title>
-              <Typography.Paragraph type="secondary">
-                Students can follow course-specific communication and stay aligned with teaching expectations.
-              </Typography.Paragraph>
-            </article>
-          </Col>
-          <Col xs={24} md={8}>
-            <article className="marketing-stat-card">
-              <Typography.Title level={4}>Learner support</Typography.Title>
-              <Typography.Paragraph type="secondary">
-                The Help Center, FAQ, and academic services pages give public visitors a clear path before they enter the LMS workspace.
-              </Typography.Paragraph>
-            </article>
-          </Col>
-        </Row>
+          ))}
+        </div>
       </section>
     </MarketingLayout>
   );
