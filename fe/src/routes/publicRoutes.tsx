@@ -14,7 +14,9 @@ import { PublicHomePage } from '../pages/public/PublicHomePage';
 import { PublicNotFoundPage } from '../pages/public/PublicNotFoundPage';
 import { UnauthorizedPage } from '../pages/public/UnauthorizedPage';
 
-export function PublicRoutes({ fallbackElement: _fallbackElement }: { fallbackElement: ReactElement }) {
+export function PublicRoutes({ fallbackElement }: { fallbackElement: ReactElement }) {
+  void fallbackElement;
+
   return (
     <>
       <Route path="/" element={<PublicHomePage />} />

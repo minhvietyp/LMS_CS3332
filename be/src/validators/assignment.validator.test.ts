@@ -29,17 +29,31 @@ describe('assignment.validator', () => {
     });
   });
 
-  it('accepts a create payload without a due date', () => {
-    const result = createAssignmentSchema.parse({
-      courseId: '11111111-1111-1111-1111-111111111111',
-      title: 'Week 1 assignment',
-      allowLateSubmission: false,
+  it('rejects a create payload without a due date', () => {
+    expect(() =>
+      createAssignmentSchema.parse({
+        courseId: '11111111-1111-1111-1111-111111111111',
+        title: 'Week 1 assignment',
+        allowLateSubmission: false,
+      }),
+    ).toThrow();
+  });
+
+  it('rejects a null due date on update', () => {
+    expect(() =>
+      updateAssignmentSchema.parse({
+        dueDate: null,
+      }),
+    ).toThrow();
+  });
+
+  it('accepts a due date update', () => {
+    const result = updateAssignmentSchema.parse({
+      dueDate: '2026-01-10T08:00:00.000Z',
     });
 
     expect(result).toEqual({
-      courseId: '11111111-1111-1111-1111-111111111111',
-      title: 'Week 1 assignment',
-      allowLateSubmission: false,
+      dueDate: '2026-01-10T08:00:00.000Z',
     });
   });
 

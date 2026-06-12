@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 const uuidSchema = z.string().uuid();
 const trimmedOptionalString = z.string().trim().min(1).optional();
+const assignmentDueDateSchema = z.string().datetime();
 
 export const assignmentIdParamsSchema = z.object({
   id: uuidSchema,
@@ -19,7 +20,7 @@ export const createAssignmentSchema = z.object({
   courseId: uuidSchema,
   title: z.string().trim().min(3).max(255),
   description: trimmedOptionalString,
-  dueDate: z.string().datetime().optional().nullable(),
+  dueDate: assignmentDueDateSchema,
   allowLateSubmission: z.boolean().default(true),
 });
 
@@ -27,7 +28,7 @@ export const updateAssignmentSchema = z
   .object({
     title: z.string().trim().min(3).max(255).optional(),
     description: trimmedOptionalString,
-    dueDate: z.string().datetime().optional().nullable(),
+    dueDate: assignmentDueDateSchema.optional(),
     allowLateSubmission: z.boolean().optional(),
   })
   .refine((value) => Object.keys(value).length > 0, {

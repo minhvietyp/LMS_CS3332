@@ -16,9 +16,11 @@ export interface AssignmentPayload {
   courseId: string;
   title: string;
   description?: string;
-  dueDate?: string | null;
+  dueDate: string;
   allowLateSubmission: boolean;
 }
+
+export type AssignmentUpdatePayload = Partial<Omit<AssignmentPayload, 'courseId'>>;
 
 export interface AssignmentSubmissionRecord {
   id: string;
@@ -104,7 +106,7 @@ export async function createAssignmentRequest(payload: AssignmentPayload): Promi
 
 export async function updateAssignmentRequest(
   assignmentId: string,
-  payload: Partial<AssignmentPayload>,
+  payload: AssignmentUpdatePayload,
 ): Promise<AssignmentListItem> {
   try {
     const response = await apiClient.patch<ApiEnvelope<AssignmentListItem>>(`/assignments/${assignmentId}`, payload);

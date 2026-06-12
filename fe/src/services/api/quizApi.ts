@@ -121,6 +121,8 @@ export interface QuizPayload {
   maxAttempts: number;
 }
 
+export type QuizUpdatePayload = Partial<Omit<QuizPayload, 'courseId'>>;
+
 export interface QuizQuestionPayload {
   text: string;
   type: QuizQuestionType;
@@ -164,7 +166,7 @@ export async function createQuizRequest(payload: QuizPayload): Promise<QuizListI
   }
 }
 
-export async function updateQuizRequest(quizId: string, payload: Partial<QuizPayload>): Promise<QuizListItem> {
+export async function updateQuizRequest(quizId: string, payload: QuizUpdatePayload): Promise<QuizListItem> {
   try {
     const response = await apiClient.patch<ApiEnvelope<QuizListItem>>(`/quizzes/${quizId}`, payload);
     return response.data.data;

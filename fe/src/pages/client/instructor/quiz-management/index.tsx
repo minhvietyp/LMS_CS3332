@@ -79,7 +79,7 @@ type QuestionFormValues = {
 type AssignmentFormValues = {
   title: string;
   description?: string;
-  dueDate?: string;
+  dueDate: string;
   allowLateSubmission: boolean;
 };
 
@@ -263,7 +263,6 @@ export function QuizManagement() {
 
     try {
       const payload = {
-        courseId: effectiveSelectedCourseId,
         title: values.title.trim(),
         description: values.description?.trim() || undefined,
         passingScore: values.passingScore,
@@ -273,7 +272,10 @@ export function QuizManagement() {
       if (editingQuiz) {
         await updateQuizRequest(editingQuiz.id, payload);
       } else {
-        await createQuizRequest(payload);
+        await createQuizRequest({
+          ...payload,
+          courseId: effectiveSelectedCourseId,
+        });
       }
 
       closeQuizModal();
@@ -465,18 +467,27 @@ export function QuizManagement() {
     setErrorMessage(null);
 
     try {
+      const dueDate = new Date(values.dueDate);
+
+      if (Number.isNaN(dueDate.getTime())) {
+        setErrorMessage('Select a valid due date.');
+        return;
+      }
+
       const payload = {
-        courseId: effectiveSelectedCourseId,
         title: values.title.trim(),
         description: values.description?.trim() || undefined,
-        dueDate: values.dueDate ? new Date(values.dueDate).toISOString() : null,
+        dueDate: dueDate.toISOString(),
         allowLateSubmission: values.allowLateSubmission,
       };
 
       if (editingAssignment) {
         await updateAssignmentRequest(editingAssignment.id, payload);
       } else {
-        await createAssignmentRequest(payload);
+        await createAssignmentRequest({
+          ...payload,
+          courseId: effectiveSelectedCourseId,
+        });
       }
 
       closeAssignmentModal();
@@ -1322,7 +1333,7 @@ export function QuizManagement() {
           <Form.Item label="Description" name="description">
             <Input.TextArea rows={4} placeholder="Describe what learners need to submit." />
           </Form.Item>
-          <Form.Item label="Due date" name="dueDate">
+          <Form.Item label="Due date" name="dueDate" rules={[{ required: true, message: 'Select a due date.' }]}>
             <Input type="datetime-local" />
           </Form.Item>
           <Form.Item label="Allow late submission" name="allowLateSubmission" valuePropName="checked">

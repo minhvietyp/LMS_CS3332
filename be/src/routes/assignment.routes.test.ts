@@ -130,7 +130,7 @@ describe('assignment routes', () => {
       courseId,
       title: 'Week 1 assignment',
       description: 'Build a simple component',
-      dueDate: null,
+      dueDate: new Date('2026-01-10T08:00:00.000Z'),
       allowLateSubmission: true,
     });
 
@@ -149,16 +149,7 @@ describe('assignment routes', () => {
     expect(response.body.data.title).toBe('Week 1 assignment');
   });
 
-  it('creates an assignment without a due date', async () => {
-    mockedPrisma.assignment.create.mockResolvedValue({
-      id: assignmentId,
-      courseId,
-      title: 'Reflection assignment',
-      description: 'Optional reflection',
-      dueDate: null,
-      allowLateSubmission: false,
-    });
-
+  it('rejects assignment creation without a due date', async () => {
     const response = await request(createApp())
       .post('/api/v1/assignments')
       .set('Authorization', 'Bearer valid-token')
@@ -169,8 +160,8 @@ describe('assignment routes', () => {
         allowLateSubmission: false,
       });
 
-    expect(response.status).toBe(201);
-    expect(response.body.data.dueDate).toBeNull();
+    expect(response.status).toBe(422);
+    expect(mockedPrisma.assignment.create).not.toHaveBeenCalled();
   });
 
   it('updates an assignment', async () => {
